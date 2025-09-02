@@ -1,0 +1,142 @@
+services:
+
+  minio:
+    image: minio/minio
+    hostname: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: "minioadmin"
+      MINIO_ROOT_PASSWORD: "minioadmin"
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+
+  # spark-master:
+  #   build:
+  #     context: spark
+  #     dockerfile: Dockerfile
+  #   hostname: spark-master
+  #   ports:
+  #     - "4040:4040"
+  #     - "4041:4041"
+  #     - "8080:8080"
+  #     - "7077:7077"
+  #   environment:
+  #     - SPARK_MASTER_HOST=spark-master
+  #     - SPARK_MASTER_PORT=7077
+  #     - SPARK_MASTER_WEBUI_PORT=8080
+  #   entrypoint: 
+  #     - "bash"
+  #     - "-c"
+  #     - "/opt/spark/sbin/start-master.sh && tail -f /dev/null"
+  #   volumes:
+  #     - ./spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+
+  # spark-connect:
+  #   build:
+  #     context: spark
+  #     dockerfile: Dockerfile
+  #   hostname: spark-connect
+  #   ports:
+  #     - "15002:15002"
+  #   depends_on:
+  #     - spark-master
+  #   command: 
+  #     - "bash"
+  #     - "-c"
+  #     - "/opt/spark/sbin/start-connect-server.sh && tail -f /dev/null"
+  #   volumes:
+  #     - ./spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+
+  # spark-worker:
+  #   build:
+  #     context: spark
+  #     dockerfile: Dockerfile
+  #   hostname: spark-worker
+  #   depends_on:
+  #     - spark-master
+  #   entrypoint:
+  #     - "bash" 
+  #     - "-c"
+  #     - "/opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /dev/null"
+  #   volumes:
+  #     - ./spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+
+  geoserver:
+    build:
+      context: geoserver
+      dockerfile: Dockerfile
+    hostname: geoserver
+    ports:
+      - "8082:8080"
+    environment:
+      - INSTALL_EXTENSIONS=true
+      - COMMUNITY_EXTENSIONS=s3-geotiff
+      - JAVA_OPTS=-Ds3.properties.location=/opt/config/s3.properties
+    volumes:
+      - geoserver-data:/opt/geoserver_data
+      - ./geoserver/s3.properties:/opt/config/s3.properties
+
+  # kong-db:
+  #   image: postgres:13.22
+  #   hostname: kong-db
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_USER: kong
+  #     POSTGRES_PASSWORD: kong
+  #   volumes:
+  #     - kong-database-data:/var/lib/postgresql/data
+
+  # kong:
+  #   image: kong/kong-gateway:3.10
+  #   environment:
+  #     KONG_PROXY_ACCESS_LOG: /dev/stdout
+  #     KONG_ADMIN_ACCESS_LOG: /dev/stdout
+  #     KONG_PROXY_ERROR_LOG: /dev/stderr
+  #     KONG_ADMIN_ERROR_LOG: /dev/stderr
+  #     KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+  #     KONG_DATABASE: postgres
+  #     KONG_PG_USER: kong
+  #     KONG_PG_PASSWORD: kong
+  #     KONG_PG_HOST: kong-db
+  #   depends_on:
+  #     - kong-db
+  #   ports:
+  #     - "8000:8000"
+  #     - "8443:8443"
+  #     - "8001:8001"
+  #     - "8444:8444"
+  #   #command: ["kong", "migrations", "bootstrap"]
+
+  ml_runner:
+    build:
+      context: ml_runner
+      dockerfile: Dockerfile
+    hostname: ml_runner
+    ports:
+      - "8888:8888"
+    environment:
+      # - SPARK_REMOTE="sc://spark-master"
+      - USERNAME=username
+    volumes:
+      - ./ml_runner/workflows:/app/workflows
+
+  # mlflow:
+  #   image: ghcr.io/mlflow/mlflow:v3.2.0rc0
+  #   hostname: mlflow
+  #   ports:
+  #     - "5000:5000"
+  #   command: ["mlflow", "server", "--host", "mlflow", "--port", "5000"]
+  #   volumes:
+  #     - mlflow-mlruns:/mlruns
+  #     - mlflow-mlartifacts:/mlartifacts
+
+volumes:
+  minio-data:
+  geoserver-data:
+  # kong-database-data:
+  # mlflow-mlruns:
+  # mlflow-mlartifacts:
