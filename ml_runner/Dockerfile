@@ -3,7 +3,9 @@ FROM continuumio/miniconda3:25.3.1-1
 RUN apt-get update && \
     apt-get install -y \
     curl \
+    gcc \
     git \
+    libpq-dev \
     openssh-server && \
     apt-get clean
 
