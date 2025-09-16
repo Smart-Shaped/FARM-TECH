@@ -1,4 +1,123 @@
 services:
+  # Database
+  db:
+    image: postgres:14-alpine
+    hostname: db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: t4y_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d t4y_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and Celery
+  redis:
+    image: redis:7-alpine
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Django Backend
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+      target: development
+    hostname: backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env  # Aggiungi questa riga
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - DEBUG=True
+    volumes:
+      - ./backend:/app
+      - backend-media:/app/media
+      - backend-logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    entrypoint: ["./entrypoint.sh"]
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Celery Worker
+  celery:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+      target: development
+    hostname: celery
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - SECRET_KEY=django-insecure-dev-key-change-in-production
+      - DEBUG=True
+      - DB_NAME=t4y_dev
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    volumes:
+      - ./backend:/app
+      - backend-media:/app/media
+      - backend-logs:/app/logs
+    depends_on:
+      - db
+      - redis
+      - backend
+    command: ["celery", "-A", "config", "worker", "--loglevel=info"]
+
+  # Celery Beat (for scheduled tasks)
+  celery-beat:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+      target: development
+    hostname: celery-beat
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.development
+      - SECRET_KEY=django-insecure-dev-key-change-in-production
+      - DEBUG=True
+      - DB_NAME=t4y_dev
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    volumes:
+      - ./backend:/app
+      - backend-logs:/app/logs
+    depends_on:
+      - db
+      - redis
+      - backend
+    command: ["celery", "-A", "config", "beat", "--loglevel=info"]
 
   minio:
     image: minio/minio
@@ -147,6 +266,11 @@ services:
   #     - mlflow-mlartifacts:/mlartifacts
 
 volumes:
+  postgres-data:
+  redis-data:
+  backend-media:
+  backend-static:
+  backend-logs:
   minio-data:
   geoserver-data:
   # kong-database-data:

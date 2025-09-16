@@ -1,0 +1,27 @@
+# Core Django
+Django==5.0.1
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+
+# Database
+psycopg2-binary==2.9.9
+
+# Environment variables
+python-decouple==3.8
+
+# Production server
+gunicorn==21.2.0
+
+# Security
+django-environ==0.11.2
+
+# Utilities
+Pillow==10.2.0
+celery==5.3.4
+redis==5.0.1
+
+# JWT e Keycloak integration
+PyJWT>=2.8.0
+cryptography>=41.0.0
+requests>=2.31.0
+python-jose[cryptography]>=3.3.0
