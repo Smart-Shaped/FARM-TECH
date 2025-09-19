@@ -1,5 +1,5 @@
 from .health_views import keycloak_health_check, keycloak_config, protected_endpoint
-from .auth_views import login, validate_token, validate_jwt_token
+from .auth_views import login, validate_jwt_token
 from .user_views import register
 
 __all__ = [
@@ -10,7 +10,6 @@ __all__ = [
     
     # Authentication views
     'login',
-    'validate_token',
     'validate_jwt_token',
     
     # User management views

@@ -1,14 +1,11 @@
-# Use Python 3.11 slim image as base
 FROM python:3.11-slim as base
 
-# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONHASHSEED=random \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -17,27 +14,20 @@ RUN apt-get update && apt-get install -y \
     netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
-# Create app user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Set work directory
 WORKDIR /app
 
-# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Development stage
 FROM base as development
 
-# Install development dependencies
 COPY requirements-dev.txt .
 RUN pip install --no-cache-dir -r requirements-dev.txt
 
-# Copy project
 COPY . .
 
-# Make entrypoint executable
 RUN chmod +x entrypoint.sh
 
 # Create necessary directories

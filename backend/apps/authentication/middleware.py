@@ -5,7 +5,6 @@ from .authentication import KeycloakJWTAuthentication
 
 logger = logging.getLogger('keycloak')
 
-
 class KeycloakJWTMiddleware(MiddlewareMixin):
     def __init__(self, get_response):
         self.get_response = get_response

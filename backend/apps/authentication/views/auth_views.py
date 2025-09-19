@@ -1,7 +1,3 @@
-"""
-Views per l'autenticazione e la validazione dei token JWT.
-"""
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -76,77 +72,6 @@ def login(request):
             "status": "error",
             "message": f"Errore durante l'autenticazione: {str(e)}"
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def validate_token(request):
-    """
-    Endpoint per validare un token JWT di Keycloak (versione legacy).
-    
-    Parametri richiesti:
-    - token: Token JWT da validare
-    
-    Restituisce:
-    - token_data: Dati decodificati dal token
-    - django_user: Informazioni dell'utente Django sincronizzato
-    """
-    token = request.data.get('token')
-    
-    if not token:
-        return Response({
-            "status": "error",
-            "message": "Token mancante"
-        }, status=status.HTTP_400_BAD_REQUEST)
-    
-    try:
-        # Rimuovi il prefisso "Bearer " se presente
-        if token.startswith('Bearer '):
-            token = token[7:]
-        
-        # Decodifica il token usando PyJWT
-        public_key = settings.KEYCLOAK_CONFIG.get('PUBLIC_KEY')
-        if not public_key:
-            return Response({
-                "status": "error",
-                "message": "Chiave pubblica non configurata"
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        validated_token = jwt.decode(
-            token,
-            public_key,
-            algorithms=settings.KEYCLOAK_CONFIG['ALGORITHMS'],
-            audience=settings.KEYCLOAK_CONFIG['AUDIENCE']
-        )
-        
-        # Sincronizza l'utente con Keycloak se necessario
-        keycloak_service = KeycloakService()
-        user = keycloak_service.sync_user_from_keycloak(validated_token['sub'])
-        
-        return Response({
-            "status": "success",
-            "message": "Token valido",
-            "token_data": {
-                "sub": validated_token.get('sub'),
-                "preferred_username": validated_token.get('preferred_username'),
-                "email": validated_token.get('email'),
-                "exp": validated_token.get('exp'),
-                "iat": validated_token.get('iat'),
-                "aud": validated_token.get('aud')
-            },
-            "django_user": {
-                "id": user.id,
-                "username": user.username,
-                "email": user.email
-            }
-        }, status=status.HTTP_200_OK)
-        
-    except Exception as e:
-        logging.getLogger(__name__).error(f"Token validation error: {str(e)}")
-        return Response({
-            "status": "error",
-            "message": f"Token non valido: {str(e)}"
-        }, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['POST'])

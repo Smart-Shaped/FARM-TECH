@@ -11,7 +11,6 @@ from cryptography.hazmat.primitives import serialization
 logger = logging.getLogger('keycloak')
 User = get_user_model()
 
-
 class KeycloakJWTAuthentication(BaseAuthentication):
     def authenticate(self, request):
         auth_header = request.META.get('HTTP_AUTHORIZATION')
@@ -126,6 +125,13 @@ class KeycloakJWTAuthentication(BaseAuthentication):
         first_name = payload.get('given_name', '')
         last_name = payload.get('family_name', '')
         
+        # Estrai i ruoli dal token
+        roles = []
+        if 'realm_access' in payload:
+            roles = payload['realm_access'].get('roles', [])
+        elif 'roles' in payload:
+            roles = payload['roles']
+        
         if not keycloak_id:
             raise AuthenticationFailed('Invalid token: missing subject')
         
@@ -155,6 +161,9 @@ class KeycloakJWTAuthentication(BaseAuthentication):
             if user.last_name != last_name:
                 user.last_name = last_name
                 updated = True
+            if user.keycloak_roles != roles:
+                user.keycloak_roles = roles
+                updated = True
                 
             if updated:
                 user.save()
@@ -167,8 +176,10 @@ class KeycloakJWTAuthentication(BaseAuthentication):
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
+                keycloak_roles=roles,
                 is_active=True
             )
-            logger.info(f"Created new user from Keycloak: {username} ({email})")
+            logger.info(f"Created new user from Keycloak: {username} ({email}) with roles: {roles}")
         
+        logger.debug(f"User {user.email} authenticated with roles: {user.keycloak_roles}")
         return user
