@@ -23,6 +23,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'corsheaders',
+    'drf_spectacular',
 ]
 LOCAL_APPS = [
     'apps.core',
@@ -121,6 +122,7 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 CORS_ALLOWED_ORIGINS = [
@@ -193,4 +195,14 @@ LOGGING = {
             'propagate': False,
         },
     },
+}
+
+# DRF Spectacular Configuration (Auto Swagger/OpenAPI)
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'T4Y API',
+    'DESCRIPTION': 'API Documentation for Tech4You Project',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
 }

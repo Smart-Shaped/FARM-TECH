@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 import logging
+from drf_spectacular.utils import extend_schema
 
 from ..services import KeycloakService
 
@@ -13,6 +14,23 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
+@extend_schema(
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'username': {'type': 'string'},
+                'email': {'type': 'string'},
+                'password': {'type': 'string'},
+                'first_name': {'type': 'string'},
+                'last_name': {'type': 'string'}
+            },
+            'required': ['username', 'email', 'password']
+        }
+    },
+    responses={201: {'description': 'User registered successfully'}},
+    description='Register a new user in Keycloak and Django'
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):

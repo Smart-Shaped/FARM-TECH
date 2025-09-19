@@ -12,6 +12,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from drf_spectacular.utils import extend_schema
 
 from ..permissions import (
     require_keycloak_role,
@@ -247,6 +248,7 @@ class DynamicRoleAPIView(APIView):
         })
 
 
+@extend_schema(exclude=True)
 class CustomRoleAPIView(APIView):
     """
     Vista che usa un permesso personalizzato con ruolo specifico.

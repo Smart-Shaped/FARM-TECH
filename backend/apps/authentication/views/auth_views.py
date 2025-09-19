@@ -5,10 +5,26 @@ from rest_framework import status
 from django.conf import settings
 import jwt
 import logging
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 
 from ..services import KeycloakService
 
 
+@extend_schema(
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'username': {'type': 'string'},
+                'password': {'type': 'string'}
+            },
+            'required': ['username', 'password']
+        }
+    },
+    responses={200: {'description': 'Login successful'}},
+    description='Authenticate user with Keycloak'
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login(request):
@@ -74,6 +90,19 @@ def login(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(
+    request={
+        'application/json': {
+            'type': 'object',
+            'properties': {
+                'token': {'type': 'string'}
+            },
+            'required': ['token']
+        }
+    },
+    responses={200: {'description': 'Token validation result'}},
+    description='Validate JWT token and get user data'
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def validate_jwt_token(request):

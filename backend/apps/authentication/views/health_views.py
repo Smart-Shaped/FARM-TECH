@@ -5,10 +5,15 @@ from rest_framework import status
 from django.conf import settings
 import requests
 import logging
+from drf_spectacular.utils import extend_schema
 
 from ..services import KeycloakService
 
 
+@extend_schema(
+    responses={200: {'description': 'Keycloak health status'}},
+    description='Check Keycloak server health and connection'
+)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def keycloak_health_check(request):
@@ -133,6 +138,10 @@ def keycloak_health_check(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@extend_schema(
+    responses={200: {'description': 'Keycloak configuration'}},
+    description='Get Keycloak configuration for frontend'
+)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def keycloak_config(request):
@@ -156,6 +165,10 @@ def keycloak_config(request):
     }, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    responses={200: {'description': 'Protected content access'}},
+    description='Test endpoint for authenticated users'
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def protected_endpoint(request):
