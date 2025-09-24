@@ -1,4 +1,4 @@
-FROM docker.osgeo.org/geoserver:2.25.x
+FROM kartoza/geoserver:2.25.0
 
 # Scarica e installa il plugin S3-GeoTIFF
 # ADD https://build.geoserver.org/geoserver/2.24.x/community-latest/geoserver-2.24-SNAPSHOT-s3-geotiff-plugin.zip /tmp/

@@ -1,7 +1,9 @@
-from django.urls import path
+from django.urls import path, re_path
+from .views import MinIOTokenView, MinIOProxyView
 
-from . import views
+app_name = 'minio'
 
 urlpatterns = [
-    # Add your URL patterns here
+    path('token/', MinIOTokenView.as_view(), name='minio_token'),
+    re_path(r'^proxy/(?P<path>.*)$', MinIOProxyView.as_view(), name='minio_proxy'),
 ]
