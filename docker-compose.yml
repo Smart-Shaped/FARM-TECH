@@ -120,7 +120,7 @@ services:
     command: ["celery", "-A", "config", "beat", "--loglevel=info"]
 
   minio:
-    image: minio/minio
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     hostname: minio
     ports:
       - "9000:9000"
@@ -130,7 +130,27 @@ services:
       MINIO_ROOT_PASSWORD: "minioadmin"
     volumes:
       - minio-data:/data
-    command: server /data --console-address ":9001"
+    command: ["server", "/data", "--console-address", ":9001"]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: "minioadmin"
+      MINIO_ROOT_PASSWORD: "minioadmin"
+      WEBHOOK_URL: "http://backend:8000/api/v1/minio/webhook/"
+      BUCKET_NAME: "farmtech"
+      MINIO_URL: "http://minio:9000"
+    volumes:
+      - ./minio/entrypoint.sh:/opt/minio/entrypoint.sh
+    entrypoint: ["/bin/sh", "/opt/minio/entrypoint.sh"]
 
   # spark-master:
   #   build:
@@ -250,6 +270,8 @@ services:
       - ./ml_runner/workflows:/app/workflows
       - ./ml_runner/configs:/app/configs
       - ./ml_runner/models:/app/models
+    profiles:
+      - docker
 
   # mlflow:
   #   image: ghcr.io/mlflow/mlflow:v3.2.0rc0
