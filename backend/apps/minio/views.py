@@ -3,11 +3,45 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes
 from django.views import View
 import jwt
 import requests
 from django.conf import settings
 import json
+import logging
+
+logger = logging.getLogger(__name__)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def minio_webhook(request):
+	"""Endpoint to receive MinIO event notifications (webhook).
+
+	MinIO posts JSON payloads describing object events. We accept the
+	payload, log it for debugging, and return a simple acknowledgement.
+
+	Contract:
+	- Input: JSON body (MinIO event format)
+	- Output: 200 JSON {"status": "received"} on success
+	- Error modes: malformed JSON -> 400
+	"""
+	logger.info('MinIO webhook called')
+	try:
+		payload = request.data
+		# Log at INFO so production logs keep a record; payload can be large.
+		logger.info('MinIO webhook received: %s', payload)
+
+		# TODO: add processing logic (enqueue task, persist event, etc.)
+
+		return Response({"status": "received"}, status=status.HTTP_200_OK)
+	except Exception as exc:
+		logger.exception('Error handling MinIO webhook')
+		return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class MinIOTokenView(View):

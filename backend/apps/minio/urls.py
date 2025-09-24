@@ -6,4 +6,5 @@ app_name = 'minio'
 urlpatterns = [
     path('token/', MinIOTokenView.as_view(), name='minio_token'),
     re_path(r'^proxy/(?P<path>.*)$', MinIOProxyView.as_view(), name='minio_proxy'),
+    path('webhook/', views.minio_webhook, name='minio_webhook'),
 ]
