@@ -8,7 +8,7 @@ echo "Creating MinIO alias..."
 mc alias set myminio $MINIO_URL ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin}
 
 echo "Creating MinIO bucket..."
-mc mb myminio/$BUCKET_NAME || echo "Bucket già esistente"
+mc mb myminio/$BUCKET_NAME || echo "Bucket already exists."
 
 echo "Configuring webhook..."
 mc admin config set myminio notify_webhook:1 endpoint="$WEBHOOK_URL" queue_limit="10"
