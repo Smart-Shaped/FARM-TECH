@@ -1,5 +1,6 @@
 from django.urls import path, re_path
-from .views import MinIOTokenView, MinIOProxyView, minio_webhook
+from apps.minio.views.keycloak_integration import MinIOTokenView, MinIOProxyView
+from apps.minio.views.data_management import minio_webhook
 
 app_name = 'minio'
 

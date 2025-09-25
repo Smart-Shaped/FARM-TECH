@@ -20,6 +20,6 @@ echo "Waiting for MinIO to be ready..."
 sleep 10
 
 echo "Configuring MinIO events..."
-mc event add myminio/$BUCKET_NAME arn:minio:sqs::1:webhook --event put,delete
+mc event add myminio/$BUCKET_NAME arn:minio:sqs::1:webhook --event put
 
 echo "MinIO setup completed."

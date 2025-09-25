@@ -1,4 +1,5 @@
 services:
+
   # Database
   db:
     image: postgres:14-alpine
@@ -218,38 +219,6 @@ services:
       - geoserver-data:/opt/geoserver_data
       - ./geoserver/s3.properties:/opt/config/s3.properties
 
-  # kong-db:
-  #   image: postgres:13.22
-  #   hostname: kong-db
-  #   ports:
-  #     - "5432:5432"
-  #   environment:
-  #     POSTGRES_USER: kong
-  #     POSTGRES_PASSWORD: kong
-  #   volumes:
-  #     - kong-database-data:/var/lib/postgresql/data
-
-  # kong:
-  #   image: kong/kong-gateway:3.10
-  #   environment:
-  #     KONG_PROXY_ACCESS_LOG: /dev/stdout
-  #     KONG_ADMIN_ACCESS_LOG: /dev/stdout
-  #     KONG_PROXY_ERROR_LOG: /dev/stderr
-  #     KONG_ADMIN_ERROR_LOG: /dev/stderr
-  #     KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
-  #     KONG_DATABASE: postgres
-  #     KONG_PG_USER: kong
-  #     KONG_PG_PASSWORD: kong
-  #     KONG_PG_HOST: kong-db
-  #   depends_on:
-  #     - kong-db
-  #   ports:
-  #     - "8000:8000"
-  #     - "8443:8443"
-  #     - "8001:8001"
-  #     - "8444:8444"
-  #   #command: ["kong", "migrations", "bootstrap"]
-
   ml_runner:
     build:
       context: ml_runner
@@ -261,31 +230,12 @@ services:
       # - SPARK_REMOTE="sc://spark-master"
       - USERNAME=username
       - METAFLOW_S3_ENDPOINT_URL=http://minio:9000
-    #  - MLFLOW_TRACKING_URI=http://mlflow:5000
-      - MLFLOW_HOST=ml_runner
-      - MLFLOW_PORT=5000
       - AWS_ACCESS_KEY_ID=minioadmin
       - AWS_SECRET_ACCESS_KEY=minioadmin
     volumes:
       - ./ml_runner/workflows:/app/workflows
       - ./ml_runner/configs:/app/configs
       - ./ml_runner/models:/app/models
-    profiles:
-      - docker
-
-  # mlflow:
-  #   image: ghcr.io/mlflow/mlflow:v3.2.0rc0
-  #   hostname: mlflow
-  #   ports:
-  #     - "5000:5000"
-  #   environment:
-  #     - MLFLOW_TRACKING_URI=http://mlflow:5000
-  #     - MLFLOW_HOST=mlflow
-  #     - MLFLOW_PORT=5001
-  #   command: ["mlflow", "server", "--host", "mlflow", "--port", "5000"]
-  #   volumes:
-  #     - mlflow-mlruns:/mlruns
-  #     - mlflow-mlartifacts:/mlartifacts
 
 volumes:
   postgres-data:
@@ -295,6 +245,3 @@ volumes:
   backend-logs:
   minio-data:
   geoserver-data:
-  # kong-database-data:
-  # mlflow-mlruns:
-  # mlflow-mlartifacts:
