@@ -1,0 +1,28 @@
+meta {
+  name: MinIO webhook
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{backend_url}}/api/v1/minio/webhook/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "X": "y"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
+
+docs {
+  - invocata dal MinIO all’atto di inserimento di un file nel bucket designato
+  - l'input è un json con le informazioni
+  - nel codice tale json va usato per una insert nella tabella del db deputata  inventario
+  
+}
