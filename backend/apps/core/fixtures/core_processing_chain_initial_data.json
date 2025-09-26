@@ -1,0 +1,47 @@
+[
+    {
+    "model": "core.processingchain",
+    "pk": 1,
+    "fields": {
+        "processing_method": "process_excel_experiment_1",
+        "path": "raw_data/excel",
+        "experiment": "azione_1"
+        }
+    },
+    {
+    "model": "core.processingchain",
+    "pk": 2,
+    "fields": {
+        "processing_method": "process_excel_experiment_3",
+        "path": "raw_data/excel",
+        "experiment": "azione_3"
+        }
+    },
+    {
+    "model": "core.processingchain",
+    "pk": 3,
+    "fields": {
+        "processing_method": "process_excel_experiment_4",
+        "path": "raw_data/excel",
+        "experiment": "azione_4"
+        }
+    },
+    {
+    "model": "core.processingchain",
+    "pk": 4,
+    "fields": {
+        "processing_method": "process_csv_experiment_5",
+        "path": "raw_data/csv",
+        "experiment": "azione_5"
+        }
+    },
+    {
+    "model": "core.processingchain",
+    "pk": 5,
+    "fields": {
+        "processing_method": "process_excel_experiment_7",
+        "path": "raw_data/excel",
+        "experiment": "azione_zootecnica"
+        }
+    }
+]

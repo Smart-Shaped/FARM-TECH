@@ -1,0 +1,44 @@
+[
+    {
+    "model": "core.experiment",
+    "fields": {
+        "name": "azione_1"
+        }
+    },
+    {
+    "model": "core.experiment",
+    "fields": {
+        "name": "azione_2"
+        }
+    },
+    {
+        "model": "core.experiment",
+        "fields": {
+        "name": "azione_3"
+        }
+    },
+    {
+        "model": "core.experiment",
+        "fields": {
+        "name": "azione_4"
+        }
+    },
+    {
+        "model": "core.experiment",
+        "fields": {
+        "name": "azione_5"
+        }
+    },
+    {
+        "model": "core.experiment",
+        "fields": {
+        "name": "azione_6"
+        }
+    },
+    {
+        "model": "core.experiment",
+        "fields": {
+        "name": "azione_zootecnica"
+        }
+    }
+]
