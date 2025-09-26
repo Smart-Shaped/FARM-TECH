@@ -26,14 +26,26 @@ class ProcessingChain(models.Model):
     
 class RawDataset(models.Model):
     
+    STATUS_CHOICES = [
+        ("not_processed", "not_processed"),
+        ("processing", "processing"),
+        ("processed", "processed"),
+        ("failed", "failed"),
+    ]
+    TYPE_CHOICES = [
+        ("tiff", "tiff"),
+        ("excel", "excel"),
+        ("csv", "csv"),
+    ]
+    
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     path = models.CharField(max_length=255)
-    processing_id = models.ForeignKey(ProcessingChain, on_delete=models.CASCADE)
+    processing_id = models.ForeignKey(ProcessingChain, on_delete=models.CASCADE, null=True, blank=True)
     upload_date = models.DateTimeField()
     upload_user = models.CharField(max_length=150)
-    type = models.CharField(max_length=100)
-    status = models.CharField(max_length=50)
+    type = models.CharField(max_length=100, choices=TYPE_CHOICES)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="not_processed")
 
     def __str__(self):
         return self.name

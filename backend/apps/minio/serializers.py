@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework import serializers as drf_serializers
 
 
 class UserIdentitySerializer(serializers.Serializer):
@@ -90,11 +89,14 @@ class MinioEventSerializer(serializers.Serializer):
     Records = RecordSerializer(many=True)
 
 # Small helper serializers used only for documenting responses
-class SuccessResponseSerializer(drf_serializers.Serializer):
-    status = drf_serializers.CharField()
+class SuccessResponseSerializer(serializers.Serializer):
+    status = serializers.CharField()
 
-
-class ErrorResponseSerializer(drf_serializers.Serializer):
+class ErrorResponseSerializer(serializers.Serializer):
     # Represent a typical serializer.errors shape for documentation
-    Records = drf_serializers.ListField(child=drf_serializers.CharField(), required=False)
-    
+    # Many error responses in the MinIO webhook return a simple {"error": "..."}
+    # while serializer validation errors return a mapping (e.g. {"Records": [...] }).
+    # Support both shapes for accurate OpenAPI docs.
+    Records = serializers.ListField(child=serializers.CharField(), required=False)
+    error = serializers.CharField(required=False)
+    detail = serializers.CharField(required=False)

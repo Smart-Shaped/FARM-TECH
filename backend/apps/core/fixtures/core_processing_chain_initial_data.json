@@ -5,7 +5,7 @@
     "fields": {
         "processing_method": "process_excel_experiment_1",
         "path": "raw_data/excel",
-        "experiment": "azione_1"
+        "experiment": "experiment_1"
         }
     },
     {
@@ -14,7 +14,7 @@
     "fields": {
         "processing_method": "process_excel_experiment_3",
         "path": "raw_data/excel",
-        "experiment": "azione_3"
+        "experiment": "experiment_3"
         }
     },
     {
@@ -23,7 +23,7 @@
     "fields": {
         "processing_method": "process_excel_experiment_4",
         "path": "raw_data/excel",
-        "experiment": "azione_4"
+        "experiment": "experiment_4"
         }
     },
     {
@@ -32,7 +32,7 @@
     "fields": {
         "processing_method": "process_csv_experiment_5",
         "path": "raw_data/csv",
-        "experiment": "azione_5"
+        "experiment": "experiment_5"
         }
     },
     {
@@ -41,7 +41,7 @@
     "fields": {
         "processing_method": "process_excel_experiment_7",
         "path": "raw_data/excel",
-        "experiment": "azione_zootecnica"
+        "experiment": "zootechnical_experiment"
         }
     }
 ]

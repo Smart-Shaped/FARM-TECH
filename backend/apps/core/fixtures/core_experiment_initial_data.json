@@ -2,43 +2,43 @@
     {
     "model": "core.experiment",
     "fields": {
-        "name": "azione_1"
+        "name": "experiment_1"
         }
     },
     {
     "model": "core.experiment",
     "fields": {
-        "name": "azione_2"
+        "name": "experiment_2"
         }
     },
     {
         "model": "core.experiment",
         "fields": {
-        "name": "azione_3"
+        "name": "experiment_3"
         }
     },
     {
         "model": "core.experiment",
         "fields": {
-        "name": "azione_4"
+        "name": "experiment_4"
         }
     },
     {
         "model": "core.experiment",
         "fields": {
-        "name": "azione_5"
+        "name": "experiment_5"
         }
     },
     {
         "model": "core.experiment",
         "fields": {
-        "name": "azione_6"
+        "name": "experiment_6"
         }
     },
     {
         "model": "core.experiment",
         "fields": {
-        "name": "azione_zootecnica"
+        "name": "zootechnical_experiment"
         }
     }
 ]

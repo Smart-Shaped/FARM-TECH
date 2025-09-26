@@ -10,6 +10,15 @@ mc alias set myminio $MINIO_URL ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASS
 echo "Creating MinIO bucket..."
 mc mb myminio/$BUCKET_NAME || echo "Bucket already exists."
 
+echo "Creating folders in the bucket..."
+mc mb myminio/$BUCKET_NAME/experiment_1/raw_data/excel || echo "Folder already exists."
+mc mb myminio/$BUCKET_NAME/experiment_2/raw_data/tiff || echo "Folder already exists."
+mc mb myminio/$BUCKET_NAME/experiment_3/raw_data/excel || echo "Folder already exists."
+mc mb myminio/$BUCKET_NAME/experiment_4/raw_data/excel || echo "Folder already exists."
+mc mb myminio/$BUCKET_NAME/experiment_4/raw_data/tiff || echo "Folder already exists."
+mc mb myminio/$BUCKET_NAME/experiment_5/raw_data/csv || echo "Folder already exists."
+mc mb myminio/$BUCKET_NAME/zootechnical_experiment/raw_data/excel || echo "Folder already exists."
+
 echo "Configuring webhook..."
 mc admin config set myminio notify_webhook:1 endpoint="$WEBHOOK_URL" queue_limit="10"
 
