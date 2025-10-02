@@ -50,4 +50,9 @@ COPY entrypoint.sh .
 
 RUN chmod +x /app/entrypoint.sh
 
+# managing external dependencies
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
 ENTRYPOINT [ "/app/entrypoint.sh" ]

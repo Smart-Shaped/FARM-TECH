@@ -1,0 +1,12 @@
+    {
+        "data_sources": {
+            "minio": {
+                "object_storage": {
+                    "host": "minio",
+                    "port": 9000,
+                    "access_key": "minioadmin",
+                    "secret_key": "minioadmin"
+                }
+            }
+        }
+    }
