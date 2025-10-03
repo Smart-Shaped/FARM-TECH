@@ -2,6 +2,7 @@ import os
 import re
 import logging
 import rasterio
+import shutil
 import pandas as pd
 import numpy as np
 from glob import glob
@@ -195,6 +196,8 @@ class InferenceWorkflow(ConfigurableFlow):
         
         self.output_paths = [inp.output_path for inp in inputs if hasattr(inp, 'output_path')]
         self.query_dict = inputs[0].query_dict
+        self.processed_tiff_path = inputs[0].processed_tiff_path
+        self.raw_tiff_path = inputs[0].raw_tiff_path
         
         self.next(self.save_results)
         
@@ -233,6 +236,11 @@ class InferenceWorkflow(ConfigurableFlow):
 
     @step
     def end(self):
+        logger.info("Removing temporary files...")
+        
+        shutil.rmtree(self.processed_tiff_path, ignore_errors=True)
+        shutil.rmtree(self.raw_tiff_path, ignore_errors=True)
+        
         logger.info("Inference workflow completed.")
         
 if __name__ == "__main__":
