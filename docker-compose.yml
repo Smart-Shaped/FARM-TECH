@@ -130,6 +130,23 @@ services:
     environment:
       MINIO_ROOT_USER: "minioadmin"
       MINIO_ROOT_PASSWORD: "minioadmin"
+      
+      # Configurazione OpenID Connect per Keycloak
+      MINIO_IDENTITY_OPENID_CONFIG_URL: "https://auth-tech4you.opsi.lecce.it/auth/realms/farmtech/.well-known/openid-configuration"
+      MINIO_IDENTITY_OPENID_CLIENT_ID: "minio"
+      MINIO_IDENTITY_OPENID_CLIENT_SECRET: "kiKhjZC8qR50i9MfWF7UvRhKSOXhKTCu"
+      MINIO_IDENTITY_OPENID_DISPLAY_NAME: "Keycloak SSO"
+      
+      # Claim per mappare le policy MinIO (usa questo approccio)
+      MINIO_IDENTITY_OPENID_CLAIM_NAME: "policy"
+      MINIO_IDENTITY_OPENID_CLAIM_PREFIX: ""
+      
+      # Scopes da richiedere a Keycloak
+      MINIO_IDENTITY_OPENID_SCOPES: "openid,profile,email"
+      
+      # URL di redirect (modifica con il tuo dominio in produzione)
+      MINIO_IDENTITY_OPENID_REDIRECT_URI: "http://localhost:9001/oauth_callback"
+
     volumes:
       - minio-data:/data
     command: ["server", "/data", "--console-address", ":9001"]
