@@ -39,7 +39,16 @@
     "model": "core.processingchain",
     "pk": 5,
     "fields": {
-        "processing_method": "process_excel_experiment_7",
+        "processing_method": "process_excel_experiment_7_calabria",
+        "path": "raw_data/excel",
+        "experiment": "zootechnical_experiment"
+        }
+    },
+    {
+    "model": "core.processingchain",
+    "pk": 6,
+    "fields": {
+        "processing_method": "process_excel_experiment_7_basilicata",
         "path": "raw_data/excel",
         "experiment": "zootechnical_experiment"
         }

@@ -60,11 +60,16 @@ class RawDataset(models.Model):
     
 class ProcessedDataset(models.Model):
     
+    TYPE_CHOICES = [
+        ("db_table", "db_table"),
+        ("geoserver_layer", "geoserver_layer"),
+    ]
+    
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     url = models.CharField(max_length=255)
     experiment_id = models.ForeignKey(Experiment, on_delete=models.CASCADE)
-    type = models.CharField(max_length=100)
+    type = models.CharField(max_length=100, choices=TYPE_CHOICES)
     last_update = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -84,3 +89,27 @@ class RawProcessedLink(models.Model):
     
     class Meta:
         db_table = 'raw_processed_links'
+
+class ZootechnicalDataCalabria(models.Model):
+    
+    id = models.AutoField(primary_key=True)
+    id_campione = models.CharField(max_length=100, name='ID campione')
+    data = models.DateField(name='Data')
+    periodo = models.CharField(max_length=100, name='Periodo')
+    cereali = models.FloatField(name='Cereali [loietto] (Peso secco [kg m-2])')
+    leguminiose = models.FloatField(name='Leguminose [trifoglio bianco] (Peso secco [kg m-2])', blank=True, null=True)
+    altro = models.FloatField(name='Altro [crucifere e brassicacee] (Peso secco [kg m-2])', blank=True, null=True)
+    peso_totale = models.FloatField(name='Peso totale (Peso secco [kg m-2])')
+    ss_105 = models.FloatField(name='SS 105°C', blank=True, null=True)
+    ss_reale = models.FloatField(name='SS REALE', blank=True, null=True)
+    ee = models.FloatField(name='EE', blank=True, null=True)
+    pg = models.FloatField(name='PG', blank=True, null=True)
+    ceneri = models.FloatField(name='CENERI', blank=True, null=True)
+    ndf = models.FloatField(name='NDF', blank=True, null=True)
+    adf = models.FloatField(name='ADF', blank=True, null=True)
+    adl = models.FloatField(name='ADL', blank=True, null=True)
+    inizio_pascolamento = models.DateField(name='Inizio pascolamento', blank=True, null=True)
+    utilizzazione = models.CharField(max_length=100, name='Utilizzazione', blank=True, null=True)
+    
+    class Meta:
+        db_table = 'zootechnical_data_calabria'

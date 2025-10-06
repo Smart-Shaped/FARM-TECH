@@ -139,6 +139,7 @@ def minio_webhook(request):
     logger.info('MinIO webhook called')
     # Validate incoming data
     serializer = MinioEventSerializer(data=request.data)
+    logger.info(f"Data: {request.data}")
     if serializer.is_valid():
         # Manage the event as needed
         
@@ -154,20 +155,20 @@ def minio_webhook(request):
             logger.error('Unsupported file type: %s', validated_data['Records'][0]['s3']['object']['contentType'])
             return Response({'error': 'Unsupported file type'}, status=status.HTTP_400_BAD_REQUEST)
         experiment_name = file_path.split('/', 1)[0]
-        file_path = file_path.split('/', 1)[1] if '/' in file_path else ''
+        file_path_suffix = file_path.split('/', 1)[1] if '/' in file_path else ''
         # Validate load folder structure
         experiment = Experiment.objects.filter(name=experiment_name).first()
-        if not experiment or file_path == '':
-            logger.error('Wrong file path: %s or experiment: %s', file_path, experiment_name)
+        if not experiment or file_path_suffix == '':
+            logger.error('Wrong file path: %s or experiment: %s', file_path_suffix, experiment_name)
             return Response({'error': 'Wrong file path or experiment'}, status=status.HTTP_400_BAD_REQUEST)
         # check if file is uploaded in the right folder
-        if file_type not in file_path:
-            logger.error('File type %s does not match file path %s', file_type, file_path)
+        if file_type not in file_path_suffix:
+            logger.error('File type %s does not match file path %s', file_type, file_path_suffix)
             return Response({'error': 'File type does not match file path'}, status=status.HTTP_400_BAD_REQUEST)
         # Find the right processing chain
-        processing_id = ProcessingChain.objects.filter(experiment=experiment, path=file_path).first()
+        processing_id = ProcessingChain.objects.filter(experiment=experiment, path=file_path_suffix).first()
         if not processing_id and file_type != 'tiff':
-            logger.error('No processing chain found for experiment: %s and path: %s', experiment_name, file_path)
+            logger.error('No processing chain found for experiment: %s and path: %s', experiment_name, file_path_suffix)
             return Response({'error': 'No processing chain found'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Create RawDataset entry
