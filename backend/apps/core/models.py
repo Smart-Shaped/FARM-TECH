@@ -113,3 +113,90 @@ class ZootechnicalDataCalabria(models.Model):
     
     class Meta:
         db_table = 'zootechnical_data_calabria'
+class Experiment3(models.Model):
+
+    id = models.AutoField(primary_key=True)
+    tesi = models.CharField(max_length=50)
+    date = models.DateField()
+    ph = models.FloatField()
+    ce = models.FloatField()
+    corg = models.FloatField()
+    ntot = models.FloatField()
+    mbc = models.FloatField()
+    mbn = models.FloatField()
+    mbc_mbn = models.FloatField()
+    rbas = models.FloatField()
+    qmin = models.FloatField()
+    qco2 = models.FloatField()
+    qco2_corg = models.FloatField()
+    mbc_corg = models.FloatField()
+    poxc = models.FloatField()
+    pma_acida = models.FloatField()
+    pma_alcalina = models.FloatField()
+    fda = models.FloatField()
+    ars = models.FloatField()
+    b_glu = models.FloatField()
+    urease = models.FloatField()
+
+    def __str__(self):
+        return f"Table {self.variable}, date {self.date}"
+    
+    class Meta:
+        db_table = 'experiment_3'
+
+
+class Experiment4(models.Model):
+
+    id = models.AutoField(primary_key=True)
+    genotipo = models.CharField(max_length=50)
+    trattamento = models.CharField(max_length=50)
+    replica = models.IntegerField()
+    produzione = models.FloatField()
+    biomassa = models.FloatField()
+    SPAD = models.FloatField()
+    n_balance_index = models.FloatField()
+    n_content_pianta = models.FloatField()
+    nitrato_riduttasi = models.FloatField()
+    glutammina_sintetasi = models.FloatField()
+    glutammato = models.FloatField()
+    nrt2_1 = models.FloatField()
+    nrt2_3 = models.FloatField()
+    nrt2_4 = models.FloatField()
+    nrt3_1 = models.FloatField()
+    nr = models.FloatField()
+    gs = models.FloatField()
+    gogat = models.FloatField()
+    clca = models.FloatField()
+    lob37 = models.FloatField()
+    nrt1_7 = models.FloatField()
+    nrt2_7 = models.FloatField()
+
+    def __str__(self):
+        return f"Genotipo {self.genotipo}, trattamento {self.trattamento}, replica {self.replica}"
+    
+    class Meta:
+        db_table = 'experiment_4'
+
+class Experiment5(models.Model):
+
+    id = models.AutoField(primary_key=True)
+    sample = models.CharField(max_length=50)
+    date = models.DateField()
+    flag_patogeno = models.BooleanField()
+    description = models.CharField(max_length=255)
+    lon = models.DecimalField()
+    lat = models.DecimalField()
+    fusarium = models.FloatField()
+    rhizoctonia = models.FloatField()
+    phytophtora = models.FloatField()
+    shannon = models.FloatField()
+    simpson = models.FloatField()
+    mntd = models.FloatField()
+
+    def __str__(self):
+        return f"Sample {self.sample}, date {self.date}"
+    
+    class Meta:
+        db_table = 'experiment_5'
+
+		 				 						
