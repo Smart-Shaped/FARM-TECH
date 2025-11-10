@@ -1,0 +1,177 @@
+[
+    {
+        "model": "auth.group",
+        "pk": 4,
+        "fields": {
+            "name": "azione-1",
+            "permissions": []
+        }
+    },
+    {
+        "model": "auth.group",
+        "pk": 5,
+        "fields": {
+            "name": "azione-2",
+            "permissions": []
+        }
+    },
+    {
+        "model": "auth.group",
+        "pk": 6,
+        "fields": {
+            "name": "azione-3",
+            "permissions": []
+        }
+    },
+    {
+        "model": "auth.group",
+        "pk": 7,
+        "fields": {
+            "name": "azione-4",
+            "permissions": []
+        }
+    },
+    {
+        "model": "auth.group",
+        "pk": 8,
+        "fields": {
+            "name": "azione-5",
+            "permissions": []
+        }
+    },
+    {
+        "model": "auth.group",
+        "pk": 9,
+        "fields": {
+            "name": "azione-6",
+            "permissions": []
+        }
+    },
+    {
+        "model": "auth.group",
+        "pk": 10,
+        "fields": {
+            "name": "azione-zootecnica",
+            "permissions": []
+        }
+    },
+    {
+        "model": "groups.groupprofile",
+        "pk": 1,
+        "fields": {
+            "group": 4,
+            "title": "Azione 1",
+            "slug": "azione-1",
+            "logo": "",
+            "description": "Descrizione del gruppo Azione 1.",
+            "email": "",
+            "keywords": [],
+            "access": "public-invite",
+            "categories": [],
+            "created": "2025-01-01T00:00:00Z",
+            "last_modified": "2025-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "groups.groupprofile",
+        "pk": 2,
+        "fields": {
+            "group": 5,
+            "title": "Azione 2",
+            "slug": "azione-2",
+            "logo": "",
+            "description": "Descrizione del gruppo Azione 2.",
+            "email": "",
+            "keywords": [],
+            "access": "public-invite",
+            "categories": [],
+            "created": "2025-01-02T00:00:00Z",
+            "last_modified": "2025-01-02T00:00:00Z"
+        }
+    },
+    {
+        "model": "groups.groupprofile",
+        "pk": 3,
+        "fields": {
+            "group": 6,
+            "title": "Azione 3",
+            "slug": "azione-3",
+            "logo": "",
+            "description": "Descrizione del gruppo Azione 3.",
+            "email": "",
+            "keywords": [],
+            "access": "public-invite",
+            "categories": [],
+            "created": "2025-01-03T00:00:00Z",
+            "last_modified": "2025-01-03T00:00:00Z"
+        }
+    },
+    {
+        "model": "groups.groupprofile",
+        "pk": 4,
+        "fields": {
+            "group": 7,
+            "title": "Azione 4",
+            "slug": "azione-4",
+            "logo": "",
+            "description": "Descrizione del gruppo Azione 4.",
+            "email": "",
+            "keywords": [],
+            "access": "public-invite",
+            "categories": [],
+            "created": "2025-01-04T00:00:00Z",
+            "last_modified": "2025-01-04T00:00:00Z"
+        }
+    },
+    {
+        "model": "groups.groupprofile",
+        "pk": 5,
+        "fields": {
+            "group": 8,
+            "title": "Azione 5",
+            "slug": "azione-5",
+            "logo": "",
+            "description": "Descrizione del gruppo Azione 5.",
+            "email": "",
+            "keywords": [],
+            "access": "public-invite",
+            "categories": [],
+            "created": "2025-01-05T00:00:00Z",
+            "last_modified": "2025-01-05T00:00:00Z"
+        }
+    },
+    {
+        "model": "groups.groupprofile",
+        "pk": 6,
+        "fields": {
+            "group": 9,
+            "title": "Azione 6",
+            "slug": "azione-6",
+            "logo": "",
+            "description": "Descrizione del gruppo Azione 6.",
+            "email": "",
+            "keywords": [],
+            "access": "public-invite",
+            "categories": [],
+            "created": "2025-01-06T00:00:00Z",
+            "last_modified": "2025-01-06T00:00:00Z"
+        }
+    },
+    {
+        "model": "groups.groupprofile",
+        "pk": 7,
+        "fields": {
+            "group": 10,
+            "title": "Azione Zootecnica",
+            "slug": "azione-zootecnica",
+            "logo": "",
+            "description": "Gruppo dedicato alle attività zootecniche.",
+            "email": "",
+            "keywords": [],
+            "access": "public-invite",
+            "categories": [],
+            "created": "2025-01-07T00:00:00Z",
+            "last_modified": "2025-01-07T00:00:00Z"
+        }
+    }
+]

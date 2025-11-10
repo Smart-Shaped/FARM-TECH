@@ -1,0 +1,45 @@
+from django.views.generic import TemplateView
+from django.urls import path, re_path
+from geonode.urls import urlpatterns
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+from farmtech.views import dataset, group, inference, auth, dashboard
+
+# Swagger/OpenAPI configuration
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Farmtech API",
+      default_version='v1',
+      description="Documentazione API per il progetto Farmtech",
+      terms_of_service="https://www.google.com/policies/terms/",
+      contact=openapi.Contact(email="contact@farmtech.local"),
+      license=openapi.License(name="GPL 3 License"),
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
+
+urlpatterns += [
+   # ------------ Swagger/OpenAPI endpoints ------------
+   re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+   path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+   path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
+   # ------------ Auth ------------
+   path('api/auth/keycloak/', auth.KeycloakAuthAPIView.as_view(), name='keycloak-auth'),
+
+   # ------------ Group Profile ------------
+   path('api/group/group-join-request/', group.GroupJoinRequestAPIView.as_view(), name='group-join-request'),
+   path('api/group/list/', group.GroupProfileListAPIView.as_view(), name='group-profile-list'),
+
+   #  ------------ Dataset & Inference ------------
+   path('api/dataset/update/', dataset.DatasetUpdateAPIView.as_view(), name='dataset-update'),
+   path('api/dataset/excel-templates/', dataset.GroupExcelTemplatesAPIView.as_view(), name='dataset-excel-templates'),
+   path('api/dataset/download-template/<int:dataset_experiment_id>', dataset.DownloadExcelTemplateAPIView.as_view(), name='dataset-download-template'),
+   path('api/inference/trigger/', inference.RunSSHCommandView.as_view(), name='inference-trigger'),
+
+   # ------------ Dashboard ------------
+   path('api/dashboard/<int:pk>/publish/', dashboard.PublishDashboardAPIView.as_view(), name='dashboard-publish'),
+]

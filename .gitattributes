@@ -1,0 +1,4 @@
+*.sh text eol=lf
+*.py text eol=lf
+celery-cmd text eol=lf
+./scripts/celery/celeryd text eol=lf

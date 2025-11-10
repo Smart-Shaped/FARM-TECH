@@ -1,0 +1,9 @@
+name: venv
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12.0
+  - pip:
+      - jupyter
+      - git+https://github.com/Smart-Shaped/PyChaM3leon.git@v1.0.0
