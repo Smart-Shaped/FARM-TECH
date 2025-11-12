@@ -1,0 +1,20 @@
+{
+  "request_permissions": "Richiedi Permessi",
+  "request_description": "Invia una richiesta per ottenere permessi di uploader o admin per una specifica linea di ricerca.",
+  "research_line": "Linea di Ricerca",
+  "requested_role": "Ruolo Richiesto",
+  "motivation": "Motivazione",
+  "select_line": "Seleziona una linea di ricerca",
+  "select_role": "Seleziona un ruolo",
+  "motivation_placeholder": "Spiega perché hai bisogno di questo permesso...",
+  "current_permissions": "Permessi attuali",
+  "no_permissions": "Nessuno",
+  "cancel": "Annulla",
+  "submit_request": "Invia Richiesta",
+  "submitting": "Invio in corso...",
+  "loading": "Caricamento...",
+  "error_loading_lines": "Errore nel caricamento delle linee di ricerca",
+  "error_submitting": "Errore nell'invio della richiesta. Riprova più tardi.",
+  "request_sent": "Richiesta inviata con successo!",
+  "already_has_permission": "Hai già questo permesso per questa linea di ricerca"
+}

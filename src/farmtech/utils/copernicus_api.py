@@ -74,14 +74,7 @@ def get_tiff_from_copernicus(
         start_date: Data inizio in formato YYYY-MM-DD (opzionale)
         end_date: Data fine in formato YYYY-MM-DD (opzionale)
     """
-    from datetime import datetime
-
-    # Se non sono specificate le date, usa valori di default
-    if not start_date:
-        start_date = "2024-07-01"
-    if not end_date:
-        end_date = "2025-01-31"
-
+    
     # Converti le date in formato ISO con timezone UTC
     start_datetime = f"{start_date}T00:00:00Z"
     end_datetime = f"{end_date}T23:59:59Z"
@@ -96,7 +89,7 @@ def get_tiff_from_copernicus(
           };
         }
         function evaluatePixel(sample) {
-          return [10 * sample.B02, 10 * sample.B03, 10 * sample.B04, sample.B11, sample.B08];
+          return [sample.B02, sample.B03, sample.B04, sample.B11, sample.B08];
         }
     """
 

@@ -17,7 +17,7 @@ class PublishDashboardAPIView(APIView):
     def patch(self, request, pk):
         dashboard = get_object_or_404(GeoApp, pk=pk)
         
-        if not dashboard.is_published:
+        if not dashboard.is_approved:
             dashboard.is_published = True
             dashboard.is_approved = True
             dashboard.advertised = True
@@ -30,8 +30,7 @@ class PublishDashboardAPIView(APIView):
                 if geoapp.id != dashboard.id:
                     geoapp.is_published = False
                     dashboard.is_approved = False
-                    dashboard.advertised = False
-                    geoapp.save(update_fields=['is_published','is_approved','advertised'])
+                    geoapp.save(update_fields=['is_published','is_approved'])
             
             return Response({'detail': 'Dashboard successfully published.', 'is_published': True}, status=status.HTTP_200_OK)
         

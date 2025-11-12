@@ -11,6 +11,7 @@ from farmtech.models import RoleChangeRequest
 from farmtech.serializers import GroupJoinRequestSerializer
 from django.db import transaction
 from farmtech.authentication import KeycloakAuthentication
+from rest_framework.authentication import SessionAuthentication
 from geonode.geoapps.models import GeoApp
 
 logger = logging.getLogger(__name__)
@@ -29,7 +30,7 @@ class GroupJoinRequestAPIView(APIView):
     
     L'utente che fa la richiesta viene automaticamente recuperato dal token di autenticazione.
     """
-    authentication_classes = [KeycloakAuthentication]
+    authentication_classes = [KeycloakAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
     
     def post(self, request):

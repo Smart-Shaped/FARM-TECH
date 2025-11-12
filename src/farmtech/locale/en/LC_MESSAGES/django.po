@@ -1,0 +1,322 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-31 14:25+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Log in"
+msgstr ""
+
+msgid "Log in to an existing account"
+msgstr ""
+
+#, python-format
+msgid ""
+"Please sign in with one\n"
+"      of your existing third party accounts. Or, <a "
+"href=\"%(signup_url)s\">sign up</a>\n"
+"      for a %(site_name)s account and sign in below:"
+msgstr ""
+
+msgid "or"
+msgstr ""
+
+#, python-format
+msgid ""
+"If you have not created an account yet, then please\n"
+"      <a href=\"%(signup_url)s\">sign up</a> first."
+msgstr ""
+
+msgid "Sign In"
+msgstr ""
+
+msgid "Profile of "
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Not provided."
+msgstr ""
+
+msgid "Organization"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Position Name"
+msgstr ""
+
+msgid "Location"
+msgstr ""
+
+msgid "Voice"
+msgstr ""
+
+msgid "Not provided"
+msgstr ""
+
+msgid "Fax"
+msgstr ""
+
+msgid "Keywords"
+msgstr ""
+
+msgid "User layers WMS GetCapabilities document"
+msgstr ""
+
+msgid "Message User"
+msgstr ""
+
+msgid "Edit profile"
+msgstr ""
+
+msgid "Connected social accounts"
+msgstr ""
+
+msgid "Associated e-mails"
+msgstr ""
+
+msgid "Set/Change password"
+msgstr ""
+
+msgid "My Activities"
+msgstr ""
+
+msgid "Request Permissions"
+msgstr ""
+
+msgid "Notifications"
+msgstr ""
+
+msgid "Announcements"
+msgstr ""
+
+msgid "Invite Users"
+msgstr ""
+
+msgid "GeoServer"
+msgstr ""
+
+msgid "Admin"
+msgstr ""
+
+msgid "User Activities"
+msgstr ""
+
+msgid "Resources"
+msgstr ""
+
+msgid ""
+"Submit a request to obtain uploader or admin permissions for a specific "
+"research line."
+msgstr ""
+
+msgid "Research Line"
+msgstr ""
+
+msgid "Select a research line..."
+msgstr ""
+
+msgid "Requested Role"
+msgstr ""
+
+msgid "Select a role..."
+msgstr ""
+
+msgid "Uploader"
+msgstr ""
+
+msgid "Motivation"
+msgstr ""
+
+msgid "Explain why you need these permissions..."
+msgstr ""
+
+msgid ""
+"Please provide a detailed explanation of why you need these permissions."
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Submit Request"
+msgstr ""
+
+# Menu Items
+msgid "menu_research_areas"
+msgstr "Research Lines"
+
+msgid "menu_inference"
+msgstr "Calculate Yield"
+
+msgid "menu_data_upload"
+msgstr "Upload Data"
+
+msgid "menu_resources"
+msgstr "Catalog"
+
+msgid "menu_all_resources"
+msgstr "All Resources"
+
+msgid "menu_datasets"
+msgstr "Datasets"
+
+msgid "menu_maps"
+msgstr "Maps"
+
+msgid "menu_documents"
+msgstr "Documents"
+
+msgid "menu_geostories"
+msgstr "GeoStories"
+
+msgid "menu_dashboards"
+msgstr "Dashboards"
+
+# Hero Section
+#~ msgid "hero_description"
+#~ msgstr ""
+#~ "Innovative platform for verifying tomato crop yield through geolocation "
+#~ "technologies and artificial intelligence"
+
+# Project Section
+#~ msgid "section_project"
+#~ msgstr "The Project"
+
+#~ msgid "project_innovative_solution"
+#~ msgstr "An Innovative Solution"
+
+#~ msgid "project_description"
+#~ msgstr ""
+#~ "FARM-TECH is an advanced geolocation platform developed with the GeoNode "
+#~ "framework, funded by European funds, that revolutionizes tomato crop "
+#~ "monitoring."
+
+#~ msgid "project_main_features"
+#~ msgstr "Main Features"
+
+#~ msgid "feature_polygon_drawing"
+#~ msgstr "Interactive drawing of polygons on land plots"
+
+#~ msgid "feature_tiff_upload"
+#~ msgstr "Upload of geospatial TIFF files"
+
+#~ msgid "feature_ai_inference"
+#~ msgstr "AI-based inference algorithms"
+
+#~ msgid "feature_yield_estimation"
+#~ msgstr "Yield estimation in tons per hectare"
+
+#~ msgid "feature_research_visualization"
+#~ msgstr "Visualization of research data"
+
+# Usage Modes Section
+#~ msgid "section_usage_modes"
+#~ msgstr "Usage Modes"
+
+#~ msgid "usage_draw_polygon"
+#~ msgstr "Draw a Polygon"
+
+#~ msgid "usage_draw_polygon_desc"
+#~ msgstr ""
+#~ "Use the interactive drawing tool to delimit the land plot directly on the "
+#~ "map. The system automatically recognizes the selected area and prepares "
+#~ "it for analysis."
+
+#~ msgid "usage_upload_tiff"
+#~ msgstr "Upload a TIFF File"
+
+#~ msgid "usage_upload_tiff_desc"
+#~ msgstr ""
+#~ "Already have geospatial data? Directly upload your georeferenced TIFF "
+#~ "files and the platform will automatically process the information "
+#~ "contained."
+
+#~ msgid "usage_ai_algorithm"
+#~ msgstr "AI Inference Algorithm"
+
+#~ msgid "usage_ai_algorithm_desc"
+#~ msgstr ""
+#~ "Our advanced machine learning algorithms analyze satellite data, soil "
+#~ "conditions, and historical patterns to generate accurate predictions."
+
+# How It Works Section
+#~ msgid "section_how_it_works"
+#~ msgstr "How It Works"
+
+#~ msgid "step_area_selection"
+#~ msgstr "Area Selection"
+
+#~ msgid "step_area_selection_desc"
+#~ msgstr "Draw a polygon on the plot or upload a TIFF file with terrain data"
+
+#~ msgid "step_area_selection_note"
+#~ msgstr ""
+#~ "For optimal results, soil data must be collected approximately 70 days "
+#~ "before harvest."
+
+#~ msgid "step_ai_processing"
+#~ msgstr "AI Processing"
+
+#~ msgid "step_ai_processing_desc"
+#~ msgstr ""
+#~ "The algorithm analyzes data using algorithms based on datasets collected "
+#~ "from various research lines, freely available from the dedicated page"
+
+#~ msgid "step_results"
+#~ msgstr "Results"
+
+#~ msgid "step_results_desc"
+#~ msgstr "Obtain the yield estimate in tons per hectare"
+
+# Funding Section
+#~ msgid "section_funding"
+#~ msgstr "Funding and Partnership"
+
+#~ msgid "funding_description"
+#~ msgstr ""
+#~ "Cascade Call issued with <strong>Rectoral Decree No. 32 of 04/02/2025</"
+#~ "strong> of the Mediterranean University of Reggio Calabria, within the "
+#~ "framework of the <strong>Tech4you – Technologies For Climate Change "
+#~ "Adaptation And Quality Of Life</strong> Program."
+
+#~ msgid "funding_id_code"
+#~ msgstr "Identification Code:"
+
+#~ msgid "funding_cup"
+#~ msgstr "CUP:"
+
+#~ msgid "funding_legal"
+#~ msgstr ""
+#~ "Funded under Public Notice of the Ministry of University and Research No. "
+#~ "3277 of December 30, 2021 for the submission of Intervention Proposals "
+#~ "for the creation and strengthening of \"innovation ecosystems\", "
+#~ "construction of \"territorial R&D leaders\" – Innovation Ecosystems – "
+#~ "within the National Recovery and Resilience Plan, Mission 4 Education and "
+#~ "Research – Component 2 From Research to Enterprise – Investment 1.5, "
+#~ "funded by the European Union – NextGenerationEU."
+
+#~ msgid "btn_explore_research"
+#~ msgstr "Explore Research Lines"
+
+#~ msgid "cta_login_note"
+#~ msgstr "Already have an account?"
+
+#~ msgid "cta_login_link"
+#~ msgstr "Sign in here"

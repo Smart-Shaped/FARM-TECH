@@ -419,6 +419,11 @@ def fixtures(ctx):
 --settings={_localsettings()}",
         pty=True,
     )
+    ctx.run(
+        f"python manage.py assign_default_group_permissions \
+--settings={_localsettings()}",
+        pty=True,
+    )
 
 @task
 def collectstatic(ctx):

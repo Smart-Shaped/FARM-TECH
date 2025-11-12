@@ -170,6 +170,12 @@ if LDAP_ENABLED and "geonode_ldap" not in INSTALLED_APPS:
 # Add your specific LDAP configuration after this comment:
 # https://docs.geonode.org/en/master/advanced/contrib/#configuration
 
+if 'geonode.base.context_processors.resource_urls' in TEMPLATES[0]['OPTIONS']['context_processors']:
+    pass
+
+# Add FarmTech context processor
+TEMPLATES[0]['OPTIONS']['context_processors'].append('farmtech.context_processors.farmtech_user')
+
 INSTALLED_APPS += ('rest_framework.authtoken',)
 
 
@@ -190,8 +196,3 @@ COPERNICUS_CLIENT_ID = os.environ.get('COPERNICUS_CLIENT_ID')
 COPERNICUS_CLIENT_SECRET = os.environ.get('COPERNICUS_CLIENT_SECRET')
 COPERNICUS_API_URL = os.environ.get('COPERNICUS_API_URL')
 COPERNICUS_AUTH_URL = os.environ.get('COPERNICUS_AUTH_URL')
-
-# Publishing workflow settings
-RESOURCE_PUBLISHING = False
-ADMIN_MODERATE_UPLOADS = True
-GROUP_PRIVATE_RESOURCES = False

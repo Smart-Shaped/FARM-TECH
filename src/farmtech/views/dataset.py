@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 import uuid
@@ -8,6 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
 from django.utils.module_loading import import_string
 from django.http import FileResponse, Http404
 from geonode.layers.models import Dataset
@@ -18,6 +20,9 @@ from farmtech.authentication import KeycloakAuthentication
 from farmtech.models import DatasetExperiment, RawFile
 from farmtech.serializers import DatasetUpdateSerializer, GroupExcelTemplatesSerializer
 
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required, permission_required
+from ..utils.user_utils import get_area_groups
 
 logger = logging.getLogger(__name__)
 
@@ -186,7 +191,8 @@ class DatasetUpdateAPIView(APIView):
             with open(os.path.join(upsert_path, excel_file.name), "wb") as file:
                 file.write(excel_file.read())
             
-            raw_file = RawFile.objects.create(name=excel_file.name, path=upsert_path, type="excel", status="processing", user=request.user)
+            raw_file = RawFile.objects.create(name=excel_file.name, path=upsert_path, upload_datetime=datetime.datetime.now(), 
+                                              type="excel", status="processing", user=request.user, dataset_experiment=dataset_experiment)
             raw_file.save()
             
             logger.info("Read dataframe: %s rows, %s columns", len(df), len(df.columns))
@@ -220,12 +226,6 @@ class DatasetUpdateAPIView(APIView):
             response_data = {
                 "success": True,
                 "message": f"Data inserted successfully into {model_class.__name__}",
-                "dataset_name": dataset_name,
-                "dataset_id": dataset.id,
-                "model": model_package,
-                "raw_file": raw_file.id,
-                "experiment": raw_file.dataset_experiment.group_profile, # TODO: add experiment details
-                "total_rows": len(df),
             }
             
             return Response(response_data, status=status.HTTP_201_CREATED)
@@ -237,6 +237,25 @@ class DatasetUpdateAPIView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+@login_required
+@permission_required('farmtech.uploader', raise_exception=True)
+def uploader_view(request):
+    """
+    Vista per la pagina uploader - permette di scaricare template Excel e caricare dati
+    I template vengono caricati dinamicamente via API
+    """
+    # Ottieni i gruppi della linea di ricerca dell'utente
+    area_groups = get_area_groups(request.user)
+
+    # Ottieni gli upload dell'utente dal database (complessivo tra tutti gli uploader?)
+    user_uploads = RawFile.objects.filter(user=request.user).order_by('-upload_datetime')
+
+    context = {
+        'uploads': user_uploads,
+        'user_groups': area_groups
+    }
+
+    return render(request, 'uploader.html', context)
 
 class GroupExcelTemplatesAPIView(APIView):
     """
@@ -246,7 +265,7 @@ class GroupExcelTemplatesAPIView(APIView):
     - URL per il download del template
     - Datetime dell'ultimo upload processato
     """
-    authentication_classes = [KeycloakAuthentication]
+    authentication_classes = [SessionAuthentication, KeycloakAuthentication]
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
@@ -356,7 +375,7 @@ class DownloadExcelTemplateAPIView(APIView):
     
     Restituisce il file Excel come download usando il template_path dal DatasetExperiment.
     """
-    authentication_classes = [KeycloakAuthentication]
+    authentication_classes = [SessionAuthentication, KeycloakAuthentication]
     permission_classes = [IsAuthenticated]
     
     def get(self, request, dataset_experiment_id):

@@ -1,0 +1,328 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-10-31 14:25+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Log in"
+msgstr ""
+
+msgid "Log in to an existing account"
+msgstr ""
+
+#, python-format
+msgid ""
+"Please sign in with one\n"
+"      of your existing third party accounts. Or, <a "
+"href=\"%(signup_url)s\">sign up</a>\n"
+"      for a %(site_name)s account and sign in below:"
+msgstr ""
+
+msgid "or"
+msgstr ""
+
+#, python-format
+msgid ""
+"If you have not created an account yet, then please\n"
+"      <a href=\"%(signup_url)s\">sign up</a> first."
+msgstr ""
+
+msgid "Sign In"
+msgstr ""
+
+msgid "Profile of "
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Not provided."
+msgstr ""
+
+msgid "Organization"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Position Name"
+msgstr ""
+
+msgid "Location"
+msgstr ""
+
+msgid "Voice"
+msgstr ""
+
+msgid "Not provided"
+msgstr ""
+
+msgid "Fax"
+msgstr ""
+
+msgid "Keywords"
+msgstr ""
+
+msgid "User layers WMS GetCapabilities document"
+msgstr ""
+
+msgid "Message User"
+msgstr ""
+
+msgid "Edit profile"
+msgstr ""
+
+msgid "Connected social accounts"
+msgstr ""
+
+msgid "Associated e-mails"
+msgstr ""
+
+msgid "Set/Change password"
+msgstr ""
+
+msgid "My Activities"
+msgstr ""
+
+msgid "Request Permissions"
+msgstr ""
+
+msgid "Notifications"
+msgstr ""
+
+msgid "Announcements"
+msgstr ""
+
+msgid "Invite Users"
+msgstr ""
+
+msgid "GeoServer"
+msgstr ""
+
+msgid "Admin"
+msgstr ""
+
+msgid "User Activities"
+msgstr ""
+
+msgid "Resources"
+msgstr ""
+
+msgid ""
+"Submit a request to obtain uploader or admin permissions for a specific "
+"research line."
+msgstr ""
+
+msgid "Research Line"
+msgstr ""
+
+msgid "Select a research line..."
+msgstr ""
+
+msgid "Requested Role"
+msgstr ""
+
+msgid "Select a role..."
+msgstr ""
+
+msgid "Uploader"
+msgstr ""
+
+msgid "Motivation"
+msgstr ""
+
+msgid "Explain why you need these permissions..."
+msgstr ""
+
+msgid ""
+"Please provide a detailed explanation of why you need these permissions."
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Submit Request"
+msgstr ""
+
+# Menu Items
+msgid "menu_research_areas"
+msgstr "Linee di Ricerca"
+
+msgid "menu_inference"
+msgstr "Calcola Resa"
+
+msgid "menu_data_upload"
+msgstr "Carica Dati"
+
+msgid "menu_resources"
+msgstr "Catalogo"
+
+msgid "menu_all_resources"
+msgstr "Tutte le Risorse"
+
+msgid "menu_datasets"
+msgstr "Dataset"
+
+msgid "menu_maps"
+msgstr "Mappe"
+
+msgid "menu_documents"
+msgstr "Documenti"
+
+msgid "menu_geostories"
+msgstr "GeoStorie"
+
+msgid "menu_dashboards"
+msgstr "Dashboard"
+
+# Hero Section
+#~ msgid "hero_description"
+#~ msgstr ""
+#~ "Piattaforma innovativa per la verifica del rendimento delle colture di "
+#~ "pomodoro attraverso tecnologie di geolocalizzazione e intelligenza "
+#~ "artificiale"
+
+# Project Section
+#~ msgid "section_project"
+#~ msgstr "Il Progetto"
+
+#~ msgid "project_innovative_solution"
+#~ msgstr "Una Soluzione Innovativa"
+
+#~ msgid "project_description"
+#~ msgstr ""
+#~ "FARM-TECH è una piattaforma avanzata di geolocalizzazione sviluppata con "
+#~ "il framework GeoNode, finanziata da fondi europei, che rivoluziona il "
+#~ "monitoraggio delle colture di pomodoro."
+
+#~ msgid "project_main_features"
+#~ msgstr "Funzionalità Principali"
+
+#~ msgid "feature_polygon_drawing"
+#~ msgstr "Disegno interattivo di poligoni su appezzamenti di terreno"
+
+#~ msgid "feature_tiff_upload"
+#~ msgstr "Caricamento di file TIFF geospaziali"
+
+#~ msgid "feature_ai_inference"
+#~ msgstr "Algoritmi di inferenza basati su AI"
+
+#~ msgid "feature_yield_estimation"
+#~ msgstr "Stima della resa in tonnellate per ettaro"
+
+#~ msgid "feature_research_visualization"
+#~ msgstr "Visualizzazione dei dati di ricerca"
+
+# Usage Modes Section
+#~ msgid "section_usage_modes"
+#~ msgstr "Modalità di Utilizzo"
+
+#~ msgid "usage_draw_polygon"
+#~ msgstr "Disegna un Poligono"
+
+#~ msgid "usage_draw_polygon_desc"
+#~ msgstr ""
+#~ "Utilizza lo strumento di disegno interattivo per delimitare "
+#~ "l'appezzamento di terreno direttamente sulla mappa. Il sistema riconosce "
+#~ "automaticamente l'area selezionata e la prepara per l'analisi."
+
+#~ msgid "usage_upload_tiff"
+#~ msgstr "Carica un File TIFF"
+
+#~ msgid "usage_upload_tiff_desc"
+#~ msgstr ""
+#~ "Hai già dati geospaziali? Carica direttamente i tuoi file TIFF "
+#~ "georeferenziati e la piattaforma elaborerà automaticamente le "
+#~ "informazioni contenute."
+
+#~ msgid "usage_ai_algorithm"
+#~ msgstr "Algoritmo di Inferenza AI"
+
+#~ msgid "usage_ai_algorithm_desc"
+#~ msgstr ""
+#~ "I nostri algoritmi avanzati di machine learning analizzano i dati "
+#~ "satellitari, le condizioni del terreno e i pattern storici per generare "
+#~ "previsioni accurate."
+
+# How It Works Section
+#~ msgid "section_how_it_works"
+#~ msgstr "Come Funziona"
+
+#~ msgid "step_area_selection"
+#~ msgstr "Selezione Area"
+
+#~ msgid "step_area_selection_desc"
+#~ msgstr ""
+#~ "Disegna un poligono sull'appezzamento o carica un file TIFF con i dati "
+#~ "del terreno"
+
+#~ msgid "step_area_selection_note"
+#~ msgstr ""
+#~ "Per ottenere risultati ottimali i dati del terreno devono essere stati "
+#~ "acquisiti circa 70 giorni prima del raccolto."
+
+#~ msgid "step_ai_processing"
+#~ msgstr "Elaborazione AI"
+
+#~ msgid "step_ai_processing_desc"
+#~ msgstr ""
+#~ "L'algoritmo analizza i dati utilizzando algoritmi basati sui dataset "
+#~ "raccolti con le diverse linee di ricerca, liberamente consultabili dalla "
+#~ "pagina dedicata"
+
+#~ msgid "step_results"
+#~ msgstr "Risultati"
+
+#~ msgid "step_results_desc"
+#~ msgstr "Ottieni la stima della resa in tonnellate per ettaro"
+
+# Funding Section
+#~ msgid "section_funding"
+#~ msgstr "Finanziamento e Partnership"
+
+#~ msgid "funding_description"
+#~ msgstr ""
+#~ "Bando a Cascata emanato con <strong>Decreto Rettorale n. 32 del "
+#~ "04/02/2025</strong> dell'Università degli Studi Mediterranea di Reggio "
+#~ "Calabria, nell'ambito del Programma <strong>Tech4you – Technologies For "
+#~ "Climate Change Adaptation And Quality Of Life</strong>."
+
+#~ msgid "funding_id_code"
+#~ msgstr "Codice Identificativo:"
+
+#~ msgid "funding_cup"
+#~ msgstr "CUP:"
+
+#~ msgid "funding_legal"
+#~ msgstr ""
+#~ "Finanziato nell'ambito dell'Avviso pubblico del Ministero dell'Università "
+#~ "e Ricerca n. 3277 del 30 dicembre 2021 per la presentazione di Proposte "
+#~ "di intervento per la creazione e il rafforzamento di \"ecosistemi "
+#~ "dell'innovazione\", costruzione di \"leader territoriali di R&S\" – "
+#~ "Ecosistemi dell'Innovazione – nell'ambito del Piano Nazionale di Ripresa "
+#~ "e Resilienza, Missione 4 Istruzione e ricerca – Componente 2 Dalla "
+#~ "ricerca all'impresa – Investimento 1.5, finanziato dall'Unione europea – "
+#~ "NextGenerationEU."
+
+#~ msgid "btn_explore_research"
+#~ msgstr "Esplora le Linee di Ricerca"
+
+#~ msgid "cta_login_note"
+#~ msgstr "Hai già un account?"
+
+#~ msgid "cta_login_link"
+#~ msgstr "Accedi qui"

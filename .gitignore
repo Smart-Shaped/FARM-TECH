@@ -74,3 +74,5 @@ celerybeat-schedule
 
 ml_runner/ssh
 geonode-init/processed_datasets
+
+node_modules/

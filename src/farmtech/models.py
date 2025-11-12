@@ -6,6 +6,20 @@ from django.contrib.gis.db import models as gis_models
 from geonode.groups.models import GroupProfile
 
 
+class FarmtechPermissions(models.Model):
+    """
+    Modello proxy per definire permessi personalizzati
+    """
+    class Meta:
+        managed = False 
+        default_permissions = ()
+        permissions = [
+            ('uploader', 'Can manage research area data'),
+            ('viewer', 'Can view research area data'),
+            ('inference', 'Can request area inference'),
+            ('can_request_permissions', 'Can request uploader or admin permissions'),
+        ]
+
 # Modello Raw (File)
 class RawFile(models.Model):
     """
@@ -140,7 +154,7 @@ class Experiment1Sheet1(gis_models.Model):
     geometry = gis_models.GeometryField(srid=4326, null=True, blank=True, name='geometry')
     
     class Meta:
-        db_table = 'azione_1_foglio_1'
+        db_table = '1st_crops'
         managed = False
         verbose_name = '1st_crops'
         verbose_name_plural = '1st_crops'
@@ -156,7 +170,7 @@ class Experiment1Sheet2(gis_models.Model):
     geometry = gis_models.GeometryField(srid=4326, null=True, blank=True, name='geometry')
     
     class Meta:
-        db_table = 'azione_1_foglio_2'
+        db_table = '1st_crops_as_cover_crop'
         managed = False
         verbose_name = '1st_crops_as_cover_crop'
         verbose_name_plural = '1st_crops_as_cover_crop'
@@ -171,7 +185,7 @@ class Experiment1Sheet3(gis_models.Model):
     geometry = gis_models.GeometryField(srid=4326, null=True, blank=True, name='geometry')
     
     class Meta:
-        db_table = 'azione_1_foglio_3'
+        db_table = '2nd_crops_pomodoro'
         managed = False
         verbose_name = '2nd_crops_pomodoro'
         verbose_name_plural = '2nd_crops_pomodoro'
@@ -189,7 +203,7 @@ class Experiemnt1Sheet4(gis_models.Model):
     geometry = gis_models.GeometryField(srid=4326, null=True, blank=True, name='geometry')
     
     class Meta:
-        db_table = 'azione_1_foglio_4'
+        db_table = 'azoto_e_fosforo_soil'
         managed = False
         verbose_name = 'azoto_e_fosforo_soil'
         verbose_name_plural = 'azoto_e_fosforo_soil'
@@ -261,7 +275,7 @@ class Experiment4(gis_models.Model):
     geometry = gis_models.GeometryField(srid=4326, null=True, blank=True, name='geometry')
 
     class Meta:
-        db_table = 'azione_4'
+        db_table = 'dati_azione_4'
         managed = False
         verbose_name = 'Dati Azione 4'
         verbose_name_plural = 'Dati Azione 4'
@@ -283,7 +297,7 @@ class Experiment5(gis_models.Model):
     lat = models.FloatField(null=True, blank=True, name='lat')
     
     class Meta:
-        db_table = 'azione_5'
+        db_table = 'dati_azione_5'
         managed = False
         verbose_name = 'Dati Azione 5'
         verbose_name_plural = 'Dati Azione 5'
@@ -311,7 +325,7 @@ class ExperimentZootechnicalCalabria(gis_models.Model):
     geometry = gis_models.GeometryField(srid=4326, null=True, blank=True, name='geometry')
     
     class Meta:
-        db_table = 'azione_zootecnica_calabria'
+        db_table = 'dati_azione_zootecnica_cal'
         managed = False
         verbose_name = 'Dati Azione zootecnica Calabria'
         verbose_name_plural = 'Dati Azione zootecnica Calabria'
@@ -376,7 +390,7 @@ class ExperimentZootechnicalBasilicata(gis_models.Model):
     geometry = gis_models.GeometryField(srid=4326, null=True, blank=True)
 
     class Meta:
-        db_table = 'azione_zootecnica_basilicata'
+        db_table = 'dati_azione_zootecnica_bas'
         managed = False
         verbose_name = 'Dati Azione zootecnica Basilicata'
         verbose_name_plural = 'Dati Azione zootecnica Basilicata'
