@@ -12,16 +12,16 @@ class Command(BaseCommand):
             
             perm_165 = Permission.objects.get(pk=165)
             perm_167 = Permission.objects.get(pk=167)
-            perm_516 = Permission.objects.get(pk=516)
-            perm_515 = Permission.objects.get(pk=515)
-            perm_517 = Permission.objects.get(pk=517)
+            perm_507 = Permission.objects.get(pk=507)
+            perm_508 = Permission.objects.get(pk=508)
+            perm_509 = Permission.objects.get(pk=509)
             
-            anonymous_group.permissions.add(perm_165, perm_515)
+            anonymous_group.permissions.add(perm_165, perm_507)
             self.stdout.write(
                 self.style.SUCCESS(f'Added permissions to group: {anonymous_group.name}')
             )
             
-            registered_group.permissions.add(perm_165, perm_167, perm_516, perm_517)
+            registered_group.permissions.add(perm_165, perm_167, perm_507, perm_508, perm_509)
             self.stdout.write(
                 self.style.SUCCESS(f'Added permissions to group: {registered_group.name}')
             )
