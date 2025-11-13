@@ -32,6 +32,7 @@ mkdir geonode-init/processed_datasets
 Install npm dependencies, it requires nodejs.
 
 ```bash
+cd src/farmtech/client/js
 npm i
 npm run build
 ```
