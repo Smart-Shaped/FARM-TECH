@@ -27,9 +27,9 @@ export const DashboardPublisherApp = () => {
       setError(null);
 
       // Carica la lista di tutte le dashboard
-      console.log(window.__FARMTECH_USER__)
+      const user = window.__FARMTECH_USER__
       const dashboardsData = await api.get(
-        "/api/v2/resources?api_preset=catalog_list&filter%7Bmetadata_only%7D=false&filter%7Bresource_type.in%7D=dashboard"
+        `/api/v2/resources?api_preset=catalog_list&filter%7Bgroup.in%7D=${user.group_members?.[0]?.auth_group_id}&filter%7Bmetadata_only%7D=false&filter%7Bresource_type.in%7D=dashboard`
       );
 
       const dashboardList = (dashboardsData.resources || [])
