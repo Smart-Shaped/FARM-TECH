@@ -106,7 +106,7 @@ export const PermissionRequestDialog = ({ onClose }) => {
                         <p className="text-muted mb-4">
                             {t(
                                 'request_description',
-                                'Submit a request to obtain uploader or admin permissions for a specific research line.'
+                                'Submit a request to obtain uploader or manager permissions for a specific research line.'
                             )}
                         </p>
 
@@ -155,7 +155,7 @@ export const PermissionRequestDialog = ({ onClose }) => {
                             >
                                 <option value="">{t('select_role', 'Select a role')}</option>
                                 <option value="member">Uploader</option>
-                                <option value="manager">Admin</option>
+                                <option value="manager">Manager</option>
                             </select>
                         </div>
 
