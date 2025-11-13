@@ -1,4 +1,5 @@
 import logging
+import os
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,6 +15,7 @@ from farmtech.authentication import KeycloakAuthentication
 from rest_framework.authentication import SessionAuthentication
 from geonode.geoapps.models import GeoApp
 
+template_path = '/usr/src/farmtech/resource/group_join_request_email.txt'
 logger = logging.getLogger(__name__)
 
 class GroupJoinRequestAPIView(APIView):
@@ -48,7 +50,6 @@ class GroupJoinRequestAPIView(APIView):
         user = request.user
         
         try:
-            # Verifica che il group profile esista
             try:
                 group_profile = GroupProfile.objects.get(id=group_profile_id)
             except GroupProfile.DoesNotExist:
@@ -57,22 +58,21 @@ class GroupJoinRequestAPIView(APIView):
                     status=status.HTTP_404_NOT_FOUND
                 )
             
-            # Verifica se l'utente è già membro del gruppo
             existing_membership = GroupMember.objects.filter(
                 group=group_profile,
-                user=user
+                user=user,
+                role=requested_role
             ).first()
             
             if existing_membership:
                 return Response(
                     {
-                        "error": "Sei già membro di questo gruppo",
+                        "error": "Sei già membro di questo gruppo con il ruolo richiesto.",
                         "current_role": existing_membership.role
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
-            # Recupera tutti i manager del group profile
             managers = GroupMember.objects.filter(
                 group=group_profile,
                 role='manager'
@@ -89,31 +89,28 @@ class GroupJoinRequestAPIView(APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             
-            # Prepara il contenuto dell'email
             role_label = "Manager" if requested_role == "manager" else "Membro"
             subject = f"Nuova richiesta di iscrizione al gruppo '{group_profile.title}'"
             
-            message = f"""
-                        Ciao,
+            try:
+                with open(template_path, 'r', encoding='utf-8') as f:
+                    message_template = f.read()
+            except FileNotFoundError:
+                logger.error(f"Template email non trovato: {template_path}")
+                return Response(
+                    {"error": "Errore interno: template email non trovato"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
+            message = message_template.format(
+                user_full_name=user.get_full_name() or 'Non specificato',
+                user_email=user.email,
+                group_title=group_profile.title,
+                username=user.username,
+                role_label=role_label,
+                motivation=motivation
+            )
 
-                        L'utente {user.get_full_name() or user.username} (Email: {user.email}) ha richiesto l'iscrizione al gruppo '{group_profile.title}'.
-
-                        Dettagli della richiesta:
-                        - Nome utente: {user.username}
-                        - Nome completo: {user.get_full_name() or 'Non specificato'}
-                        - Email: {user.email}
-                        - Ruolo richiesto: {role_label}
-
-                        Motivazione:
-                        {motivation}
-
-                        Per approvare o gestire questa richiesta, accedi al pannello di amministrazione di Farmtech.
-
-                        ---
-                        Questa è una email automatica generata dal sistema Farmtech.
-                        """.strip()
-                                    
-            # Lista delle email dei manager
             manager_emails = [
                 manager.user.email 
                 for manager in managers 
@@ -131,9 +128,7 @@ class GroupJoinRequestAPIView(APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             
-            # Salva la richiesta nel database e invia le email in una transazione
             with transaction.atomic():
-                # Crea il record della richiesta
                 role_request = RoleChangeRequest.objects.create(
                     user=user,
                     group_profile=group_profile,
@@ -141,7 +136,6 @@ class GroupJoinRequestAPIView(APIView):
                     motivazione=motivation
                 )
                 
-                # Invia l'email a tutti i manager
                 send_mail(
                     subject=subject,
                     message=message,
