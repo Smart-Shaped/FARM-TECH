@@ -20,17 +20,14 @@ from django.http import FileResponse, Http404
 from django.contrib.gis.geos import GEOSGeometry
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
-from geonode.layers.models import Dataset
-from geonode.groups.models import GroupProfile, GroupMember
 from shapely.geometry import Point
+from geonode.layers.models import Dataset
+from geonode.groups.models import GroupProfile
 
 from farmtech.authentication import KeycloakAuthentication
 from farmtech.models import DatasetExperiment, RawFile
 from farmtech.serializers import DatasetUpdateSerializer, GroupExcelTemplatesSerializer
 from farmtech.permissions import IsGroupProfileMember
-
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, permission_required
 from ..utils.user_utils import get_area_groups
 
 
@@ -98,7 +95,7 @@ class DatasetUpdateAPIView(APIView):
     """
     authentication_classes = [SessionAuthentication, KeycloakAuthentication]
     permission_classes = [IsAuthenticated, IsGroupProfileMember]
-    
+
     def post(self, request):
 
         """
@@ -137,9 +134,9 @@ class DatasetUpdateAPIView(APIView):
                     {"error": f"No DatasetExperiment found for dataset '{dataset_name}'"},
                     status=status.HTTP_404_NOT_FOUND
                 )
-            
+
             self.check_object_permissions(request, dataset_experiment)
-            
+
             if not model_package:
                 return Response(
                     {"error": "Model package not found in DatasetExperiment"},
@@ -151,15 +148,19 @@ class DatasetUpdateAPIView(APIView):
                 model_class = import_string(model_package)
                 logger.info("Model loaded: %s", model_class.__name__)
             except (ValueError, LookupError) as e:
+                logger.exception("Error loading model package '%s': %s", model_package, str(e), exc_info=True)
                 return Response(
-                    {"error": f"Invalid model package '{model_package}': {str(e)}"},
+                    {"error": f"Invalid model package '{model_package}'."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
             # Read the data from the Excel file into a DataFrame
             try:
                 df = pd.read_excel(excel_file)
-                df.columns = [col.strip().lower().replace('-','_').replace(' ', '_') for col in df.columns]
+                df.columns = [
+                    col.strip().lower().replace('-','_').replace(' ', '_')
+                    for col in df.columns
+                    ]
 
                 date_columns = [col for col in df.columns if col.startswith("dat")]
 
@@ -168,8 +169,9 @@ class DatasetUpdateAPIView(APIView):
 
                 logger.info("Excel file read. Roes: %s, Columns: %s", len(df), len(df.columns))
             except Exception as e:
+                logger.exception("Error reading Excel file: %s", str(e), exc_info=True)
                 return Response(
-                    {"error": f"Error reading Excel file: {str(e)}"},
+                    {"message": "Error reading Excel file."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -235,7 +237,7 @@ class DatasetUpdateAPIView(APIView):
 
                 model_class.objects.bulk_create(records)
             except Exception as e:
-                logger.error("Error writing to model: %s", str(e), exc_info=True)
+                logger.exception("Error writing to model: %s", str(e), exc_info=True)
                 raw_file.status = "failed"
                 raw_file.save()
                 return Response(
@@ -257,54 +259,58 @@ class DatasetUpdateAPIView(APIView):
             return Response(response_data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            logger.error("Error during processing: %s", str(e), exc_info=True)
+            logger.exception("Error during processing: %s", str(e), exc_info=True)
             return Response(
-                {"error": f"Error during processing: {str(e)}"},
+                {"error": "Error during processing the request."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 class GroupExcelTemplatesAPIView(APIView):
     """
-    API per ottenere la lista dei template Excel di un GroupProfile.
+    API to retrieve the list of Excel templates for a GroupProfile.
     
-    Restituisce i DatasetExperiment associati al GroupProfile con:
-    - URL per il download del template
-    - Datetime dell'ultimo upload processato
+    Returns the DatasetExperiment associated with the GroupProfile with:
+    - URL for downloading the template
+    - Datetime of the last upload process
     
-    Requires the user to be a member of the GroupProfile.
+    Requires the user to be authenticated as a member of the GroupProfile.
     """
     authentication_classes = [SessionAuthentication, KeycloakAuthentication]
     permission_classes = [IsAuthenticated, IsGroupProfileMember]
-    
+
     def post(self, request):
+        """
+        Handle POST request to get Excel templates for a GroupProfile.
+        """
         serializer = GroupExcelTemplatesSerializer(data=request.data)
-        
+
         if not serializer.is_valid():
             return Response(
                 {"error": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         group_profile_id = serializer.validated_data['group_profile_id']
-        
+
         try:
             # Find the GroupProfile
             try:
                 group_profile = GroupProfile.objects.get(id=group_profile_id)
-                logger.info("GroupProfile found: %s (ID: %s)", group_profile.title, group_profile.id)
+                logger.info("GroupProfile found: %s (ID: %s)",
+                            group_profile.title, group_profile.id)
             except GroupProfile.DoesNotExist:
                 return Response(
                     {"error": f"GroupProfile with ID '{group_profile_id}' not found"},
                     status=status.HTTP_404_NOT_FOUND
                 )
-            
+
             self.check_object_permissions(request, group_profile)
-            
+
             # Get all DatasetExperiment for this GroupProfile
             dataset_experiments = DatasetExperiment.objects.filter(
                 group_profile=group_profile
             ).select_related('layer_dataset')
-            
+
             if not dataset_experiments.exists():
                 return Response(
                     {
@@ -312,34 +318,34 @@ class GroupExcelTemplatesAPIView(APIView):
                     },
                     status=status.HTTP_404_NOT_FOUND
                 )
-            
+
             # Build response with download URLs and last upload datetime
             templates = []
             for dataset_exp in dataset_experiments:
                 if not dataset_exp.template_path:
                     logger.warning("DatasetExperiment %s has no template_path", dataset_exp.id)
                     continue
-                
+
                 # Extract filename from template_path
                 filename = os.path.basename(dataset_exp.template_path)
-                
+
                 # Find the most recent RawFile for this dataset_experiment with status='processed'
                 last_upload = RawFile.objects.filter(
                     dataset_experiment=dataset_exp,
                     status='processed',
                     type='excel'
                 ).order_by('-upload_datetime').first()
-                
+
                 # Build download URL using dataset_experiment ID
                 download_url = f"/api/dataset/download-template/{dataset_exp.id}"
-                
+
                 template_info = {
                     'dataset_experiment_id': dataset_exp.id,
                     'dataset_name': dataset_exp.layer_dataset.name,
                     'filename': filename,
                     'download_url': download_url,
                 }
-                
+
                 if last_upload:
                     template_info['last_upload_datetime'] = last_upload.upload_datetime.isoformat()
                     template_info['last_upload_id'] = last_upload.id
@@ -348,14 +354,14 @@ class GroupExcelTemplatesAPIView(APIView):
                     template_info['last_upload_datetime'] = None
                     template_info['last_upload_id'] = None
                     template_info['last_upload_user'] = None
-                
+
                 templates.append(template_info)
-            
+
             # Sort by filename
             templates.sort(key=lambda x: x['filename'])
-            
+
             logger.info("Found %d templates for group '%s'", len(templates), group_profile.title)
-            
+
             response_data = {
                 "success": True,
                 "group_profile": {
@@ -366,13 +372,13 @@ class GroupExcelTemplatesAPIView(APIView):
                 "templates_count": len(templates),
                 "templates": templates
             }
-            
+
             return Response(response_data, status=status.HTTP_200_OK)
-            
+
         except Exception as e:
-            logger.error("Error retrieving Excel templates: %s", str(e), exc_info=True)
+            logger.exception("Error retrieving Excel templates: %s", str(e), exc_info=True)
             return Response(
-                {"error": f"Error retrieving Excel templates: {str(e)}"},
+                {"message": "Error retrieving Excel templates."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -388,8 +394,11 @@ class DownloadExcelTemplateAPIView(APIView):
     """
     authentication_classes = [SessionAuthentication, KeycloakAuthentication]
     permission_classes = [IsAuthenticated, IsGroupProfileMember]
-    
+
     def get(self, request, dataset_experiment_id):
+        """
+        Handle GET request to download Excel template for a DatasetExperiment.
+        """
         try:
             # Find the DatasetExperiment
             try:
@@ -397,34 +406,35 @@ class DownloadExcelTemplateAPIView(APIView):
                     id=dataset_experiment_id
                 )
                 logger.info("DatasetExperiment found: ID %s", dataset_exp.id)
-            except DatasetExperiment.DoesNotExist:
-                raise Http404(f"DatasetExperiment with ID '{dataset_experiment_id}' not found")
-            
+            except DatasetExperiment.DoesNotExist as e:
+                raise Http404("DatasetExperiment with ID "
+                              f"'{dataset_experiment_id}' not found") from e
+
             self.check_object_permissions(request, dataset_exp)
-            
+
             # Check if template_path exists
             if not dataset_exp.template_path:
-                raise Http404(f"No template file configured for this dataset")
-            
+                raise Http404("No template file configured for this dataset")
+
             file_path = dataset_exp.template_path
-            
+
             logger.info("Attempting to download file: %s", file_path)
-            
+
             # Check if file exists
             if not os.path.exists(file_path):
                 raise Http404(f"Template file not found at path: {file_path}")
-            
+
             # Check if it's actually a file (not a directory)
             if not os.path.isfile(file_path):
                 raise Http404(f"Template path is not a valid file: {file_path}")
-            
+
             # Extract filename
             filename = os.path.basename(file_path)
-            
+
             # Validate file extension
             if not filename.lower().endswith(('.xlsx', '.xls')):
                 raise Http404(f"Template is not a valid Excel file: {filename}")
-            
+
             # Open the file and return as download
             file_handle = open(file_path, 'rb')
             response = FileResponse(
@@ -432,27 +442,26 @@ class DownloadExcelTemplateAPIView(APIView):
                 content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             )
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
-            
+
             logger.info(
                 "Template '%s' downloaded successfully by user '%s' (DatasetExperiment: %s)",
                 filename, request.user.username, dataset_exp.id
             )
-            
+
             return response
-            
+
         except Http404:
             raise
         except Exception as e:
-            logger.error("Error downloading Excel template: %s", str(e), exc_info=True)
-            raise Http404(f"Error downloading file: {str(e)}")
-
+            logger.exception("Error downloading Excel template: %s", str(e), exc_info=True)
+            raise Http404(f"Error downloading file: {str(e)}") from e
 
 @login_required
 @permission_required('farmtech.uploader', raise_exception=True)
 def uploader_view(request):
     """
-    Vista per la pagina uploader - permette di scaricare template Excel e caricare dati
-    I template vengono caricati dinamicamente via API
+    View for the uploader page - allows to download Excel templates and upload data
+    Templates are dynamically retrieved via API
     """
     area_groups = get_area_groups(request.user)
 

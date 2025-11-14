@@ -1,12 +1,16 @@
+"""API view to publish a dashboard by updating its is_published field to True."""
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.shortcuts import get_object_or_404
-from farmtech.authentication import KeycloakAuthentication
 from rest_framework.authentication import SessionAuthentication
+from django.shortcuts import get_object_or_404
 from geonode.geoapps.models import GeoApp
+
 from farmtech.permissions import IsGroupProfileManager
+from farmtech.authentication import KeycloakAuthentication
+
 
 class PublishDashboardAPIView(APIView):
     """
@@ -21,11 +25,12 @@ class PublishDashboardAPIView(APIView):
     permission_classes = [IsAuthenticated, IsGroupProfileManager]
 
     def patch(self, request, pk):
+        """Publish the dashboard by setting is_published to True."""
         dashboard = get_object_or_404(GeoApp, pk=pk)
-        
-        # Verifica i permessi a livello di oggetto
+
+        # Check permissions
         self.check_object_permissions(request, dashboard)
-        
+
         if not dashboard.is_approved:
             dashboard.is_published = True
             dashboard.is_approved = True
@@ -40,7 +45,10 @@ class PublishDashboardAPIView(APIView):
                     geoapp.is_published = False
                     dashboard.is_approved = False
                     geoapp.save(update_fields=['is_published','is_approved'])
-            
-            return Response({'detail': 'Dashboard successfully published.', 'is_published': True}, status=status.HTTP_200_OK)
-        
-        return Response({'detail': 'Dashboard is already published.', 'is_published': True}, status=status.HTTP_200_OK)
+
+            return Response(
+                {'detail': 'Dashboard successfully published.', 
+                 'is_published': True}, status=status.HTTP_200_OK)
+
+        return Response({'detail': 'Dashboard is already published.', 'is_published': True}, 
+                        status=status.HTTP_200_OK)

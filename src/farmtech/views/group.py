@@ -1,112 +1,126 @@
-import logging
-import os
+"""
+FarmTech Views - Group Profile APIs
+"""
 
+import logging
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
 from django.core.mail import send_mail
 from django.conf import settings
-from farmtech.throttles import FiveDaysRegisteredThrottleRate
-from geonode.groups.models import GroupProfile, GroupMember
-from farmtech.models import RoleChangeRequest
-from farmtech.serializers import GroupJoinRequestSerializer
 from django.db import transaction
-from farmtech.authentication import KeycloakAuthentication
-from rest_framework.authentication import SessionAuthentication
 from geonode.geoapps.models import GeoApp
+from geonode.groups.models import GroupProfile, GroupMember
+
+from farmtech.models import RoleChangeRequest
+from farmtech.authentication import KeycloakAuthentication
+from farmtech.throttles import FiveDaysRegisteredThrottleRate
+from farmtech.serializers import GroupJoinRequestSerializer
+
 
 logger = logging.getLogger(__name__)
 
-__template_path = '/usr/src/farmtech/resources/group_join_request_email.txt'
+__TEMPLATE_VIEW = '/usr/src/farmtech/resources/group_join_request_email.txt'
 
 class GroupJoinRequestAPIView(APIView):
     """
-    API per richiedere l'iscrizione ad un Group Profile.
+    API to request membership in a Group Profile.
     
-    Invia una email a tutti i manager del group profile richiesto con le informazioni
-    dell'utente, il ruolo desiderato e le motivazioni della richiesta.
+    Sends an email to all the managers of the requested Group Profile with the information
+    of the user, the requested role and the motivation of the request.
     
-    Parametri richiesti:
-    - group_profile_id: ID del GroupProfile a cui si vuole accedere
-    - requested_role: Ruolo richiesto ('manager' o 'member')
-    - motivation: Motivazione della richiesta (può essere un testo lungo)
+    Required parameters:
+    - group_profile_id: ID of the Group Profile to join
+    - requested_role: Requested role ('manager' or 'member')
+    - motivation: Motivation of the request (can be a long text)
     
-    L'utente che fa la richiesta viene automaticamente recuperato dal token di autenticazione.
+    The user who makes the request is automatically retrieved from the authentication token.
     """
     authentication_classes = [KeycloakAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
     throttle_classes = [FiveDaysRegisteredThrottleRate]
-    
+
     def post(self, request):
+        """
+        Handle POST request to send a group join request.
+        """
         serializer = GroupJoinRequestSerializer(data=request.data)
-        
+
         if not serializer.is_valid():
             return Response(
-                {"error": "Dati non validi", "details": serializer.errors},
+                {"error": "Invalid data", "details": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         group_profile_id = serializer.validated_data['group_profile_id']
         requested_role = serializer.validated_data['requested_role']
         motivation = serializer.validated_data['motivation']
         user = request.user
-        
+
         try:
             try:
                 group_profile = GroupProfile.objects.get(id=group_profile_id)
             except GroupProfile.DoesNotExist:
+                logger.error(
+                    "GroupProfile with ID %s not found for join request by user %s",
+                    group_profile_id, user.username
+                )
                 return Response(
-                    {"error": f"GroupProfile con ID {group_profile_id} non trovato"},
+                    {"error": f"GroupProfile with ID {group_profile_id} not found."},
                     status=status.HTTP_404_NOT_FOUND
                 )
-            
+
             existing_membership = GroupMember.objects.filter(
                 group=group_profile,
                 user=user,
                 role=requested_role
             ).first()
-            
+
             if existing_membership:
                 return Response(
                     {
-                        "error": "Sei già membro di questo gruppo con il ruolo richiesto.",
+                        "error": "You are already a member of this group with the requested role.",
                         "current_role": existing_membership.role
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             managers = GroupMember.objects.filter(
                 group=group_profile,
                 role='manager'
             ).select_related('user')
-            
+
             if not managers.exists():
                 logger.warning(
-                    f"Nessun manager trovato per il GroupProfile {group_profile.title} (ID: {group_profile_id})"
+                    "No managers found for GroupProfile %s (ID: %s)", 
+                    group_profile.title, group_profile_id
                 )
                 return Response(
                     {
-                        "error": "Nessun manager trovato per questo gruppo. Contatta l'amministratore del sistema."
+                        "error": 
+                            "No managers found for this group."
+                            " Please contact the system administrator."
                     },
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-            
-            role_label = "Manager" if requested_role == "manager" else "Membro"
-            subject = f"Nuova richiesta di iscrizione al gruppo '{group_profile.title}'"
-            
+
+            role_label = "Manager" if requested_role == "manager" else "Member"
+            subject = f"New membership request for group '{group_profile.title}'"
+
             try:
-                with open(__template_path, 'r', encoding='utf-8') as f:
+                with open(__TEMPLATE_VIEW, 'r', encoding='utf-8') as f:
                     message_template = f.read()
             except FileNotFoundError:
-                logger.error(f"Template email non trovato: {__template_path}")
+                logger.exception("Email template not found: %s", __TEMPLATE_VIEW, exc_info=True)
                 return Response(
-                    {"error": "Errore interno: template email non trovato"},
+                    {"error": "Internal error: email template not found"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-            
+
             message = message_template.format(
-                user_full_name=user.get_full_name() or 'Non specificato',
+                user_full_name=user.get_full_name() or 'Not specified',
                 user_email=user.email,
                 group_title=group_profile.title,
                 username=user.username,
@@ -115,22 +129,24 @@ class GroupJoinRequestAPIView(APIView):
             )
 
             manager_emails = [
-                manager.user.email 
-                for manager in managers 
+                manager.user.email
+                for manager in managers
                 if manager.user.email
             ]
-            
+
             if not manager_emails:
                 logger.warning(
-                    f"Nessun manager con email valida trovato per il GroupProfile {group_profile.title}"
+                    "No managers with valid email found for GroupProfile %s", group_profile.title
                 )
                 return Response(
                     {
-                        "error": "Nessun manager con email valida trovato per questo gruppo. Contatta l'amministratore del sistema."
+                        "error": 
+                            "No managers with valid email found for this group. "
+                            "Please contact the system administrator."
                     },
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-            
+
             with transaction.atomic():
                 role_request = RoleChangeRequest.objects.create(
                     user=user,
@@ -138,7 +154,7 @@ class GroupJoinRequestAPIView(APIView):
                     group_role=requested_role,
                     motivazione=motivation
                 )
-                
+
                 send_mail(
                     subject=subject,
                     message=message,
@@ -146,16 +162,17 @@ class GroupJoinRequestAPIView(APIView):
                     recipient_list=manager_emails,
                     fail_silently=False,
                 )
-            
+
             logger.info(
-                f"Richiesta di iscrizione inviata con successo. "
-                f"Utente: {user.username}, Gruppo: {group_profile.title}, "
-                f"Ruolo: {requested_role}, Manager notificati: {len(manager_emails)}"
+                "Membership request sent successfully. "
+                "User: %s, Group: %s, "
+                "Role: %s, Managers notified: %d",
+                user.username, group_profile.title, requested_role, len(manager_emails)
             )
-            
+
             return Response({
                 "success": True,
-                "message": "Richiesta di iscrizione inviata con successo",
+                "message": "Membership request sent successfully.",
                 "details": {
                     "group_profile": group_profile.title,
                     "requested_role": role_label,
@@ -163,46 +180,46 @@ class GroupJoinRequestAPIView(APIView):
                     "request_id": role_request.id
                 }
             }, status=status.HTTP_200_OK)
-            
+
         except Exception as e:
-            logger.error(
-                f"Errore nell'invio della richiesta di iscrizione: {str(e)}",
-                exc_info=True
-            )
+            logger.exception("Error processing request: %s", str(e), exc_info=True)
             return Response(
-                {"error": f"Errore nell'elaborazione della richiesta: {str(e)}"},
+                {"message": "Error processing request."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 
 class GroupProfileListAPIView(APIView):
     """
-    API per ottenere la lista di tutti i GroupProfile esistenti.
-    
-    Restituisce informazioni basilari su tutti i gruppi disponibili nel sistema,
-    inclusi ID, titolo, descrizione, slug e livello di accesso.
-    
-    Non richiede autenticazione per permettere agli utenti di vedere i gruppi disponibili.
+    API to retrieve the list of all existing GroupProfiles.
+
+    Returns basic information about all available groups in the system,
+    including ID, title, description, slug and access level.
+
+    No authentication is required to allow users to view available groups.
     """
-    permission_classes = []  # Nessuna autenticazione richiesta
-    
+    permission_classes = []  # Allow any user (authenticated or not)
+
     def get(self, request):
+        """
+        Handle GET request to retrieve all GroupProfiles.
+        """
         try:
-            # Recupera tutti i GroupProfile ordinati per titolo
+            # Retrieve all GroupProfiles ordered by title
             group_profiles = GroupProfile.objects.all().order_by('title')
-            
-            # Prepara i dati da restituire
+
+            # Prepare data to return
             groups_data = []
             for group in group_profiles:
-                # Conta il numero di membri totali
+                # Count total members
                 total_members = GroupMember.objects.filter(group=group).count()
-                
-                # Conta il numero di manager
+
+                # Count total managers
                 total_managers = GroupMember.objects.filter(
                     group=group,
                     role='manager'
                 ).count()
-                
+
                 dashboard = GeoApp.objects.filter(group=group.group, is_published=True).first()
 
                 groups_data.append({
@@ -216,24 +233,22 @@ class GroupProfileListAPIView(APIView):
                     'members_count': total_members,
                     'managers_count': total_managers,
                     'created': group.created.isoformat() if group.created else None,
-                    'last_modified': group.last_modified.isoformat() if group.last_modified else None,
+                    'last_modified': 
+                        group.last_modified.isoformat() if group.last_modified else None,
                     'dashboard_id': dashboard.id if dashboard else None,
                 })
-            
-            logger.info(f"Lista di {len(groups_data)} GroupProfile restituita con successo")
-            
+
+            logger.info("List of %d GroupProfiles returned successfully", len(groups_data))
+
             return Response({
                 'success': True,
                 'count': len(groups_data),
                 'groups': groups_data
             }, status=status.HTTP_200_OK)
-            
+
         except Exception as e:
-            logger.error(
-                f"Errore nel recupero dei GroupProfile: {str(e)}",
-                exc_info=True
-            )
+            logger.exception("Failed to retrieve group profiles: %s", str(e), exc_info=True)
             return Response(
-                {"error": f"Errore nel recupero dei gruppi: {str(e)}"},
+                {"message": "Failed to retrieve group profiles."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

@@ -347,7 +347,8 @@ class RunSSHCommandView(APIView):
             return Response(response_dict, status=status.HTTP_200_OK)
 
         except Exception as e:
+            logger.exception("Inference processing failed: %s", str(e), exc_info=True)
             return Response(
-                {"error": f"Error processing inference request: {str(e)}"},
+                {"message": "Inference processing failed."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
