@@ -1,0 +1,10 @@
+[
+    {
+        "model": "layers.style",
+        "pk": 1,
+        "fields": {
+            "name": "NDVI_True_color",
+            "workspace": "geonode"
+        }
+    }
+]

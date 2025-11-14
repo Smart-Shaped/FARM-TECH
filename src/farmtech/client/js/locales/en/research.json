@@ -1,0 +1,12 @@
+{
+  "page_title": "Research Lines",
+  "page_subtitle": "Explore data and dashboards of agricultural research lines",
+  "research_line": "Research Line",
+  "view_dashboard": "View Dashboard",
+  "back_to_list": "Back to Research Lines",
+  "loading": "Loading...",
+  "error_loading": "Error loading research lines",
+  "no_research_lines": "No research lines available",
+  "table_name": "Name",
+  "table_actions": "Actions"
+}

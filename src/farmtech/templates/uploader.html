@@ -1,0 +1,8 @@
+{% extends "index.html" %}
+{% load i18n static vite_react %}
+
+{% block container %}
+  <div id="farmtech-uploader-container" class="gn-container uploader-page"></div>
+  <script>window.STATIC_URL = '{% static "" %}';</script>
+  {% vite_react_app 'farmtech-uploader' %}
+{% endblock %}

@@ -1,0 +1,9 @@
+-e git+https://github.com/GeoNode/geonode-mapstore-client.git@4.4.x#egg=django_geonode_mapstore_client
+-e git+https://github.com/GeoNode/geonode-importer.git@master#egg=geonode-importer
+pandas==2.3.3
+openpyxl==3.1.5
+geopandas==1.1.1
+rasterio==1.4.3
+shapely==2.1.2
+drf-yasg==1.21.7
+pyjwt[crypto]==2.8.0

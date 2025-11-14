@@ -1,0 +1,20 @@
+{
+  "request_permissions": "Request Permissions",
+  "request_description": "Submit a request to obtain uploader or admin permissions for a specific research line.",
+  "research_line": "Research Line",
+  "requested_role": "Requested Role",
+  "motivation": "Motivation",
+  "select_line": "Select a research line",
+  "select_role": "Select a role",
+  "motivation_placeholder": "Explain why you need this permission...",
+  "current_permissions": "Current permissions",
+  "no_permissions": "None",
+  "cancel": "Cancel",
+  "submit_request": "Submit Request",
+  "submitting": "Submitting...",
+  "loading": "Loading...",
+  "error_loading_lines": "Error loading research lines",
+  "error_submitting": "Error submitting request. Please try again.",
+  "request_sent": "Request sent successfully!",
+  "already_has_permission": "You already have this permission for this research line"
+}

@@ -1,0 +1,16 @@
+data:
+  raw_drone: 'data/raw/drone'
+  processed: 'data/processed'
+
+feature_extraction:
+  band_order: # Ordine delle bande nel tuo TIFF multispettrale
+    1: 'blue'
+    2: 'green'
+    3: 'red'
+    4: 'red_edge'
+    5: 'nir'
+
+simple_model:
+  output_yield_predictions_file: 'estimated_yield_ndvi.csv' # Usato per il nome del file di output
+  ndvi_coefficient_a: 63179 # Parametro 'a'
+  ndvi_intercept_b: 20318   # Parametro 'b'

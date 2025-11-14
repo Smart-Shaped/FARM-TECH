@@ -1,0 +1,9 @@
+{% extends "index.html" %}
+{% load i18n static vite_react %}
+
+
+{% block container %}
+  <div id="farmtech-inference-container" data-has-permission="{% if perms.farmtech.inference %}true{% else %}false{% endif %}"></div>
+  <script>window.STATIC_URL = '{% static "" %}';</script>
+  {% vite_react_app 'farmtech-inference' %}
+{% endblock %}
