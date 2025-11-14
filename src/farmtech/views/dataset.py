@@ -241,7 +241,7 @@ class DatasetUpdateAPIView(APIView):
                 raw_file.status = "failed"
                 raw_file.save()
                 return Response(
-                    {"error": f"Error writing to model: {str(e)}"},
+                    {"error": "Error writing to model"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
 
