@@ -1,3 +1,8 @@
+"""
+Views for dataset operations: updating datasets from Excel files,
+retrieving Excel templates for groups, and downloading templates.
+"""
+
 import datetime
 import logging
 import os
@@ -12,17 +17,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication
 from django.utils.module_loading import import_string
 from django.http import FileResponse, Http404
+from django.contrib.gis.geos import GEOSGeometry
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required, permission_required
 from geonode.layers.models import Dataset
 from geonode.groups.models import GroupProfile
 from shapely.geometry import Point
-from django.contrib.gis.geos import GEOSGeometry
+
 from farmtech.authentication import KeycloakAuthentication
 from farmtech.models import DatasetExperiment, RawFile
 from farmtech.serializers import DatasetUpdateSerializer, GroupExcelTemplatesSerializer
-
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, permission_required
 from ..utils.user_utils import get_area_groups
+
 
 logger = logging.getLogger(__name__)
 
@@ -74,30 +80,36 @@ def _series_to_kwargs(series: pd.Series) -> dict:
     return kwargs
 
 class DatasetUpdateAPIView(APIView):
+
     """
-    API per aggiornare un dataset con dati da un file Excel.
+    API to update a dataset with data from an Excel file.
     
-    Flusso:
-    1. Riceve il nome del dataset e un file Excel
-    2. Trova il dataset nella tabella layers_dataset
-    3. Trova il DatasetExperiment corrispondente per ottenere il model_package
-    4. Carica i dati dall'Excel nel modello specificato
+    Flow:
+    1. Receive the dataset name and an Excel file
+    2. Find the dataset in the layers_dataset table
+    3. Find the corresponding DatasetExperiment to get the model_package
+    4. Load the data from the Excel file into the specific model
     """
+
     permission_classes = [IsAuthenticated]
-    
+
     def post(self, request):
-        
+
+        """
+        Handle POST request to update dataset from Excel file.
+        """
+
         serializer = DatasetUpdateSerializer(data=request.data)
-        
+
         if not serializer.is_valid():
             return Response(
                 {"error": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         dataset_name = serializer.validated_data['dataset_name']
         excel_file = serializer.validated_data['excel_file']
-        
+
         try:
             # Find the dataset in layers_dataset table
             try:
@@ -108,7 +120,7 @@ class DatasetUpdateAPIView(APIView):
                     {"error": f"Dataset with name '{dataset_name}' not found"},
                     status=status.HTTP_404_NOT_FOUND
                 )
-            
+
             # Find the corresponding DatasetExperiment to extract the model_package
             try:
                 dataset_experiment = DatasetExperiment.objects.get(layer_dataset=dataset)
@@ -119,15 +131,13 @@ class DatasetUpdateAPIView(APIView):
                     {"error": f"No DatasetExperiment found for dataset '{dataset_name}'"},
                     status=status.HTTP_404_NOT_FOUND
                 )
-                
-            # TODO Get experiemnt to security checks
-            
+
             if not model_package:
                 return Response(
                     {"error": "Model package not found in DatasetExperiment"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             # Load the model from the model_package
             try:
                 model_class = import_string(model_package)
@@ -137,11 +147,11 @@ class DatasetUpdateAPIView(APIView):
                     {"error": f"Invalid model package '{model_package}': {str(e)}"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             # Read the data from the Excel file into a DataFrame
             try:
                 df = pd.read_excel(excel_file)
-                df.columns = [col.strip().lower().replace('-','_') for col in df.columns]
+                df.columns = [col.strip().lower().replace('-','_').replace(' ', '_') for col in df.columns]
 
                 date_columns = [col for col in df.columns if col.startswith("dat")]
 
@@ -154,14 +164,15 @@ class DatasetUpdateAPIView(APIView):
                     {"error": f"Error reading Excel file: {str(e)}"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-                
+
             # check if the dataframe has a geometry column
-            if "geometry" not in df.columns and ("lat" not in df.columns and "long" not in df.columns):
+            if "geometry" not in df.columns and \
+                ("lat" not in df.columns and "long" not in df.columns):
                 return Response(
                     {"error": "Excel file does not contain a 'geometry' column"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             if "lat" in df.columns and "long" in df.columns:
                 df['lat'] = pd.to_numeric(df['lat'], errors='coerce')
                 df['long'] = pd.to_numeric(df['long'], errors='coerce')
@@ -173,31 +184,38 @@ class DatasetUpdateAPIView(APIView):
                     axis=1
                 )
                 df = geopandas.GeoDataFrame(
-                    df, 
-                    geometry='geometry', 
+                    df,
+                    geometry='geometry',
                     crs='EPSG:4326'
                 )
                 df = df.drop(columns=['lat', 'long'])
-                
+
             # Create a folder for the raw file
             folder_path = "/mnt/volumes/statics/upserts"
             if not os.path.exists(folder_path):
                 os.makedirs(folder_path)
-                
+
             upsert_path = os.path.join(folder_path, str(uuid.uuid4()))
             if not os.path.exists(upsert_path):
                 os.makedirs(upsert_path)
-                
+
             with open(os.path.join(upsert_path, excel_file.name), "wb") as file:
                 file.write(excel_file.read())
-            
-            raw_file = RawFile.objects.create(name=excel_file.name, path=upsert_path, upload_datetime=datetime.datetime.now(), 
-                                              type="excel", status="processing", user=request.user, dataset_experiment=dataset_experiment)
+
+            raw_file = RawFile.objects.create(
+                name=excel_file.name,
+                path=upsert_path,
+                upload_datetime=datetime.datetime.now(),
+                type="excel",
+                status="processing",
+                user=request.user,
+                dataset_experiment=dataset_experiment
+                )
             raw_file.save()
-            
+
             logger.info("Read dataframe: %s rows, %s columns", len(df), len(df.columns))
             logger.info("Writing to model %s...", model_class.__name__)
-            
+
             # Create records to add to model table
             try:
                 records = []
@@ -206,7 +224,7 @@ class DatasetUpdateAPIView(APIView):
                     print(kwargs)
                     record = model_class(**kwargs)
                     records.append(record)
-                
+
                 model_class.objects.bulk_create(records)
             except Exception as e:
                 logger.error("Error writing to model: %s", str(e), exc_info=True)
@@ -216,20 +234,20 @@ class DatasetUpdateAPIView(APIView):
                     {"error": f"Error writing to model: {str(e)}"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-            
+
             logger.info("Finished writing to model %s", model_class.__name__)
-            
+
             raw_file.status = "processed"
             raw_file.save()
-            
+
             # Response
             response_data = {
                 "success": True,
                 "message": f"Data inserted successfully into {model_class.__name__}",
             }
-            
+
             return Response(response_data, status=status.HTTP_201_CREATED)
-            
+
         except Exception as e:
             logger.error("Error during processing: %s", str(e), exc_info=True)
             return Response(
@@ -240,10 +258,12 @@ class DatasetUpdateAPIView(APIView):
 @login_required
 @permission_required('farmtech.uploader', raise_exception=True)
 def uploader_view(request):
+    
     """
     Vista per la pagina uploader - permette di scaricare template Excel e caricare dati
     I template vengono caricati dinamicamente via API
     """
+    
     # Ottieni i gruppi della linea di ricerca dell'utente
     area_groups = get_area_groups(request.user)
 
@@ -365,7 +385,6 @@ class GroupExcelTemplatesAPIView(APIView):
                 {"error": f"Error retrieving Excel templates: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
 
 class DownloadExcelTemplateAPIView(APIView):
     """
