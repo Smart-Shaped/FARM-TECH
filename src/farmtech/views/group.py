@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.core.mail import send_mail
 from django.conf import settings
+from farmtech.throttles import FiveDaysRegisteredThrottleRate
 from geonode.groups.models import GroupProfile, GroupMember
 from farmtech.models import RoleChangeRequest
 from farmtech.serializers import GroupJoinRequestSerializer
@@ -34,6 +35,7 @@ class GroupJoinRequestAPIView(APIView):
     """
     authentication_classes = [KeycloakAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
+    throttle_classes = [FiveDaysRegisteredThrottleRate]
     
     def post(self, request):
         serializer = GroupJoinRequestSerializer(data=request.data)

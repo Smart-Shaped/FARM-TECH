@@ -19,6 +19,7 @@ from rest_framework import status
 
 from farmtech.serializers import DataForInferenceSerializer
 from farmtech.permissions import HasInferencePermission
+from farmtech.throttles import FiveDaysRegisteredThrottleRate
 from farmtech.utils.copernicus_api import get_auth_token, get_tiff_from_copernicus
 from farmtech.exceptions import InvokeSSHCommandError, PolygonAnalysisError, TiffSaveError
 
@@ -295,6 +296,7 @@ class RunSSHCommandView(APIView):
     """
 
     permission_classes = [HasInferencePermission]
+    throttle_classes = [FiveDaysRegisteredThrottleRate]
 
     def post(self, request):
 

@@ -6,14 +6,14 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from django.conf import settings
+from farmtech.throttles import IPBasedThrottle
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
 class KeycloakAuthAPIView(APIView):
     
-    authentication_classes = []
-    permission_classes = []
+    throttle_classes = [IPBasedThrottle]
     
     def post(self, request):
         username = request.data.get('username')

@@ -196,3 +196,16 @@ COPERNICUS_CLIENT_ID = os.environ.get('COPERNICUS_CLIENT_ID')
 COPERNICUS_CLIENT_SECRET = os.environ.get('COPERNICUS_CLIENT_SECRET')
 COPERNICUS_API_URL = os.environ.get('COPERNICUS_API_URL')
 COPERNICUS_AUTH_URL = os.environ.get('COPERNICUS_AUTH_URL')
+
+# Django REST Framework Configuration
+REST_FRAMEWORK.update({
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '200/hour',  # Rate globale per utenti anonimi
+        'user': '1000/hour',  # Rate globale per utenti autenticati
+        # I rate specifici (upload, inference, etc.) sono definiti nelle classi throttle
+    }
+})

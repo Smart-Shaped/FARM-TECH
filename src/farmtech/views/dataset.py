@@ -21,12 +21,16 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
 from geonode.layers.models import Dataset
-from geonode.groups.models import GroupProfile
+from geonode.groups.models import GroupProfile, GroupMember
 from shapely.geometry import Point
 
 from farmtech.authentication import KeycloakAuthentication
 from farmtech.models import DatasetExperiment, RawFile
 from farmtech.serializers import DatasetUpdateSerializer, GroupExcelTemplatesSerializer
+from farmtech.permissions import IsGroupProfileMember
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required, permission_required
 from ..utils.user_utils import get_area_groups
 
 
@@ -89,10 +93,12 @@ class DatasetUpdateAPIView(APIView):
     2. Find the dataset in the layers_dataset table
     3. Find the corresponding DatasetExperiment to get the model_package
     4. Load the data from the Excel file into the specific model
+
+    Requires the user to be a member of the GroupProfile associated with the DatasetExperiment.
     """
-
-    permission_classes = [IsAuthenticated]
-
+    authentication_classes = [SessionAuthentication, KeycloakAuthentication]
+    permission_classes = [IsAuthenticated, IsGroupProfileMember]
+    
     def post(self, request):
 
         """
@@ -131,7 +137,9 @@ class DatasetUpdateAPIView(APIView):
                     {"error": f"No DatasetExperiment found for dataset '{dataset_name}'"},
                     status=status.HTTP_404_NOT_FOUND
                 )
-
+            
+            self.check_object_permissions(request, dataset_experiment)
+            
             if not model_package:
                 return Response(
                     {"error": "Model package not found in DatasetExperiment"},
@@ -255,28 +263,6 @@ class DatasetUpdateAPIView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-@login_required
-@permission_required('farmtech.uploader', raise_exception=True)
-def uploader_view(request):
-    
-    """
-    Vista per la pagina uploader - permette di scaricare template Excel e caricare dati
-    I template vengono caricati dinamicamente via API
-    """
-    
-    # Ottieni i gruppi della linea di ricerca dell'utente
-    area_groups = get_area_groups(request.user)
-
-    # Ottieni gli upload dell'utente dal database (complessivo tra tutti gli uploader?)
-    user_uploads = RawFile.objects.filter(user=request.user).order_by('-upload_datetime')
-
-    context = {
-        'uploads': user_uploads,
-        'user_groups': area_groups
-    }
-
-    return render(request, 'uploader.html', context)
-
 class GroupExcelTemplatesAPIView(APIView):
     """
     API per ottenere la lista dei template Excel di un GroupProfile.
@@ -284,9 +270,11 @@ class GroupExcelTemplatesAPIView(APIView):
     Restituisce i DatasetExperiment associati al GroupProfile con:
     - URL per il download del template
     - Datetime dell'ultimo upload processato
+    
+    Requires the user to be a member of the GroupProfile.
     """
     authentication_classes = [SessionAuthentication, KeycloakAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsGroupProfileMember]
     
     def post(self, request):
         serializer = GroupExcelTemplatesSerializer(data=request.data)
@@ -309,6 +297,8 @@ class GroupExcelTemplatesAPIView(APIView):
                     {"error": f"GroupProfile with ID '{group_profile_id}' not found"},
                     status=status.HTTP_404_NOT_FOUND
                 )
+            
+            self.check_object_permissions(request, group_profile)
             
             # Get all DatasetExperiment for this GroupProfile
             dataset_experiments = DatasetExperiment.objects.filter(
@@ -393,9 +383,11 @@ class DownloadExcelTemplateAPIView(APIView):
     URL: /api/dataset/download-template/<dataset_experiment_id>
     
     Restituisce il file Excel come download usando il template_path dal DatasetExperiment.
+    
+    Requires the user to be a member of the GroupProfile associated with the DatasetExperiment.
     """
     authentication_classes = [SessionAuthentication, KeycloakAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsGroupProfileMember]
     
     def get(self, request, dataset_experiment_id):
         try:
@@ -407,6 +399,8 @@ class DownloadExcelTemplateAPIView(APIView):
                 logger.info("DatasetExperiment found: ID %s", dataset_exp.id)
             except DatasetExperiment.DoesNotExist:
                 raise Http404(f"DatasetExperiment with ID '{dataset_experiment_id}' not found")
+            
+            self.check_object_permissions(request, dataset_exp)
             
             # Check if template_path exists
             if not dataset_exp.template_path:
@@ -451,3 +445,22 @@ class DownloadExcelTemplateAPIView(APIView):
         except Exception as e:
             logger.error("Error downloading Excel template: %s", str(e), exc_info=True)
             raise Http404(f"Error downloading file: {str(e)}")
+
+
+@login_required
+@permission_required('farmtech.uploader', raise_exception=True)
+def uploader_view(request):
+    """
+    Vista per la pagina uploader - permette di scaricare template Excel e caricare dati
+    I template vengono caricati dinamicamente via API
+    """
+    area_groups = get_area_groups(request.user)
+
+    user_uploads = RawFile.objects.filter(user=request.user).order_by('-upload_datetime')
+
+    context = {
+        'uploads': user_uploads,
+        'user_groups': area_groups
+    }
+
+    return render(request, 'uploader.html', context)
