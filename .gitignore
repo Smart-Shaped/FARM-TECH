@@ -78,3 +78,4 @@ geonode-init/processed_datasets
 node_modules/
 
 src/farmtech/migrations/
+src/*.MainThread-*

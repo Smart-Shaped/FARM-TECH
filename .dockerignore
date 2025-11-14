@@ -1,0 +1,3 @@
+src/celerybeat-*
+src/package
+src/farmtech/client

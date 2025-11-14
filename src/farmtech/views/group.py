@@ -16,8 +16,9 @@ from farmtech.authentication import KeycloakAuthentication
 from rest_framework.authentication import SessionAuthentication
 from geonode.geoapps.models import GeoApp
 
-template_path = '/usr/src/farmtech/resource/group_join_request_email.txt'
 logger = logging.getLogger(__name__)
+
+__template_path = '/usr/src/farmtech/resources/group_join_request_email.txt'
 
 class GroupJoinRequestAPIView(APIView):
     """
@@ -95,10 +96,10 @@ class GroupJoinRequestAPIView(APIView):
             subject = f"Nuova richiesta di iscrizione al gruppo '{group_profile.title}'"
             
             try:
-                with open(template_path, 'r', encoding='utf-8') as f:
+                with open(__template_path, 'r', encoding='utf-8') as f:
                     message_template = f.read()
             except FileNotFoundError:
-                logger.error(f"Template email non trovato: {template_path}")
+                logger.error(f"Template email non trovato: {__template_path}")
                 return Response(
                     {"error": "Errore interno: template email non trovato"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR

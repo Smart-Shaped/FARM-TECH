@@ -11,6 +11,9 @@ from geonode.resource.api.tasks import resouce_service_dispatcher
 
 logger = logging.getLogger("celery")
 
+__dataset_path = "/usr/src/farmtech/resources/datasets.json"
+__dataset_experiment_path = "/usr/src/farmtech/resources/datasets_experiment.json"
+
 def manage_tif_style(resource):
 
     """
@@ -77,7 +80,7 @@ def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwa
                         resource.group = group
                         resource.save()
                     else:
-                        with open("/usr/src/farmtech/datasets.json") as f:
+                        with open(__dataset_path) as f:
                             datasets = json.load(f)
                         resource.group = Group.objects.get(id=datasets[resource.title])
                         resource.is_published = True
@@ -122,7 +125,7 @@ def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwa
 def create_dataset_experiment(resource):
     if resource.subtype == "vector":
 
-        with open("/usr/src/farmtech/datasets_experiment.json") as f:
+        with open(__dataset_experiment_path) as f:
             datasets = json.load(f)
             model_package = datasets[resource.title]["model_package"]
             template_path = datasets[resource.title]["template_path"]
@@ -132,6 +135,6 @@ def create_dataset_experiment(resource):
         dataset_experiment.template_path = template_path
         dataset = Dataset.objects.get(uuid=resource.uuid)
         dataset_experiment.layer_dataset = dataset
-        group_profile = GroupProfile.objects.get(slug=resource.group.name)
+        group_profile = GroupProfile.objects.get(group=resource.group)
         dataset_experiment.group_profile = group_profile
         dataset_experiment.save()
