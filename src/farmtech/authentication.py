@@ -92,9 +92,11 @@ class KeycloakAuthentication(authentication.BaseAuthentication):
                     anonymous_group, _ = Group.objects.get_or_create(name='anonymous')
                     registered_group, _ = Group.objects.get_or_create(name='registered-members')
                     user.groups.add(anonymous_group, registered_group)
-                    logger.info("Groups 'anonymous' and 'registered-members' assigned to user %s", username)
+                    logger.info("Groups 'anonymous' and 'registered-members' assigned to user %s",
+                                username)
                 except Exception as e:
-                    logger.exception("Error assigning groups to user %s: %s", username, str(e), exc_info=True)
+                    logger.exception("Error assigning groups to user %s: %s", username, str(e),
+                                     exc_info=True)
 
             return (user, token)
 
