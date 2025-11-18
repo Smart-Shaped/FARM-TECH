@@ -3,13 +3,17 @@ Keycloak authentication API view for FarmTech application.
 """
 
 import logging
+import os
 import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, logout
 from django.conf import settings
+from django.shortcuts import redirect
+from django.views import View
+from urllib.parse import urlencode
 
 from farmtech.throttles import IPBasedThrottle
 
@@ -153,3 +157,68 @@ class KeycloakAuthAPIView(APIView):
                 {"error": "Error during authentication."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class KeycloakLogoutView(View):
+    
+    def get(self, request):
+        """Handle GET request for logout."""
+        print("=" * 80)
+        print("KEYCLOAK LOGOUT - CHIAMATA RICEVUTA")
+        print("=" * 80)
+        
+        try:
+            keycloak_config = getattr(settings, 'SOCIALACCOUNT_PROVIDERS_DEFS', {}).get('keycloak', {})
+            
+            if not keycloak_config:
+                keycloak_config = getattr(settings, '_KEYCLOAK_SOCIALACCOUNT_PROVIDER', {})
+            
+            print(f"Keycloak config trovata: {bool(keycloak_config)}")
+            
+            if keycloak_config:
+                issuer = keycloak_config.get('ID_TOKEN_ISSUER')
+                client_id = keycloak_config.get('CLIENT_ID', '')
+                
+                print(f"Issuer: {issuer}")
+                print(f"Client ID: {client_id}")
+                
+                if issuer:
+                    django_logout_url = request.build_absolute_uri('/account/logout/complete/')
+                    
+                    keycloak_logout_url = f"{issuer}/protocol/openid-connect/logout"
+                    params = {
+                        'post_logout_redirect_uri': django_logout_url,
+                        'client_id': client_id,
+                    }
+                    
+                    logout_url = f"{keycloak_logout_url}?{urlencode(params)}"
+                    print(f"Redirect a Keycloak: {logout_url}")
+                    print("=" * 80)
+                    
+                    logout(request)
+                    return redirect(logout_url)
+            
+            print("Keycloak non configurato - logout solo Django")
+            print("=" * 80)
+            logout(request)
+            return redirect('/account/logout/complete/')
+            
+        except Exception as e:
+            print(f"ERRORE durante logout: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            logout(request)
+            return redirect('/')
+
+
+class KeycloakLogoutCompleteView(View):
+    def get(self, request):
+        print("=" * 80)
+        print("LOGOUT COMPLETATO - Redirect a homepage")
+        print("=" * 80)
+        
+        if request.user.is_authenticated:
+            logout(request)
+        
+        next_url = request.GET.get('next', '/')
+        return redirect(next_url)

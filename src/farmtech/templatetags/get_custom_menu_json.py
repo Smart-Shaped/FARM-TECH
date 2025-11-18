@@ -113,16 +113,13 @@ def get_custom_base_left_topbar_menu_json(context):
     return json.dumps(items)
 
 @register.simple_tag(takes_context=True)
-def get_user_menu(context):
+def get_custom_user_menu(context):
     is_mobile = _is_mobile_device(context)
 
     user = _get_request_user(context)
 
     if not user or (user and not user.is_authenticated):
         return [
-            {"label": "Register", "type": "link", "href": "/account/signup/?next=/catalogue/#/dashboards"}
-            if settings.ACCOUNT_OPEN_SIGNUP and not Configuration.load().read_only
-            else None,
             {"label": "Sign in", "type": "link", "href": "/account/login/?next=/catalogue/#/dashboards"},
         ]
 
@@ -135,7 +132,7 @@ def get_user_menu(context):
         "label": "Profile",
     }
 
-    logout = {"type": "link", "href": "/account/logout/?next=/", "label": "Log out"}
+    logout = {"type": "link", "href": "/auth/logout/", "label": "Log out"}
 
     if is_mobile:
         return [

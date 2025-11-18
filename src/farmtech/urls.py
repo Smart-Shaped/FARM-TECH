@@ -39,6 +39,8 @@ urlpatterns += [
 
    # ------------ Auth ------------
    path('api/auth/keycloak/', auth.KeycloakAuthAPIView.as_view(), name='keycloak-auth'),
+   path('auth/logout/', auth.KeycloakLogoutView.as_view(), name='farmtech-logout'),
+   path('account/logout/complete/', auth.KeycloakLogoutCompleteView.as_view(), name='logout-complete'),
 
    # ------------ Group Profile ------------
    path('api/group/group-join-request/',
