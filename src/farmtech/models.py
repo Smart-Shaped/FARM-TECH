@@ -401,8 +401,9 @@ class ExperimentZootechnicalBasilicata(gis_models.Model):
     piogge_mm = models.FloatField(null=True, blank=True, name='piogge_mm')
     biomassa_verde_totale = models.FloatField(null=True,
                                               blank=True, name='biomassa_verde_totale_(g/_0,25_mq)')
-    biomassa_verde_pulita = models.FloatField(null=True, blank=True,
-                                              name='biomassa_verde_pulita_dal_secco_e_messo_in_stufa_(g/_0,25_mq)')
+    biomassa_verde_pulita = models.FloatField(
+        null=True, blank=True,
+        name='biomassa_verde_pulita_dal_secco_e_messo_in_stufa_(g/_0,25_mq)')
     ndvi_media = models.FloatField(null=True, blank=True, name='ndvi_media')
     ndvi_mediana = models.FloatField(null=True, blank=True, name='ndvi_mediana')
     evi_media = models.FloatField(null=True, blank=True, name='evi_media')

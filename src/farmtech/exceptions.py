@@ -33,3 +33,11 @@ class CopernicusAPIError(Exception):
     def __init__(self, message="An error occurred while interacting with the Copernicus API."):
         self.message = message
         super().__init__(message)
+
+class GeoserverUtilsError(Exception):
+
+    """Custom exception for errors related to GeoServer utilities."""
+
+    def __init__(self, message="An error occurred while using GeoServer utilities."):
+        self.message = message
+        super().__init__(message)

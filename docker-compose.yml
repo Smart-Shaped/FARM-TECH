@@ -8,7 +8,6 @@ x-common-django:
   env_file:
     - .env
   volumes:
-    - './src:/usr/src/farmtech'
     - statics:/mnt/volumes/statics
     - geoserver-data-dir:/geoserver_data/data
     - backup-restore:/backup_restore
@@ -171,8 +170,6 @@ services:
       - SSH_SERVER_ENABLED=true
       - JUPYTER_SERVER_ENABLED=false
     volumes:
-      - ./ml_runner/workflows:/app/workflows # TODO remove in production
-      - ./ml_runner/configs:/app/configs # TODO remove in production
       - inference_data:/app/data
     restart: unless-stopped
 

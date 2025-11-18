@@ -1,18 +1,24 @@
-import sys
-import logging
+"""
+Signals for FarmTech app.
+"""
 
+import logging
 from django.dispatch import receiver
-from geonode.groups.models import GroupProfile
-from django.db.models.signals import post_save, pre_save
-from django.dispatch import receiver
+from django.db.models.signals import post_save
 from geonode.geoapps.models import GeoApp
 from geonode.security.permissions import PermSpec, PermSpecCompact
 from geonode.resource.api.tasks import resouce_service_dispatcher
+from geonode.resource.models import ExecutionRequest
+from geonode.groups.models import GroupProfile
+
 
 logger = logging.getLogger("django")
 
 @receiver(post_save, sender=GeoApp)
 def dataset_post_save(sender, instance, created, **kwargs):
+    """
+    Set the permissions for a resource.
+    """
     if not created and instance.is_approved:
 
         group = instance.group
@@ -30,7 +36,7 @@ def dataset_post_save(sender, instance, created, **kwargs):
         perms_spec = PermSpec(json_perms, instance)
         perms_spec_compact = PermSpecCompact(perms_spec.compact, instance)
         # perms_spec_compact.merge(perms_spec_compact_patch)
-        
+
         set_permissions(instance, user, perms_spec_compact)
 
         group_dashaboard = GeoApp.objects.filter(group=group).exclude(id=instance.id).all()
@@ -51,7 +57,7 @@ def dataset_post_save(sender, instance, created, **kwargs):
             perms_geo = PermSpec(json_perms, geoapp)
             perms_geo_compact = PermSpecCompact(perms_geo.compact, geoapp)
             perms_geo_compact.merge(perms_geo_compact_patch)
-            
+
             set_permissions(geoapp, geoapp.owner, perms_geo_compact)
 
     if created:
@@ -69,7 +75,9 @@ def dataset_post_save(sender, instance, created, **kwargs):
             instance.save()
 
 def set_permissions(resource, user, perms_spec_compact=PermSpecCompact):
-    from geonode.resource.models import ExecutionRequest
+    """
+    Set the permissions for a resource.
+    """
     _exec_request = ExecutionRequest.objects.create(
         user=user,
         func_name="set_permissions",
