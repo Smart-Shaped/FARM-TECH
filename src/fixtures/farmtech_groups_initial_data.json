@@ -4,7 +4,7 @@
         "pk": 4,
         "fields": {
             "name": "azione-1",
-            "permissions": [165, 167, 2, 506, 507, 508, 509]
+            "permissions": []
         }
     },
     {
@@ -12,7 +12,7 @@
         "pk": 5,
         "fields": {
             "name": "azione-2",
-            "permissions": [165, 167, 2, 506, 507, 508, 509]
+            "permissions": []
         }
     },
     {
@@ -20,7 +20,7 @@
         "pk": 6,
         "fields": {
             "name": "azione-3",
-            "permissions": [165, 167, 2, 506, 507, 508, 509]
+            "permissions": []
         }
     },
     {
@@ -28,7 +28,7 @@
         "pk": 7,
         "fields": {
             "name": "azione-4",
-            "permissions": [165, 167, 2, 506, 507, 508, 509]
+            "permissions": []
         }
     },
     {
@@ -36,7 +36,7 @@
         "pk": 8,
         "fields": {
             "name": "azione-5",
-            "permissions": [165, 167, 2, 506, 507, 508, 509]
+            "permissions": []
         }
     },
     {
@@ -44,7 +44,7 @@
         "pk": 9,
         "fields": {
             "name": "azione-6",
-            "permissions": [165, 167, 2, 506, 507, 508, 509]
+            "permissions": []
         }
     },
     {
@@ -52,7 +52,7 @@
         "pk": 10,
         "fields": {
             "name": "azione-zootecnica",
-            "permissions": [165, 167, 2, 506, 507, 508, 509]
+            "permissions": []
         }
     },
     {
