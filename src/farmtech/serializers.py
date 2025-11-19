@@ -1,8 +1,12 @@
+"""
+Serializer classes for FarmTech app.
+"""
+
 from rest_framework import serializers
 from geonode.geoapps.models import GeoApp
 
-class DatasetUpdateSerializer(serializers.Serializer):
 
+class DatasetUpdateSerializer(serializers.Serializer):
     """
     Serializer class for updating a dataset with an Excel file.
     """
@@ -35,58 +39,61 @@ class DatasetUpdateSerializer(serializers.Serializer):
 
 class GroupJoinRequestSerializer(serializers.Serializer):
     """
-    Serializer per la richiesta di iscrizione ad un Group Profile.
+    Serializer for the join request to a Group Profile.
     """
-    
+
     group_profile_id = serializers.IntegerField(
         required=True,
-        help_text="ID del GroupProfile a cui si vuole accedere"
+        help_text="ID of the GroupProfile to join"
     )
-    
+
     requested_role = serializers.ChoiceField(
         choices=['manager', 'member'],
         required=True,
-        help_text="Ruolo richiesto: 'manager' o 'member'"
+        help_text="Role requested: 'manager' or 'member'"
     )
-    
+
     motivation = serializers.CharField(
         required=True,
         allow_blank=False,
         min_length=10,
-        help_text="Motivazione della richiesta (minimo 10 caratteri)"
+        help_text="Motivation for the join request (min 10 characters)"
     )
-    
+
     def validate_motivation(self, value):
         """
-        Valida che la motivazione non sia solo spazi bianchi.
+        Validate that the motivation is not empty or only contains white spaces.
         """
         if not value or not value.strip():
             raise serializers.ValidationError(
-                "La motivazione non può essere vuota o contenere solo spazi"
+                "The motivation cannot be empty or only contain white spaces"
             )
         return value.strip()
 
 class DashboardPublishSerializer(serializers.ModelSerializer):
+    """
+    Serializer for updating the is_published field of a GeoApp.
+    """
     class Meta:
+        """
+        Meta class for DashboardPublishSerializer.
+        """
         model = GeoApp
         fields = ['is_published']
 
 class GroupExcelTemplatesSerializer(serializers.Serializer):
     """
-    Serializer per ottenere i template Excel di un GroupProfile.
+    Serializer for getting the Excel templates of a Group Profile.
     """
-    
     group_profile_id = serializers.IntegerField(
         required=True,
-        help_text="ID del GroupProfile di cui recuperare i template Excel"
+        help_text="ID of the GroupProfile to get the Excel templates"
     )
 
 class DataForInferenceSerializer(serializers.Serializer):
-
     """
     Serializer class for inputting a tiff file for inference.
     """
-
     tiff_file = serializers.FileField(
         required=False,
         help_text="Input tiff file for inference"
@@ -109,7 +116,6 @@ class DataForInferenceSerializer(serializers.Serializer):
         self.input_type = None
 
     def validate(self, attrs):
-
         tiff_file_provided = attrs.get('tiff_file') is not None
         polygon_provided = attrs.get('polygon') != {}
         start_date_provided = attrs.get('start_date') is not None

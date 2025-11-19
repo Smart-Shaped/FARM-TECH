@@ -47,8 +47,8 @@ class PublishDashboardAPIView(APIView):
                     geoapp.save(update_fields=['is_published','is_approved'])
 
             return Response(
-                {'detail': 'Dashboard successfully published.', 
+                {'detail': 'Dashboard successfully published.',
                  'is_published': True}, status=status.HTTP_200_OK)
 
-        return Response({'detail': 'Dashboard is already published.', 'is_published': True}, 
+        return Response({'detail': 'Dashboard is already published.', 'is_published': True},
                         status=status.HTTP_200_OK)

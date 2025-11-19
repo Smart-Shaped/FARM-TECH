@@ -1,18 +1,24 @@
+"""
+Celery signals for FarmTech application.
+"""
+
 import logging
 import json
 from celery.signals import task_postrun
-from farmtech.models import DatasetExperiment
-from geonode.groups.models import GroupProfile
-from geonode.layers.models import Dataset
 from django.contrib.auth.models import Group
 from geonode.security.permissions import PermSpec, PermSpecCompact
 from geonode.resource.api.tasks import resouce_service_dispatcher
+from geonode.groups.models import GroupProfile
+from geonode.layers.models import Dataset
+from geonode.resource.models import ExecutionRequest
+
+from farmtech.models import DatasetExperiment
 
 
 logger = logging.getLogger("celery")
 
-__dataset_path = "/usr/src/farmtech/resources/datasets.json"
-__dataset_experiment_path = "/usr/src/farmtech/resources/datasets_experiment.json"
+__DATASET_PATH = "/usr/src/farmtech/resources/datasets.json"
+__DATASET_EXPERIMENT_PATH = "/usr/src/farmtech/resources/datasets_experiment.json"
 
 def manage_tif_style(resource):
 
@@ -32,8 +38,6 @@ def manage_tif_style(resource):
 
         logger.info("Managing style for resource: %s", resource)
 
-        from geonode.layers.models import Dataset
-
         dataset = Dataset.objects.filter(id=resource.id).first()
         if dataset:
             dataset.default_style_id = 1
@@ -44,7 +48,8 @@ def manage_tif_style(resource):
             logger.info("Style applied for resource: %s", resource)
 
 @task_postrun.connect
-def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwargs=None, retval=None, **extra):
+def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwargs=None,
+                            retval=None, **extra):
 
     """
     Celery signal handler for post-processing after a resource import task.
@@ -54,7 +59,7 @@ def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwa
     """
 
     task_name = getattr(sender, "name", sender)
-    logger.info(f"Task name: {task_name}")
+    logger.info("Task name: %s", task_name)
 
     if task_name == "importer.create_geonode_resource":
         logger.info("Farmtech: Detected finished resource import task.")
@@ -64,7 +69,6 @@ def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwa
                 _, execution_id = retval
                 logger.info("Execution ID: %s", execution_id)
 
-                from geonode.resource.models import ExecutionRequest
                 exec_req = ExecutionRequest.objects.filter(exec_id=execution_id).first()
                 if exec_req:
                     resource = exec_req.geonode_resource
@@ -80,7 +84,7 @@ def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwa
                         resource.group = group
                         resource.save()
                     else:
-                        with open(__dataset_path) as f:
+                        with open(__DATASET_PATH, encoding="utf-8") as f:
                             datasets = json.load(f)
                         resource.group = Group.objects.get(id=datasets[resource.title])
                         resource.is_published = True
@@ -93,7 +97,8 @@ def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwa
                         new_groups_perms = {
                             "anonymous": ["view_resourcebase"],
                             "registered-members": ["view_resourcebase", "download_resourcebase"],
-                            str(resource.group.name): ["view_resourcebase", "download_resourcebase"],
+                            str(resource.group.name): ["view_resourcebase",
+                                                       "download_resourcebase"],
                         }
                         json_perms = resource.get_all_level_info()
                         json_perms["groups"] = new_groups_perms
@@ -113,7 +118,8 @@ def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwa
                                 "created": False,
                             },
                         )
-                        resouce_service_dispatcher.apply_async(args=(str(_exec_request.exec_id),), expiration=30)
+                        resouce_service_dispatcher.apply_async(args=(str(_exec_request.exec_id),),
+                                                               expiration=30)
 
                     create_dataset_experiment(resource)
                     # manage 5-bands raster style
@@ -123,9 +129,12 @@ def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwa
             logger.exception("Error in farmtech import handler: %s", e)
 
 def create_dataset_experiment(resource):
+    """
+    Create a DatasetExperiment object for the given resource.
+    """
     if resource.subtype == "vector":
 
-        with open(__dataset_experiment_path) as f:
+        with open(__DATASET_EXPERIMENT_PATH, encoding="utf-8") as f:
             datasets = json.load(f)
             model_package = datasets[resource.title]["model_package"]
             template_path = datasets[resource.title]["template_path"]

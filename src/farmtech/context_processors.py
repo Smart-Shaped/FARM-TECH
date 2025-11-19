@@ -7,7 +7,7 @@ from .utils.user_utils import get_user_group_data
 
 def farmtech_user(request):
     """
-    Aggiunge i dati dell'utente FarmTech al context di tutti i template.
+    Add FarmTech user data to the template context
 
     Usage in templates:
         {{ farmtech_user.auth_groups }}

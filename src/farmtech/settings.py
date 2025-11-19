@@ -1,3 +1,7 @@
+"""
+Django settings for farmtech project.
+"""
+
 # -*- coding: utf-8 -*-
 #########################################################################
 #
@@ -204,8 +208,8 @@ REST_FRAMEWORK.update({
         'rest_framework.throttling.UserRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '200/hour',  # Rate globale per utenti anonimi
-        'user': '1000/hour',  # Rate globale per utenti autenticati
-        # I rate specifici (upload, inference, etc.) sono definiti nelle classi throttle
+        'anon': '200/hour',  # Global rate limit for anonymous users
+        'user': '1000/hour',  # Global rate limit for authenticated users
+        # Spacific rate limits are set in the throttling classes
     }
 })

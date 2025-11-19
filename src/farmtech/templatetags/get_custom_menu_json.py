@@ -1,9 +1,14 @@
-from avatar.templatetags.avatar_tags import avatar_url
+"""
+Custom menu json
+"""
+
+import json
 from django import template
 from django.conf import settings
 from django.utils.translation import gettext as _
-from geonode.base.models import Configuration, Menu, MenuItem
-import json
+from avatar.templatetags.avatar_tags import avatar_url
+from geonode.base.models import Menu, MenuItem
+
 
 register = template.Library()
 
@@ -31,6 +36,7 @@ def _is_mobile_device(context):
 
 @register.simple_tag(takes_context=True)
 def get_custom_base_left_topbar_menu(context):
+    """Returns the menu as JSON string with translations already resolved."""
     user = _get_request_user(context)
     items = [
         {
@@ -113,17 +119,16 @@ def get_custom_base_left_topbar_menu_json(context):
     return json.dumps(items)
 
 @register.simple_tag(takes_context=True)
-def get_user_menu(context):
+def get_custom_user_menu(context):
+    """Returns the menu as JSON string with translations already resolved."""
     is_mobile = _is_mobile_device(context)
 
     user = _get_request_user(context)
 
     if not user or (user and not user.is_authenticated):
         return [
-            {"label": "Register", "type": "link", "href": "/account/signup/?next=/catalogue/#/dashboards"}
-            if settings.ACCOUNT_OPEN_SIGNUP and not Configuration.load().read_only
-            else None,
-            {"label": "Sign in", "type": "link", "href": "/account/login/?next=/catalogue/#/dashboards"},
+            {"label": "Sign in", "type": "link", "href":
+                "/account/login/?next=/catalogue/#/dashboards"},
         ]
 
     devider = {"type": "divider"}
@@ -135,7 +140,7 @@ def get_user_menu(context):
         "label": "Profile",
     }
 
-    logout = {"type": "link", "href": "/account/logout/?next=/", "label": "Log out"}
+    logout = {"type": "link", "href": "/auth/logout/", "label": "Log out"}
 
     if is_mobile:
         return [
@@ -200,6 +205,7 @@ def get_user_menu(context):
 
 @register.simple_tag
 def get_menu_json(placeholder_name):
+    """Returns the menu as JSON string with translations already resolved."""
     menus = {
         m: MenuItem.objects.filter(menu=m).order_by("order")
         for m in Menu.objects.filter(placeholder__name=placeholder_name)

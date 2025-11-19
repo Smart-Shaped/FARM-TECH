@@ -5,7 +5,7 @@ Utility functions for user group management and filtering
 
 def get_user_group_data(user):
     """
-    Ottiene i dati dei gruppi dell'utente con mapping tra GroupProfile e AuthGroup.
+    Retrieves the user's group data with mapping between GroupProfile and AuthGroup.
 
     Returns:
         dict: {
@@ -16,9 +16,9 @@ def get_user_group_data(user):
                 'group_profile_pk': int,
                 'group_slug': str,
                 'role': str,
-                'auth_group_id': int  # ID del gruppo auth corrispondente allo slug
+                'auth_group_id': int  # ID of the auth group corresponding to the GroupProfile slug
             }, ...],
-            'area_groups': [str, ...]  # Lista dei nomi dei gruppi area-*-manager
+            'area_groups': [str, ...]  # List of area-X-manager group names
         }
     """
     if not user or not user.is_authenticated:
@@ -28,7 +28,7 @@ def get_user_group_data(user):
             'area_groups': []
         }
 
-    # Ottieni tutti i gruppi auth dell'utente
+    # Retrieve all the user's auth groups
     auth_groups = []
     auth_groups_map = {}  # name -> id mapping
 
@@ -41,12 +41,12 @@ def get_user_group_data(user):
         auth_groups.append(group_data)
         auth_groups_map[group.name] = group.id
 
-    # Ottieni i GroupProfile (groupmember_set)
+    # Retrieve the GroupProfile (groupmember_set)
     group_members = []
     group_members_set = user.groupmember_set.all()
 
     for gm in group_members_set:
-        # Trova l'ID del gruppo auth che corrisponde allo slug del GroupProfile
+        # Find the ID of the auth group corresponding corresponding to the GroupProfile slug
         auth_group_id = auth_groups_map.get(gm.group.slug)
 
         member_data = {
@@ -63,7 +63,7 @@ def get_user_group_data(user):
     area_groups = [
         group['name']
         for group in auth_groups
-        if group['name'].startswith('azione-')
+        if group['name'].startswith('area-')
     ]
 
     return {
@@ -75,8 +75,9 @@ def get_user_group_data(user):
 
 def get_area_groups(user):
     """
-    Estrae solo i nomi dei gruppi area-X-manager dell'utente.
-    Funzione di compatibilità con il codice esistente.
+    Extracts only the names of the user's area-X-manager groups.
+    Function for backward compatibility with existing code.
     """
     user_data = get_user_group_data(user)
     return user_data['area_groups']
+
