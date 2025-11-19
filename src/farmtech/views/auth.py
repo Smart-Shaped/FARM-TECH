@@ -14,6 +14,7 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.views import View
 from urllib.parse import urlencode
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from farmtech.throttles import IPBasedThrottle
 
@@ -221,4 +222,7 @@ class KeycloakLogoutCompleteView(View):
             logout(request)
         
         next_url = request.GET.get('next', '/')
+        if not url_has_allowed_host_and_scheme(next_url, allowed_hosts=None):
+            next_url = '/'
+            
         return redirect(next_url)
