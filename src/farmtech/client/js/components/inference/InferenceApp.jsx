@@ -15,7 +15,7 @@ export const InferenceApp = ({ hasPermission = false }) => {
   const [polygon, setPolygon] = useState(null);
   const [showDateDialog, setShowDateDialog] = useState(false);
   const [showTiffInfoDialog, setShowTiffInfoDialog] = useState(false);
-  const [isTutorialExpanded, setIsTutorialExpanded] = useState(false);
+  const [isTutorialExpanded, setIsTutorialExpanded] = useState(true);
   const [savedDates, setSavedDates] = useState({ startDate: "", endDate: "" });
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
@@ -83,7 +83,7 @@ export const InferenceApp = ({ hasPermission = false }) => {
         progressIntervalRef.current = setInterval(() => {
           setAnalysisProgress(prev => {
             const next = prev + 3;
-            if (next >= 90) {
+            if (next >= 50) {
               clearInterval(progressIntervalRef.current);
               return 90;
             }
@@ -122,7 +122,7 @@ export const InferenceApp = ({ hasPermission = false }) => {
       }
 
       setAnalysisResult({
-        yield: `${result/1000} ${unit}`,
+        yield: `${(result/1000).toFixed(2)} ${unit}`,
         polygon: resultPolygon,
         center,
         warning
@@ -141,8 +141,7 @@ export const InferenceApp = ({ hasPermission = false }) => {
         polygon: null,
         center: null,
         warning: t(
-          "analysis_error",
-          "Errore durante l'analisi. Verifica le date selezionate o che il TIFF contenga le bande nell'ordine corretto: Blue, Green, Red, Near Red, NIR."
+          "analysis_error",          
         )
       });
     } finally {
@@ -156,11 +155,10 @@ export const InferenceApp = ({ hasPermission = false }) => {
     return (
       <div className="container-fluid py-5 text-center">
         <div className="alert alert-warning">
-          <h4>{t("no_permission_title", "Permission Required")}</h4>
+          <h4>{t("no_permission_title")}</h4>
           <p>
             {t(
               "no_permission_message",
-              "You do not have permission to access the inference page."
             )}
           </p>
         </div>

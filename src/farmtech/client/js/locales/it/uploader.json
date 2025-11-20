@@ -25,5 +25,19 @@
   "today": "Oggi",
   "yesterday": "Ieri",
   "days_ago": "giorni fa",
-  "error_label": "Errore"
+  "error_label": "Errore",
+  "help": "Aiuto",
+  "tutorial_step1_title": "Scarica il Template",
+  "tutorial_step1_desc": "Per prima cosa, ottieni il template di interesse cliccando sul pulsante \"Scarica\". Ogni template è specifico per il tipo di dati che desideri inserire.",
+  "tutorial_step2_title": "Compila il File Excel",
+  "tutorial_step2_desc": "Apri il file scaricato. Noterai che il template è essenziale: contiene solo le colonne necessarie per l'inserimento dei nuovi dati.",
+  "tutorial_step2_item1": "Compila le righe con le informazioni richieste.",
+  "tutorial_step2_item2": "Assicurati che i dati siano formattati correttamente (ad esempio, date, numeri).",
+  "tutorial_step2_item3": "Salva il file una volta terminato.",
+  "tutorial_step3_title": "Carica il File",
+  "tutorial_step3_desc": "Torna sulla piattaforma e utilizza il pulsante \"Carica\" del template di partenza e seleziona il file Excel che hai appena compilato.",
+  "tutorial_step4_title": "Risultato Finale: Dati Aggiunti",
+  "tutorial_step4_desc": "Dopo l'upload, il sistema elaborerà il tuo file.",
+  "tutorial_step4_note_title": "Nota Importante:",
+  "tutorial_step4_note_desc": "Questa procedura è pensata solo per aggiungere le informazioni. I dati che hai caricato verranno inseriti come nuove voci e si sommeranno a quelli già presenti nel database. Non è possibile eliminare o aggiornare dati precedenti da questa pagina, se ne hai bisogno contatta il tuo manager."
 }

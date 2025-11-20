@@ -25,9 +25,9 @@ export default defineConfig(({ mode }) => ({
         'farmtech-index': path.resolve(__dirname, 'js/apps/farmtech-index.jsx'),
         'farmtech-uploader': path.resolve(__dirname, 'js/apps/farmtech-uploader.jsx'),
         'farmtech-inference': path.resolve(__dirname, 'js/apps/farmtech-inference.jsx'),
-        'farmtech-permission-request': path.resolve(__dirname, 'js/apps/farmtech-permission-request.jsx'),
-        'farmtech-dashboard-publisher': path.resolve(__dirname, 'js/apps/farmtech-dashboard-publisher.jsx'),
         'farmtech-research': path.resolve(__dirname, 'js/apps/farmtech-research.jsx'),
+        'farmtech-permission-request': path.resolve(__dirname, 'js/apps/farmtech-permission-request.jsx'),
+        'farmtech-dashboard-publisher': path.resolve(__dirname, 'js/apps/farmtech-dashboard-publisher.jsx')
       },
       output: {
         entryFileNames: 'js/[name].js',

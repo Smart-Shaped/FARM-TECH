@@ -22,12 +22,14 @@
   "important_notice": "Avviso Importante:",
   "analysis_validity_warning": "I risultati dell'analisi potrebbero non essere validi se le immagini da drone sono state catturate al di fuori dell'intervallo di date raccomandato. Inoltre, se la copertura nuvolosa supera il 20% o ci sono altri fattori ambientali durante la cattura, si consiglia di utilizzare immagini di almeno 70 giorni prima della data di raccolta stimata.",
   "understand_proceed": "Ho Capito, Procedi",
-  "tutorial_title": "Come Utilizzare",
-  "tutorial_step1_title": "1. Disegna o Carica",
-  "tutorial_step1_desc": "Disegna un poligono sulla mappa o carica un file TIFF georeferenziato",
-  "tutorial_step2_title": "2. Seleziona Date",
-  "tutorial_step2_desc": "Scegli l'intervallo di date per l'analisi (raccomandato: 70 giorni prima del raccolto)",
-  "tutorial_step3_title": "3. Analizza",
-  "tutorial_step3_desc": "Clicca 'Analizza' per ottenere la stima della resa in tonnellate per ettaro",
-  "help": "Aiuto"
+  "help": "Aiuto",
+  "section_usage_modes": "Modalità di Utilizzo",
+  "usage_draw_polygon": "Disegna un Poligono",
+  "usage_draw_polygon_desc": "Disegna l'appezzamento di terreno sulla mappa con lo strumento interattivo. L'area selezionata diventerà verde e il pulsante di analisi si abiliterà, ma potrai ancora modificare la forma del poligono prima di confermare l'analisi.",
+  "usage_upload_tiff": "Carica un File TIFF",
+  "usage_upload_tiff_desc": "Se hai dati da satellite o drone, carica direttamente il tuo file TIFF. Il pulsante di analisi si abiliterà dopo il caricamento. Per tornare al disegno o caricare un nuovo file, clicca sulla 'X'. Verifica che le bande del TIFF siano nell'ordine: Blue, Green, Red, Near Red, NIR.",
+  "usage_ai_algorithm": "Algoritmo di resa del pomodoro",
+  "usage_ai_algorithm_desc": "Il nostro algoritmo avanzato estrapola una previsione di resa del pomodoro a partire da dati georeferenziati. Il dato restituito è espresso in tonnellate su ettaro t/ha.",
+  "analysis_error":"Errore durante l'analisi. Verifica le date selezionate o che il TIFF contenga le bande nell'ordine corretto: Blue, Green, Red, Near Red, NIR."
+
 }

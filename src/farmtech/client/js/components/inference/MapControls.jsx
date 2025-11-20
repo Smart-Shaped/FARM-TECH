@@ -1,7 +1,6 @@
 import { Upload, Route, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { MapControlButtons } from "./MapControlButtons";
-import { TutorialCard } from "./TutorialCard";
 
 export const MapControls = ({
   tiffFile,
@@ -21,21 +20,21 @@ export const MapControls = ({
   const tutorials = [
     {
       key: "step1",
-      Icon: Upload,
-      title: t("tutorial_step1_title"),
-      description: t("tutorial_step1_desc"),
+      Icon: Route,
+      title: t("usage_draw_polygon"),
+      description: t("usage_draw_polygon_desc"),
     },
     {
       key: "step2",
-      Icon: Route,
-      title: t("tutorial_step2_title"),
-      description: t("tutorial_step1_desc"),
+      Icon: Upload,
+      title: t("usage_upload_tiff"),
+      description: t("usage_upload_tiff_desc"),
     },
     {
       key: "step3",
       Icon: Sparkles,
-      title: t("tutorial_step3_title"),
-      description: t("tutorial_step1_desc"),
+      title: t("usage_ai_algorithm"),
+      description: t("usage_ai_algorithm_desc"),
     },
   ];
 
@@ -66,21 +65,50 @@ export const MapControls = ({
 
       {/* Tutorial Container */}
       <div
-        className={`tutorial-container position-fixed bottom-0 start-0 end-0 shadow-lg ${isExpanded ? 'tutorial-expanded' : 'tutorial-collapsed'}`}
+        className={`tutorial-container position-fixed start-0 end-0 shadow-lg ${isExpanded ? 'tutorial-expanded' : 'tutorial-collapsed'}`}
         style={{
           zIndex: 1000,
           width: "100vw",
           background: "rgba(255, 255, 255, 0.98)",
+          maxHeight: isExpanded ? "300px" : "0",
+          overflow: "hidden",
+          transition: "max-height 0.3s ease-in-out",
+          bottom: "4px",
         }}
       >
+        {/* Features Section */}
         {isExpanded && (
-          <div className="h-100 overflow-hidden">
-            <div className="h-100 p-2 tutorial-scroll-container">
-              <div className="tutorial-cards-wrapper d-flex gap-4">
-                {tutorials.map((tutorial) => {
-                  return <TutorialCard {...tutorial} key={tutorial.key} />;
-                })}
-              </div>
+          <div className="h-100">
+            <div
+              className="p-3 tutorial-scroll-container-vertical"
+              style={{
+                height: "100%",
+                overflowY: "scroll",
+              }}
+            >
+              <ol className="tutorial-steps-list mb-0">
+                {tutorials.map((tutorial) => (
+                  <li key={tutorial.key} className="mb-4">
+                    <div className="d-flex align-items-start gap-3">
+                      <div
+                        className="tutorial-icon text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                        style={{
+                          width: "40px",
+                          height: "40px",
+                          background:
+                            "linear-gradient(135deg, var(--gn-primary-dark, #2e5f7d) 0%, var(--gn-primary, #397aab) 100%)",
+                        }}
+                      >
+                        <tutorial.Icon size={20} />
+                      </div>
+                      <div>
+                        <h4 className="h5 mb-1 fw-bold">{tutorial.title}</h4>
+                        <p className="text-muted mb-0">{tutorial.description}</p>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         )}
