@@ -113,7 +113,7 @@ def get_custom_base_left_topbar_menu(context):
     return items
 
 @register.simple_tag(takes_context=True)
-def get_base_right_topbar_menu(context):
+def get_custom_base_right_topbar_menu(context):
     is_mobile = _is_mobile_device(context)
 
     if is_mobile:
@@ -129,17 +129,27 @@ def get_base_right_topbar_menu(context):
     }
 
     user = _get_request_user(context)
+
+    if not user or (user and not user.is_authenticated):
+        return []
     
-    if user.group:
-        group_profile = GroupProfile.objects.get(group=user.group)
+    if user.groups.exists():
+        for group in user.groups.all():
+            
+            group_profile = GroupProfile.objects.filter(group=group).first()
 
-        is_manager = GroupMember.objects.filter(
-            group=group_profile,
-            user=user,
-            role='manager'
-        ).exists()
+            if group_profile:
+                
+                is_manager = GroupMember.objects.filter(
+                    group=group_profile,
+                    user=user,
+                    role='manager'
+                ).exists()
+                
+                if is_manager:
+                    return [about]
 
-    if user.is_superuser or is_manager:
+    if user.is_superuser:
         return [about]
     
     return []
