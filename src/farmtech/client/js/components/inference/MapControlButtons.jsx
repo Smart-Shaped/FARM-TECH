@@ -80,6 +80,17 @@ export const MapControlButtons = ({
 
             {/* Controls */}
             <div className="d-flex gap-3 align-items-center map-controls">
+                {/* Draw Polygon Button */}
+                <button
+                    className={`btn ${(isDrawing || polygon) ? 'btn-primary' : 'btn-light'} shadow-sm d-flex align-items-center justify-content-center rounded-circle`}
+                    style={{ width: '56px', height: '56px' }}
+                    onClick={handleDrawClick}
+                    title={t('draw_polygon', 'Draw Polygon')}
+                    disabled={!drawEnabled}
+                >
+                    {(isDrawing || polygon) ? <X size={24} /> : <Route size={24} />}
+                </button>
+                
                 {/* TIFF Upload Button */}
                 <button
                     className={`btn ${tiffFile ? 'btn-primary' : 'btn-light'} shadow-sm d-flex align-items-center justify-content-center rounded-circle`}
@@ -97,16 +108,6 @@ export const MapControlButtons = ({
                     )}
                 </button>
 
-                {/* Draw Polygon Button */}
-                <button
-                    className={`btn ${(isDrawing || polygon) ? 'btn-primary' : 'btn-light'} shadow-sm d-flex align-items-center justify-content-center rounded-circle`}
-                    style={{ width: '56px', height: '56px' }}
-                    onClick={handleDrawClick}
-                    title={t('draw_polygon', 'Draw Polygon')}
-                    disabled={!drawEnabled}
-                >
-                    {(isDrawing || polygon) ? <X size={24} /> : <Route size={24} />}
-                </button>
 
                 {/* Analyze Button */}
                 <button

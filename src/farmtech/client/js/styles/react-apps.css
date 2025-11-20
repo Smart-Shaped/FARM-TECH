@@ -265,13 +265,13 @@
 }
 
 .tutorial-controls-container.controls-raised {
-    transform: translateY(-200px); /* Mobile default */
+    transform: translateY(-300px); /* Mobile default */
 }
 
 /* Desktop: smaller offset */
 @media (min-width: 768px) {
     .tutorial-controls-container.controls-raised {
-        transform: translateY(-140px);
+        transform: translateY(-300px);
     }
 }
 
@@ -286,13 +286,13 @@
 }
 
 .tutorial-expanded {
-    height: 200px; /* Mobile default */
+    height: 300px; /* Mobile default */
 }
 
 /* Desktop: smaller height */
 @media (min-width: 768px) {
     .tutorial-expanded {
-        height: 140px;
+        height: 300px;
     }
 }
 
@@ -325,12 +325,12 @@
 }
 
 .tutorial-title {
-    font-size: 0.875rem;
+    font-size: 1.15rem;
     line-height: 1.2;
 }
 
 .tutorial-desc {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     line-height: 1.3;
 }
 
@@ -361,11 +361,11 @@
     }
 
     .tutorial-title {
-        font-size: 1rem;
+        font-size: 1.25rem;
     }
 
     .tutorial-desc {
-        font-size: 0.875rem;
+        font-size: 1rem;
         line-height: 1.4;
     }
 }
@@ -482,4 +482,42 @@
     color: #146c43;
 }
 
+/* Uploader Tutorial Section - Vertical Scroll */
+.tutorial-scroll-container-vertical {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+.tutorial-scroll-container-vertical::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tutorial-scroll-container-vertical::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.tutorial-scroll-container-vertical::-webkit-scrollbar-thumb {
+    background: var(--gn-primary, #397aab);
+    border-radius: 3px;
+}
+
+.tutorial-scroll-container-vertical::-webkit-scrollbar-thumb:hover {
+    background: var(--gn-primary-dark, #2e5f7d);
+}
+
+.tutorial-steps-list {
+    list-style: none;
+    padding-left: 0;
+    counter-reset: step-counter;
+}
+
+.tutorial-steps-list > li {
+    counter-increment: step-counter;
+}
+
+.tutorial-steps-list > li::marker {
+    content: "";
+}
 

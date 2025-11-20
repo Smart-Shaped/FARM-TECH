@@ -15,7 +15,16 @@ export const DashboardPublisherApp = () => {
   // Carica la lista delle dashboard e quale è pubblicata
   useEffect(() => {
     loadDashboards();
+    window.addEventListener('mapstore:ready',onMapstoreReady)
+    return () => {
+      window.removeEventListener('mapstore:ready',onMapstoreReady)
+    }
   }, []);
+
+  const onMapstoreReady = (e) => {
+    const msAPI = e.details
+    console.log({msAPI})
+  }
 
   const publish = async (pk) => {
     await api.patch(`/api/dashboard/${pk}/publish/`);

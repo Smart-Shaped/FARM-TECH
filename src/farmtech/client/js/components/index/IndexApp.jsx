@@ -18,7 +18,7 @@ export const IndexApp = ({ staticUrl = '' }) => {
       </section>
 
       {/* Project Description */}
-      <section className="py-5 bg-light">
+      <section className="py-5">
         <div className="container">
           <h2 className="text-center mb-5 fw-bold">{t("section_project")}</h2>
           <div className="row g-4">
@@ -35,54 +35,11 @@ export const IndexApp = ({ staticUrl = '' }) => {
                 <div className="card-body p-4">
                   <h3 className="card-title h5 fw-bold mb-3">{t("project_main_features")}</h3>
                   <ul className="list-unstyled">
-                    <li className="mb-2 d-flex align-items-center"><CheckCircle size={20} className="text-success me-2" />{t("feature_polygon_drawing")}</li>
-                    <li className="mb-2 d-flex align-items-center"><CheckCircle size={20} className="text-success me-2" />{t("feature_tiff_upload")}</li>
-                    <li className="mb-2 d-flex align-items-center"><CheckCircle size={20} className="text-success me-2" />{t("feature_ai_inference")}</li>
-                    <li className="mb-2 d-flex align-items-center"><CheckCircle size={20} className="text-success me-2" />{t("feature_yield_estimation")}</li>
-                    <li className="mb-2 d-flex align-items-center"><CheckCircle size={20} className="text-success me-2" />{t("feature_research_visualization")}</li>
+                    <li className="mb-2 d-flex align-items-center"><CheckCircle size={20} className="text-success me-2" style={{minWidth: '20px', minHeight:'20px'}} />{t("feature_polygon_drawing")}</li>
+                    <li className="mb-2 d-flex align-items-center"><CheckCircle size={20} className="text-success me-2" style={{minWidth: '20px', minHeight:'20px'}} />{t("feature_tiff_upload")}</li>
+                    <li className="mb-2 d-flex align-items-center"><CheckCircle size={20} className="text-success me-2" style={{minWidth: '20px', minHeight:'20px'}} />{t("feature_ai_inference")}</li>
+                    <li className="mb-2 d-flex align-items-center"><CheckCircle size={20} className="text-success me-2" style={{minWidth: '20px', minHeight:'20px'}} />{t("feature_research_visualization")}</li>
                   </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-5">
-        <div className="container">
-          <h2 className="text-center mb-5 fw-bold">{t("section_usage_modes")}</h2>
-          <div className="row g-4">
-            <div className="col-lg-4 col-md-6">
-              <div className="card h-100 border-0 shadow-sm text-center">
-                <div className="card-body p-4">
-                  <div className="feature-icon-gradient">
-                    <Route size={40} />
-                  </div>
-                  <h3 className="card-title h5 fw-bold mb-3">{t("usage_draw_polygon")}</h3>
-                  <p className="card-text text-muted">{t("usage_draw_polygon_desc")}</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-4 col-md-6">
-              <div className="card h-100 border-0 shadow-sm text-center">
-                <div className="card-body p-4">
-                  <div className="feature-icon-gradient">
-                    <Upload size={40} />
-                  </div>
-                  <h3 className="card-title h5 fw-bold mb-3">{t("usage_upload_tiff")}</h3>
-                  <p className="card-text text-muted">{t("usage_upload_tiff_desc")}</p>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-4 col-md-6">
-              <div className="card h-100 border-0 shadow-sm text-center">
-                <div className="card-body p-4">
-                  <div className="feature-icon-gradient">
-                    <Sparkles size={40} />
-                  </div>
-                  <h3 className="card-title h5 fw-bold mb-3">{t("usage_ai_algorithm")}</h3>
-                  <p className="card-text text-muted">{t("usage_ai_algorithm_desc")}</p>
                 </div>
               </div>
             </div>
@@ -101,9 +58,9 @@ export const IndexApp = ({ staticUrl = '' }) => {
                   <div className="step-number-circle" style={{fontSize: '24px', fontWeight: 'bold'}}>
                     1
                   </div>
-                  <h3 className="card-title h5 fw-bold mb-3">{t("step_area_selection")}</h3>
-                  <p className="card-text mb-2">{t("step_area_selection_desc")}</p>
-                  <p className="card-text text-muted small">{t("step_area_selection_note")}</p>
+                  <h3 className="card-title h5 fw-bold mb-3">{t("step_1")}</h3>
+                  <p className="card-text mb-2">{t("step_1_desc")}</p>
+                  <p className="card-text text-muted small">{t("step_1_note")}</p>
                 </div>
               </div>
             </div>
@@ -113,8 +70,9 @@ export const IndexApp = ({ staticUrl = '' }) => {
                   <div className="step-number-circle" style={{fontSize: '24px', fontWeight: 'bold'}}>
                     2
                   </div>
-                  <h3 className="card-title h5 fw-bold mb-3">{t("step_ai_processing")}</h3>
-                  <p className="card-text">{t("step_ai_processing_desc")}</p>
+                  <h3 className="card-title h5 fw-bold mb-3">{t("step_2")}</h3>
+                  <p className="card-text">{t("step_2_desc")}</p>
+                  <p className="card-text text-muted small">{t("step_2_note")}</p>
                 </div>
               </div>
             </div>
@@ -124,14 +82,15 @@ export const IndexApp = ({ staticUrl = '' }) => {
                   <div className="step-number-circle" style={{fontSize: '24px', fontWeight: 'bold'}}>
                     3
                   </div>
-                  <h3 className="card-title h5 fw-bold mb-3">{t("step_results")}</h3>
-                  <p className="card-text">{t("step_results_desc")}</p>
+                  <h3 className="card-title h5 fw-bold mb-3">{t("step_3")}</h3>
+                  <p className="card-text">{t("step_3_desc")}</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
+
 
       {/* Bando e Partnership */}
       <section className="py-5">

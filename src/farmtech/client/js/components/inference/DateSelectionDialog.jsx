@@ -81,7 +81,7 @@ export const DateSelectionDialog = ({ onClose, onConfirm, initialStartDate = '',
                             </div>
                         )}
 
-                        {showWarning && !error && (
+                        {!error && (
                             <div className="alert alert-warning d-flex align-items-start">
                                 <AlertTriangle size={20} className="me-2 mt-1 flex-shrink-0" />
                                 <div>

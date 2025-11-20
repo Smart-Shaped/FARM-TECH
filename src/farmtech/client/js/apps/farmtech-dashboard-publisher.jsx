@@ -28,7 +28,8 @@ const isDashboardPage = () => {
 // Funzione per controllare se l'utente ha il permesso uploader
 const hasUploaderPermission = () => {
     const user = window.__FARMTECH_USER__;
-    return user && user.is_authenticated && user.permissions && user.permissions.includes('farmtech.uploader') && user.group_members?.[0].role==='manager';
+    const isAdmin = user.is_superuser
+    return isAdmin || (user && user.is_authenticated && user.permissions && user.permissions.includes('farmtech.uploader') && user.group_members?.[0]?.role==='manager');
 };
 
 // Funzione per mostrare/nascondere il widget nel container principale
@@ -50,7 +51,7 @@ const updateWidgetVisibility = () => {
 // Funzione per inizializzare l'app in un container specifico
 const initializeApp = (containerId) => {
     const container = document.getElementById(containerId);
-    if (!container || !hasUploaderPermission()) return false;
+    if (!container || !hasUploaderPermission() ) return false;
 
     console.log(`📦 Initializing Dashboard Publisher in ${containerId}...`);
 
