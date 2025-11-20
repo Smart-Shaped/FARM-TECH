@@ -129,19 +129,17 @@ def get_base_right_topbar_menu(context):
     }
 
     user = _get_request_user(context)
-
-    if user.is_superuser:
-        return [about]
     
-    group_profile = GroupProfile.objects.get(group=user.group)
+    if user.group:
+        group_profile = GroupProfile.objects.get(group=user.group)
 
-    is_manager = GroupMember.objects.filter(
-        group=group_profile,
-        user=user,
-        role='manager'
-    ).exists()
+        is_manager = GroupMember.objects.filter(
+            group=group_profile,
+            user=user,
+            role='manager'
+        ).exists()
 
-    if is_manager:
+    if user.is_superuser or is_manager:
         return [about]
     
     return []
