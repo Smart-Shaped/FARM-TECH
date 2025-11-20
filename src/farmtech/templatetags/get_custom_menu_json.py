@@ -8,7 +8,7 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 from avatar.templatetags.avatar_tags import avatar_url
 from geonode.base.models import Menu, MenuItem
-
+from geonode.groups.models import GroupMember, GroupProfile
 
 register = template.Library()
 
@@ -111,6 +111,40 @@ def get_custom_base_left_topbar_menu(context):
         ]
 
     return items
+
+@register.simple_tag(takes_context=True)
+def get_base_right_topbar_menu(context):
+    is_mobile = _is_mobile_device(context)
+
+    if is_mobile:
+        return []
+
+    about = {
+        "label": "About",
+        "type": "dropdown",
+        "items": [
+            {"type": "link", "href": "/people/", "label": "People"},
+            {"type": "link", "href": "/groups/", "label": "Groups"},
+        ],
+    }
+
+    user = _get_request_user(context)
+
+    if user.is_superuser:
+        return [about]
+    
+    group_profile = GroupProfile.objects.get(group=user.group)
+
+    is_manager = GroupMember.objects.filter(
+        group=group_profile,
+        user=user,
+        role='manager'
+    ).exists()
+
+    if is_manager:
+        return [about]
+    
+    return []
 
 @register.simple_tag(takes_context=True)
 def get_custom_base_left_topbar_menu_json(context):
