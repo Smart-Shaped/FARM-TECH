@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./styles /init/styles
-COPY ./processed_datasets /init/processed_datasets
+#COPY ./processed_datasets /init/processed_datasets
 COPY ./setup.sh /init/setup.sh
 
 RUN chmod +x /init/setup.sh

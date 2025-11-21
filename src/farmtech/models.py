@@ -188,10 +188,10 @@ class Experiment1Sheet2(gis_models.Model):
         max_length=200, null=True, blank=True, name="cover_crop_systems"
     )
     biomass_cover_crop = models.FloatField(
-        null=True, blank=True, name="biomass_cover_crop_t__ha"
+        null=True, blank=True, name="biomass_cover_crop_t_per_ha"
     )
-    n_uptake = models.FloatField(null=True, blank=True, name="n_uptake_kg__ha")
-    p_uptake = models.FloatField(null=True, blank=True, name="p_uptake_kg__ha")
+    n_uptake = models.FloatField(null=True, blank=True, name="n_uptake_kg_per_ha")
+    p_uptake = models.FloatField(null=True, blank=True, name="p_uptake_kg_per_ha")
     geometry = gis_models.GeometryField(
         srid=4326, null=True, blank=True, name="geometry"
     )
@@ -221,7 +221,7 @@ class Experiment1Sheet3(gis_models.Model):
         max_length=200, null=True, blank=True, name="type_of_cover_termination"
     )
     tomato_yield = models.FloatField(
-        null=True, blank=True, name="tomato_yield_kg__plant"
+        null=True, blank=True, name="tomato_yield_kg_per_plant"
     )
     geometry = gis_models.GeometryField(
         srid=4326, null=True, blank=True, name="geometry"
@@ -248,9 +248,9 @@ class Experiemnt1Sheet4(gis_models.Model):
         max_length=200, null=True, blank=True, name="cultivation"
     )
     biomass = models.CharField(max_length=200, null=True, blank=True, name="biomass")
-    n_no3 = models.FloatField(null=True, blank=True, name="n-no3_mg__kg_soil")
-    n_nh4 = models.FloatField(null=True, blank=True, name="n-nh4_mg__kg_soil")
-    p_olsen = models.FloatField(null=True, blank=True, name="p_olsen_mg__kg_soil")
+    n_no3 = models.FloatField(null=True, blank=True, name="n-no3_mg_per_kg_soil")
+    n_nh4 = models.FloatField(null=True, blank=True, name="n-nh4_mg_per_kg_soil")
+    p_olsen = models.FloatField(null=True, blank=True, name="p_olsen_mg_per_kg_soil")
     date = models.DateField(null=True, blank=True, name="date")
     phase = models.IntegerField(null=True, blank=True, name="phase")
     geometry = gis_models.GeometryField(
@@ -282,12 +282,12 @@ class Experiment3(gis_models.Model):
     ntot = models.FloatField(null=True, blank=True, name="ntot")
     mbc = models.FloatField(null=True, blank=True, name="mbc")
     mbn = models.FloatField(null=True, blank=True, name="mbn")
-    mbc_mbn = models.FloatField(null=True, blank=True, name="mbc__mbn")
+    mbc_mbn = models.FloatField(null=True, blank=True, name="mbc_per_mbn")
     rbas = models.FloatField(null=True, blank=True, name="rbas")
     qmin = models.FloatField(null=True, blank=True, name="qmin")
     qco2 = models.FloatField(null=True, blank=True, name="qco2")
-    qco2_corg = models.FloatField(null=True, blank=True, name="qco2__corg")
-    mbc_corg = models.FloatField(null=True, blank=True, name="mbc__corg")
+    qco2_corg = models.FloatField(null=True, blank=True, name="qco2_per_corg")
+    mbc_corg = models.FloatField(null=True, blank=True, name="mbc_per_corg")
     poxc = models.FloatField(null=True, blank=True, name="poxc")
     pma_acida = models.FloatField(null=True, blank=True, name="pma_acida")
     pma_alcalina = models.FloatField(null=True, blank=True, name="pma_alcalina")
@@ -296,7 +296,7 @@ class Experiment3(gis_models.Model):
     b_glu = models.FloatField(null=True, blank=True, name="b_glu")
     urease = models.FloatField(null=True, blank=True, name="urease")
     bfi = models.FloatField(null=True, blank=True, name="bfi")
-    bfi_star = models.FloatField(null=True, blank=True, name="bfi*")
+    bfi_star = models.FloatField(null=True, blank=True, name="bfi_star")
     geometry = gis_models.GeometryField(
         srid=4326, null=True, blank=True, name="geometry"
     )
@@ -324,10 +324,10 @@ class Experiment4(gis_models.Model):
     )
     replica = models.IntegerField(null=True, blank=True, name="replica")
     produzione_kg_pianta = models.FloatField(
-        null=True, blank=True, name="produzione_kg__pianta"
+        null=True, blank=True, name="produzione_kg_per_pianta"
     )
     biomassa_g_pianta = models.FloatField(
-        null=True, blank=True, name="biomassa_g__pianta"
+        null=True, blank=True, name="biomassa_g_per_pianta"
     )
     spad = models.FloatField(null=True, blank=True, name="spad")
     n_balance_index = models.FloatField(null=True, blank=True, name="n_balance_index")
@@ -406,20 +406,20 @@ class ExperimentZootechnicalCalabria(gis_models.Model):
     ogc_fid = models.AutoField(primary_key=True, name="ogc_fid")
     id_campione = models.IntegerField(name="id_campione")
     cereali = models.FloatField(
-        null=True, blank=True, name="cereali_[loietto]_peso_secco_[kg_m_2]"
+        null=True, blank=True, name="cereali_loietto_peso_secco_kg_m_2"
     )
     leguminose = models.FloatField(
         null=True,
         blank=True,
-        name="leguminose_[trifoglio_bianco]_peso_secco_[kg_m_2]",
+        name="leguminose_trifoglio_bianco_peso_secco_kg_m_2",
     )
     altro = models.FloatField(
         null=True,
         blank=True,
-        name="altro_[crucifere_e_brassicacee]_peso_secco_[kg_m_2]",
+        name="altro_crucifere_e_brassicacee_peso_secco_kg_m_2",
     )
     peso_totale = models.FloatField(
-        null=True, blank=True, name="peso_totale_peso_secco_[kg_m_2]"
+        null=True, blank=True, name="peso_totale_peso_secco_kg_m_2"
     )
     ss_105_c = models.FloatField(null=True, blank=True, name="ss_105gradi_c")
     ss_reale = models.FloatField(null=True, blank=True, name="ss_reale")
@@ -477,12 +477,12 @@ class ExperimentZootechnicalBasilicata(gis_models.Model):
     )
     piogge_mm = models.FloatField(null=True, blank=True, name="piogge_mm")
     biomassa_verde_totale = models.FloatField(
-        null=True, blank=True, name="biomassa_verde_totale_g___0,25_mq"
+        null=True, blank=True, name="biomassa_verde_totale_g_per_0,25_mq"
     )
     biomassa_verde_pulita = models.FloatField(
         null=True,
         blank=True,
-        name="biomassa_verde_pulita_dal_secco_e_messo_in_stufa_g___0,25_mq",
+        name="biomassa_verde_pulita_dal_secco_e_messo_in_stufa_g_per_0,25_mq",
     )
     ndvi_media = models.FloatField(null=True, blank=True, name="ndvi_media")
     ndvi_mediana = models.FloatField(null=True, blank=True, name="ndvi_mediana")
@@ -490,10 +490,10 @@ class ExperimentZootechnicalBasilicata(gis_models.Model):
     evi_mediana = models.FloatField(null=True, blank=True, name="evi_mediana")
     lai = models.FloatField(null=True, blank=True, name="lai")
     biomassa_secca_totale = models.FloatField(
-        null=True, blank=True, name="biomassa_secca_totale_g__0,25_mq"
+        null=True, blank=True, name="biomassa_secca_totale_g_per_0,25_mq"
     )
     biomassa_secca_pulita = models.FloatField(
-        null=True, blank=True, name="biomassa_secca_pulita_dal_secco_g___0,25_mq"
+        null=True, blank=True, name="biomassa_secca_pulita_dal_secco_g_per_0,25_mq"
     )
     percent_ss_campione_verde = models.FloatField(
         null=True, blank=True, name="perc_ss_campione_verde"
