@@ -136,7 +136,7 @@
 								""
 							]
 						},
-						"description": "Invia una richiesta di iscrizione ad un GroupProfile. I manager del gruppo riceveranno un'email con i dettagli della richiesta.\n\n**Autenticazione:** Richiesta (Keycloak Bearer token)\n\n**Body Parameters:**\n- `group_profile_id` (integer, required): ID del GroupProfile\n- `requested_role` (string, required): 'manager' o 'member'\n- `motivation` (string, required): Motivazione (minimo 10 caratteri)\n\n**Response:**\n- `success`: Boolean di successo\n- `message`: Messaggio descrittivo\n- `details`: Oggetto con:\n  - `group_profile`: Nome del gruppo\n  - `requested_role`: Ruolo richiesto\n  - `managers_notified`: Numero di manager notificati\n  - `request_id`: ID della richiesta salvata"
+						"description": "Invia una richiesta di iscrizione ad un GroupProfile. I manager del gruppo riceveranno un'email con i dettagli della richiesta.\n\n**Autenticazione:** Richiesta (Keycloak Bearer token)\n**Throttling:** FiveDaysRegisteredThrottleRate\n\n**Body Parameters:**\n- `group_profile_id` (integer, required): ID del GroupProfile\n- `requested_role` (string, required): 'manager' o 'member'\n- `motivation` (string, required): Motivazione (minimo 10 caratteri)\n\n**Validazioni:**\n- Verifica che il GroupProfile esista\n- Controlla che l'utente non sia già membro con il ruolo richiesto\n- Verifica la presenza di manager nel gruppo\n- Controlla che i manager abbiano email valide\n\n**Flusso:**\n1. Valida i dati in input\n2. Verifica esistenza gruppo e membership corrente\n3. Trova tutti i manager del gruppo\n4. Carica il template email da file\n5. Crea record RoleChangeRequest nel database\n6. Invia email a tutti i manager\n\n**Response (200):**\n- `success`: Boolean di successo\n- `message`: Messaggio descrittivo\n- `details`: Oggetto con:\n  - `group_profile`: Nome del gruppo\n  - `requested_role`: Ruolo richiesto ('Manager' o 'Member')\n  - `managers_notified`: Numero di manager notificati\n  - `request_id`: ID della richiesta salvata\n\n**Errors:**\n- 400: Dati invalidi o già membro con ruolo richiesto\n- 401: Autenticazione richiesta\n- 404: GroupProfile non trovato\n- 429: Rate limit superato\n- 500: Nessun manager trovato, template email mancante, o errore invio email"
 					},
 					"response": []
 				}
@@ -190,7 +190,7 @@
 								""
 							]
 						},
-						"description": "Carica dati da un file Excel in un dataset esistente.\n\n**Autenticazione:** Richiesta (Keycloak Bearer token)\n\n**Body Parameters (form-data):**\n- `dataset_name` (string, required): Nome del dataset da aggiornare\n- `excel_file` (file, required): File Excel (.xlsx o .xls)\n\n**Note:**\n- Il file Excel deve contenere colonne 'geometry' oppure 'lat' e 'long'\n- Le colonne che iniziano con 'dat' vengono convertite in date (formato gg/mm/aaaa)\n- I nomi delle colonne vengono normalizzati (lowercase, spazi rimossi, trattini convertiti in underscore)\n\n**Response:**\n- `success`: Boolean di successo\n- `message`: Messaggio descrittivo\n- `dataset_name`: Nome del dataset\n- `dataset_id`: ID del dataset\n- `model`: Package del modello utilizzato\n- `raw_file`: ID del file raw salvato\n- `experiment`: GroupProfile dell'esperimento\n- `total_rows`: Numero di righe inserite"
+						"description": "Carica dati da un file Excel in un dataset esistente. Il file viene validato e i dati inseriti nel modello corrispondente basato sulla configurazione del DatasetExperiment.\n\n**Autenticazione:** Richiesta (Keycloak Bearer token)\n**Permessi:** Utente deve essere membro del GroupProfile associato al DatasetExperiment\n\n**Body Parameters (form-data):**\n- `dataset_name` (string, required): Nome del dataset da aggiornare\n- `excel_file` (file, required): File Excel (.xlsx o .xls)\n\n**Validazione file Excel:**\n- Deve contenere colonne 'geometry' OPPURE 'lat' e 'long' per dati geospaziali\n- Le colonne che iniziano con 'dat' vengono convertite automaticamente in date (formato gg/mm/aaaa)\n- I nomi delle colonne vengono normalizzati (lowercase, spazi/trattini convertiti in underscore)\n- Valori NaN nelle coordinate lat/long vengono rimossi\n- Crea automaticamente oggetti Point se presenti lat/long\n\n**Flusso:**\n1. Trova il dataset per nome\n2. Recupera il DatasetExperiment associato e il model_package\n3. Valida e normalizza il file Excel\n4. Salva il file raw in /mnt/volumes/statics/upserts/\n5. Crea record RawFile con status 'processing'\n6. Inserisce i dati nel modello tramite bulk_create\n7. Aggiorna status a 'processed' o 'failed'\n\n**Response (201):**\n- `success`: Boolean di successo\n- `message`: Messaggio descrittivo con nome del modello\n\n**Errors:**\n- 400: Dati invalidi o errore lettura Excel\n- 401: Autenticazione richiesta\n- 403: Permesso negato\n- 404: Dataset o DatasetExperiment non trovato\n- 500: Errore durante scrittura nel modello"
 					},
 					"response": []
 				},
@@ -299,7 +299,7 @@
 								""
 							]
 						},
-						"description": "Pubblica una dashboard (GeoApp) e rende non pubblicate le altre dashboard dello stesso gruppo.\n\n**Autenticazione:** Richiesta\n\n**URL Parameters:**\n- `pk` (integer): ID della dashboard (GeoApp) da pubblicare\n\n**Logica:**\n- Imposta `is_published`, `is_approved`, `advertised` a True per la dashboard specificata\n- Imposta `is_published`, `is_approved`, `advertised` a False per tutte le altre dashboard dello stesso gruppo\n\n**Response:**\n- `detail`: Messaggio descrittivo\n- `is_published`: Boolean dello stato di pubblicazione"
+						"description": "Pubblica una dashboard (GeoApp) e rende non pubblicate le altre dashboard dello stesso gruppo. Solo una dashboard per gruppo può essere pubblicata alla volta.\n\n**Autenticazione:** Richiesta (SessionAuthentication o KeycloakAuthentication)\n**Permessi:** Utente deve essere manager del GroupProfile associato alla dashboard\n\n**URL Parameters:**\n- `pk` (integer): ID della dashboard (GeoApp) da pubblicare\n\n**Logica di pubblicazione:**\n1. Trova la dashboard per ID\n2. Verifica i permessi (IsGroupProfileManager)\n3. Se non ancora approvata:\n   - Imposta `is_published`, `is_approved`, `advertised` a True\n   - Trova tutte le altre dashboard dello stesso gruppo\n   - Imposta `is_published`, `is_approved` a False per le altre dashboard\n4. Se già pubblicata, restituisce messaggio di conferma\n\n**Response (200):**\n- `detail`: Messaggio descrittivo ('Dashboard successfully published' o 'Dashboard is already published')\n- `is_published`: True\n\n**Errors:**\n- 401: Autenticazione richiesta\n- 403: Permesso negato (utente non è manager del GroupProfile)\n- 404: Dashboard non trovata"
 					},
 					"response": []
 				}
@@ -393,6 +393,43 @@
 				}
 			],
 			"description": "Endpoint per inferenze ML e analisi su dati geospaziali"
+		},
+		{
+			"name": "Queue Monitoring",
+			"item": [
+				{
+					"name": "Status Coda Upload",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{keycloak_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/queues/uploads-status/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"queues",
+								"uploads-status",
+								""
+							]
+						},
+						"description": "Monitora lo stato delle task di upload nella coda Celery. Restituisce il numero di task in esecuzione e in coda.\n\n**Autenticazione:** Richiesta (Admin only)\n\n**Response:**\n- `running` (integer): Numero di task attualmente in esecuzione\n- `queued` (integer): Numero di task in coda\n- `pending_total` (integer): Totale task pendenti (running + queued)\n\n**Note:**\n- Monitora solo le task con nome 'importer.import_orchestrator'\n- Richiede permessi di amministratore\n- Utile per verificare lo stato degli upload prima di avviarne di nuovi"
+					},
+					"response": []
+				}
+			],
+			"description": "Monitoraggio delle code Celery e stato dei task"
 		},
 		{
 			"name": "Documentation",

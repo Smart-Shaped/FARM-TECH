@@ -185,6 +185,8 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    volumes:
+      - ./geonode-init/processed_datasets:/init/processed_datasets
 
 volumes:
   statics:

@@ -16,18 +16,24 @@ from shapely.geometry import box
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from farmtech.serializers import DataForInferenceSerializer
 from farmtech.permissions import HasInferencePermission
 from farmtech.throttles import FiveDaysRegisteredThrottleRate
 from farmtech.utils.copernicus_api import get_auth_token, get_tiff_from_copernicus
-from farmtech.exceptions import InvokeSSHCommandError, PolygonAnalysisError, TiffSaveError
+from farmtech.exceptions import (
+    InvokeSSHCommandError,
+    PolygonAnalysisError,
+    TiffSaveError,
+)
 
 
 logger = logging.getLogger(__name__)
 
-def _clean_folder(path: str):
 
+def _clean_folder(path: str):
     """
     Cleans all files in the specified directory.
 
@@ -39,8 +45,8 @@ def _clean_folder(path: str):
     for file in os.listdir(path):
         os.remove(os.path.join(path, file))
 
-def _collect_results(drone_file_path: str) -> dict:
 
+def _collect_results(drone_file_path: str) -> dict:
     """
     Collects results from the processed directory corresponding to the drone file path.
     Args:
@@ -55,16 +61,15 @@ def _collect_results(drone_file_path: str) -> dict:
     # check if processed path exists
     if not os.path.exists(processed_path):
         raise InvokeSSHCommandError(
-            "Processed path does not exist, the processing might have failed.")
+            "Processed path does not exist, the processing might have failed."
+        )
 
     files = os.listdir(processed_path)
     results = {}
 
     # folder must contain only one result file
     if len(files) == 0:
-        raise InvokeSSHCommandError(
-            "No result files found in the processed directory."
-        )
+        raise InvokeSSHCommandError("No result files found in the processed directory.")
     elif len(files) > 1:
         raise InvokeSSHCommandError(
             "Multiple result files found. Expected only one result file."
@@ -76,16 +81,11 @@ def _collect_results(drone_file_path: str) -> dict:
     # check if result df is empty
     df = df.dropna()
     if len(df) == 0:
-        raise InvokeSSHCommandError(
-                "Result file is empty after removing NaN values."
-            )
+        raise InvokeSSHCommandError("Result file is empty after removing NaN values.")
 
     # extract values
     values = df.to_numpy().tolist()
-    results = {
-        "result": values[0][2],
-        "unit": "t/ha"
-    }
+    results = {"result": values[0][2], "unit": "t/ha"}
 
     # clean folder
     _clean_folder(drone_file_path)
@@ -98,8 +98,8 @@ def _collect_results(drone_file_path: str) -> dict:
 
     return results
 
-def _extract_geometry(path: str) -> dict:
 
+def _extract_geometry(path: str) -> dict:
     """
     Extracts the polygon from a raster file.
 
@@ -116,15 +116,12 @@ def _extract_geometry(path: str) -> dict:
         polygon = box(bbox[0], bbox[1], bbox[2], bbox[3])
 
     points = list(polygon.exterior.coords)
-    geojson = {
-        "type": "Polygon",
-        "coordinates": [points]
-    }
+    geojson = {"type": "Polygon", "coordinates": [points]}
 
     return geojson
 
-def _polygon_analysis(polygon: dict, start_date: str, end_date: str) -> tuple:
 
+def _polygon_analysis(polygon: dict, start_date: str, end_date: str) -> tuple:
     """
     Analyzes the specified polygon by requesting a TIFF image from Copernicus.
     Args:
@@ -141,10 +138,7 @@ def _polygon_analysis(polygon: dict, start_date: str, end_date: str) -> tuple:
 
         # get tiff from copernicus
         tiff_data = get_tiff_from_copernicus(
-            geometry=polygon,
-            token=token,
-            start_date=start_date,
-            end_date=end_date
+            geometry=polygon, token=token, start_date=start_date, end_date=end_date
         )
 
         file_name = f"copernicus_analysis_{uuid.uuid4().hex}.tif"
@@ -154,8 +148,8 @@ def _polygon_analysis(polygon: dict, start_date: str, end_date: str) -> tuple:
     except Exception as e:
         raise PolygonAnalysisError(f"Error during polygon analysis: {str(e)}") from e
 
-def _save_tiff_file(drone_file_path, tiff_file, file_name: str) -> None:
 
+def _save_tiff_file(drone_file_path, tiff_file, file_name: str) -> None:
     """
     Save the TIFF file to the specified directory.
     Args:
@@ -171,8 +165,8 @@ def _save_tiff_file(drone_file_path, tiff_file, file_name: str) -> None:
             logger.info("Created directory %s", drone_file_path)
 
         # save file in shared folder
-        with open(os.path.join(drone_file_path, file_name), 'wb') as f:
-            if hasattr(tiff_file, 'chunks'):
+        with open(os.path.join(drone_file_path, file_name), "wb") as f:
+            if hasattr(tiff_file, "chunks"):
                 for chunk in tiff_file.chunks():
                     f.write(chunk)
             else:
@@ -183,8 +177,8 @@ def _save_tiff_file(drone_file_path, tiff_file, file_name: str) -> None:
 
     logger.info("Saved file %s in %s", file_name, drone_file_path)
 
-def _calculate_centroid(polygon: dict) -> dict:
 
+def _calculate_centroid(polygon: dict) -> dict:
     """
     Calculates the centroid of a polygon.
     Args:
@@ -198,8 +192,8 @@ def _calculate_centroid(polygon: dict) -> dict:
 
     return {"lat": centroid.y, "lon": centroid.x}
 
-def _invoke_ssh_command(drone_file_path: str, polygon: dict) -> dict:
 
+def _invoke_ssh_command(drone_file_path: str, polygon: dict) -> dict:
     """
     Invokes a predefined SSH command on a remote server.
     Args:
@@ -227,7 +221,9 @@ def _invoke_ssh_command(drone_file_path: str, polygon: dict) -> dict:
 
         # Create a temporary copy of the key with correct permissions
         temp_key_path = "/tmp/temp_ssh_key"
-        with open(ssh_key_path, 'rb') as src_file, open(temp_key_path, 'wb') as dest_file:
+        with open(ssh_key_path, "rb") as src_file, open(
+            temp_key_path, "wb"
+        ) as dest_file:
             dest_file.write(src_file.read())
 
         # Set proper permissions for the temporary SSH key
@@ -238,20 +234,23 @@ def _invoke_ssh_command(drone_file_path: str, polygon: dict) -> dict:
 
         ssh_command = [
             "ssh",
-            "-i", temp_key_path,
-            "-o", "StrictHostKeyChecking=no",
-            "-o", "UserKnownHostsFile=/dev/null",
-            #"-v",  # Add verbose output for debugging
+            "-i",
+            temp_key_path,
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "UserKnownHostsFile=/dev/null",
+            # "-v",  # Add verbose output for debugging
             f"{remote_user}@{remote_host}",
-            remote_command, "--session_folder", session_folder
+            remote_command,
+            "--session_folder",
+            session_folder,
         ]
 
-        logger.debug("Executing SSH command: %s", ' '.join(ssh_command))
+        logger.debug("Executing SSH command: %s", " ".join(ssh_command))
 
         result = subprocess.Popen(
-            ssh_command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            ssh_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
 
         stdout, stderr = result.communicate()
@@ -263,7 +262,7 @@ def _invoke_ssh_command(drone_file_path: str, polygon: dict) -> dict:
                 "result": results.get("result"),
                 "unit": results.get("unit"),
                 "polygon": polygon,
-                "center": _calculate_centroid(polygon)
+                "center": _calculate_centroid(polygon),
             }
 
             if remote_ssh_debug:
@@ -280,15 +279,16 @@ def _invoke_ssh_command(drone_file_path: str, polygon: dict) -> dict:
     except FileNotFoundError as e:
         raise InvokeSSHCommandError(
             "The 'ssh' command was not found. Ensure the SSH client \
-            is installed and in the system's PATH." + str(e)
+            is installed and in the system's PATH."
+            + str(e)
         ) from e
     except Exception as e:
         raise InvokeSSHCommandError(
             "An unexpected error occurred while executing SSH command: " + str(e)
         ) from e
 
-class RunSSHCommandView(APIView):
 
+class RunSSHCommandView(APIView):
     """
     API to run a predefined SSH command on a remote server.
     The command details (user, host, command) should be configured securely,
@@ -298,8 +298,102 @@ class RunSSHCommandView(APIView):
     permission_classes = [HasInferencePermission]
     throttle_classes = [FiveDaysRegisteredThrottleRate]
 
+    @swagger_auto_schema(
+        operation_description="Execute inference analysis on agricultural data. Accepts either a TIFF file directly or a polygon with date range to fetch satellite imagery from Copernicus. The data is processed via SSH command on a remote ML server and results are returned.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "input_type": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Type of input data",
+                    enum=["tiff", "polygon"],
+                ),
+                "tiff_file": openapi.Schema(
+                    type=openapi.TYPE_FILE,
+                    description="TIFF file for analysis (required if input_type is 'tiff')",
+                ),
+                "polygon": openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    description="GeoJSON polygon for analysis (required if input_type is 'polygon')",
+                    example={
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [12.4924, 41.8902],
+                                [12.4964, 41.8902],
+                                [12.4964, 41.8922],
+                                [12.4924, 41.8922],
+                                [12.4924, 41.8902],
+                            ]
+                        ],
+                    },
+                ),
+                "start_date": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    format=openapi.FORMAT_DATE,
+                    description="Start date for satellite imagery (required if input_type is 'polygon')",
+                    example="2023-01-01",
+                ),
+                "end_date": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    format=openapi.FORMAT_DATE,
+                    description="End date for satellite imagery (required if input_type is 'polygon')",
+                    example="2023-12-31",
+                ),
+            },
+        ),
+        responses={
+            200: openapi.Response(
+                description="Inference completed successfully",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "result": openapi.Schema(
+                            type=openapi.TYPE_NUMBER,
+                            description="Inference result value",
+                        ),
+                        "unit": openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Unit of measurement",
+                            example="t/ha",
+                        ),
+                        "polygon": openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            description="GeoJSON polygon of analyzed area",
+                        ),
+                        "center": openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            description="Centroid coordinates of the polygon",
+                            properties={
+                                "lat": openapi.Schema(type=openapi.TYPE_NUMBER),
+                                "lon": openapi.Schema(type=openapi.TYPE_NUMBER),
+                            },
+                        ),
+                        "stdout": openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="SSH command stdout (only if debug mode is enabled)",
+                        ),
+                        "stderr": openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="SSH command stderr (only if debug mode is enabled)",
+                        ),
+                    },
+                ),
+            ),
+            400: openapi.Response(
+                description="Invalid input data or serializer validation error"
+            ),
+            401: openapi.Response(description="Authentication required"),
+            403: openapi.Response(
+                description="Permission denied - user must have inference permission"
+            ),
+            429: openapi.Response(description="Rate limit exceeded"),
+            500: openapi.Response(
+                description="Inference processing failed, SSH command error, or file save error"
+            ),
+        },
+    )
     def post(self, request):
-
         """
         Handle POST request to execute a predefined SSH command on a remote server.
         Expects either a TIFF file or a polygon with start and end dates in the request data.
@@ -322,16 +416,18 @@ class RunSSHCommandView(APIView):
 
         try:
 
-            drone_file_path = os.getenv("DRONE_FILE_PATH", "/mnt/volumes/inference_data/raw/drone")
+            drone_file_path = os.getenv(
+                "DRONE_FILE_PATH", "/mnt/volumes/inference_data/raw/drone"
+            )
 
             uuid_str = str(uuid.uuid4())
             drone_file_path = os.path.join(drone_file_path, uuid_str)
 
-            if serializer.input_type == 'tiff':
+            if serializer.input_type == "tiff":
                 tiff_file = serializer.validated_data["tiff_file"]
                 file_name = tiff_file.name
 
-            if serializer.input_type == 'polygon':
+            if serializer.input_type == "polygon":
                 polygon = serializer.validated_data["polygon"]
                 start_date = serializer.validated_data.get("start_date")
                 end_date = serializer.validated_data.get("end_date")
@@ -339,7 +435,7 @@ class RunSSHCommandView(APIView):
 
             _save_tiff_file(drone_file_path, tiff_file, file_name)
 
-            if serializer.input_type == 'tiff':
+            if serializer.input_type == "tiff":
                 polygon = _extract_geometry(os.path.join(drone_file_path, file_name))
 
             response_dict = _invoke_ssh_command(drone_file_path, polygon)
@@ -350,5 +446,5 @@ class RunSSHCommandView(APIView):
             logger.exception("Inference processing failed: %s", str(e), exc_info=True)
             return Response(
                 {"message": "Inference processing failed."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )

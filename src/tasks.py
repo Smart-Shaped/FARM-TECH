@@ -334,7 +334,8 @@ def update(ctx):
 def migrations(ctx):
     print("**************************migrations*******************************")
     ctx.run(
-        f"python manage.py makemigrations --noinput --settings={_localsettings()}", pty=True
+        f"python manage.py makemigrations --noinput --settings={_localsettings()}",
+        pty=True,
     )
     ctx.run(
         f"python manage.py migrate --noinput --settings={_localsettings()}", pty=True
@@ -424,6 +425,7 @@ def fixtures(ctx):
 --settings={_localsettings()}",
         pty=True,
     )
+
 
 @task
 def collectstatic(ctx):
@@ -525,12 +527,14 @@ address {ip_list[0]}"
         )
     return ip_list[0]
 
+
 def _is_valid_ip(ip):
     try:
         ipaddress.IPv4Address(ip)
         return True
     except Exception as e:
         return False
+
 
 def _container_exposed_port(component, instname):
     port = "80"

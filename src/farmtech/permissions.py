@@ -16,11 +16,14 @@ class HasInferencePermission(IsAuthenticated):
         Check if the user has the 'farmtech.inference' permission.
         """
 
-        return super().has_permission(request, view) and request.user.has_perm('farmtech.inference')
+        return super().has_permission(request, view) and request.user.has_perm(
+            "farmtech.inference"
+        )
+
 
 class IsGroupProfileManager(IsAuthenticated):
     """
-    Permission class to verify that the user is a manager of the GroupProfile 
+    Permission class to verify that the user is a manager of the GroupProfile
     associated with a GeoApp's group.
     """
 
@@ -41,17 +44,16 @@ class IsGroupProfileManager(IsAuthenticated):
             return False
 
         is_manager = GroupMember.objects.filter(
-            group=group_profile,
-            user=request.user,
-            role='manager'
+            group=group_profile, user=request.user, role="manager"
         ).exists()
 
         return is_manager
 
+
 class IsGroupProfileMember(IsAuthenticated):
     """
     Permission class to verify that the user is a member (manager or member) of the GroupProfile.
-    
+
     Can be used with:
     - DatasetExperiment (uses obj.group_profile)
     - GroupProfile (uses obj directly)
@@ -72,7 +74,7 @@ class IsGroupProfileMember(IsAuthenticated):
         if isinstance(obj, GroupProfile):
             group_profile = obj
         # If the object has a group_profile attribute (e.g. DatasetExperiment)
-        elif hasattr(obj, 'group_profile'):
+        elif hasattr(obj, "group_profile"):
             group_profile = obj.group_profile
 
         if not group_profile:
@@ -80,8 +82,7 @@ class IsGroupProfileMember(IsAuthenticated):
 
         # Verify if the user is a member (any role) of this GroupProfile
         is_member = GroupMember.objects.filter(
-            group=group_profile,
-            user=request.user
+            group=group_profile, user=request.user
         ).exists()
 
         return is_member

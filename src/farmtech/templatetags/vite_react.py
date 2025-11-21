@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 
 register = template.Library()
 
+
 @register.simple_tag
 def vite_react_app(app_name):
     """
@@ -25,7 +26,7 @@ def vite_react_app(app_name):
 
     if is_dev:
         # Development mode: Use Vite dev server
-        html = f'''
+        html = f"""
 <!-- Vite React App: {app_name} (DEV MODE) -->
 <script type="module">
   import RefreshRuntime from 'http://localhost:8081/@react-refresh'
@@ -36,14 +37,15 @@ def vite_react_app(app_name):
 </script>
 <script type="module" src="http://localhost:8081/@vite/client"></script>
 <script type="module" src="http://localhost:8081/js/apps/{app_name}.jsx"></script>
-'''
+"""
     else:
         # Production mode: Use built static files TODO: da testare e da trovare un modo per rendere automatica la build
         from django.templatetags.static import static
-        html = f'''
+
+        html = f"""
 <!-- Vite React App: {app_name} (PRODUCTION MODE) -->
 <link rel="stylesheet" href="{static('dist/style/react-apps.css')}">
 <script type="module" src="{static(f'dist/js/{app_name}.js')}"></script>
-'''
+"""
 
     return mark_safe(html)

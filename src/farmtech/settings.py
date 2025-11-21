@@ -64,7 +64,7 @@ if PROJECT_NAME not in INSTALLED_APPS:
     INSTALLED_APPS += ("farmtech.apps.FarmtechConfig",)
 
 # Swagger/OpenAPI configuration
-INSTALLED_APPS += ('drf_yasg',)
+INSTALLED_APPS += ("drf_yasg",)
 
 # Location of url mappings
 ROOT_URLCONF = os.getenv("ROOT_URLCONF", "{}.urls".format(PROJECT_NAME))
@@ -174,42 +174,51 @@ if LDAP_ENABLED and "geonode_ldap" not in INSTALLED_APPS:
 # Add your specific LDAP configuration after this comment:
 # https://docs.geonode.org/en/master/advanced/contrib/#configuration
 
-if 'geonode.base.context_processors.resource_urls' in TEMPLATES[0]['OPTIONS']['context_processors']:
+if (
+    "geonode.base.context_processors.resource_urls"
+    in TEMPLATES[0]["OPTIONS"]["context_processors"]
+):
     pass
 
 # Add FarmTech context processor
-TEMPLATES[0]['OPTIONS']['context_processors'].append('farmtech.context_processors.farmtech_user')
+TEMPLATES[0]["OPTIONS"]["context_processors"].append(
+    "farmtech.context_processors.farmtech_user"
+)
 
-INSTALLED_APPS += ('rest_framework.authtoken',)
+INSTALLED_APPS += ("rest_framework.authtoken",)
 
 
-DATABASE_ROUTERS += ['farmtech.db_router.CustomRouter',]
+DATABASE_ROUTERS += [
+    "farmtech.db_router.CustomRouter",
+]
 
 # Email configuration for Aruba
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtps.aruba.it')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', '465'))
-EMAIL_USE_SSL = ast.literal_eval(os.getenv('EMAIL_USE_SSL', 'True'))
-EMAIL_USE_TLS = ast.literal_eval(os.getenv('EMAIL_USE_TLS', 'False'))
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtps.aruba.it")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "465"))
+EMAIL_USE_SSL = ast.literal_eval(os.getenv("EMAIL_USE_SSL", "True"))
+EMAIL_USE_TLS = ast.literal_eval(os.getenv("EMAIL_USE_TLS", "False"))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 
 # copernicus settings
-COPERNICUS_CLIENT_ID = os.environ.get('COPERNICUS_CLIENT_ID')
-COPERNICUS_CLIENT_SECRET = os.environ.get('COPERNICUS_CLIENT_SECRET')
-COPERNICUS_API_URL = os.environ.get('COPERNICUS_API_URL')
-COPERNICUS_AUTH_URL = os.environ.get('COPERNICUS_AUTH_URL')
+COPERNICUS_CLIENT_ID = os.environ.get("COPERNICUS_CLIENT_ID")
+COPERNICUS_CLIENT_SECRET = os.environ.get("COPERNICUS_CLIENT_SECRET")
+COPERNICUS_API_URL = os.environ.get("COPERNICUS_API_URL")
+COPERNICUS_AUTH_URL = os.environ.get("COPERNICUS_AUTH_URL")
 
 # Django REST Framework Configuration
-REST_FRAMEWORK.update({
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '200/hour',  # Global rate limit for anonymous users
-        'user': '1000/hour',  # Global rate limit for authenticated users
-        # Spacific rate limits are set in the throttling classes
+REST_FRAMEWORK.update(
+    {
+        "DEFAULT_THROTTLE_CLASSES": [
+            "rest_framework.throttling.AnonRateThrottle",
+            "rest_framework.throttling.UserRateThrottle",
+        ],
+        "DEFAULT_THROTTLE_RATES": {
+            "anon": "200/hour",  # Global rate limit for anonymous users
+            "user": "1000/hour",  # Global rate limit for authenticated users
+            # Spacific rate limits are set in the throttling classes
+        },
     }
-})
+)

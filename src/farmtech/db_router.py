@@ -2,12 +2,14 @@
 custom_models/db_router.py
 """
 
+
 class CustomRouter:
     """
     A router to control all database operations on models in the
     auth and contenttypes applications.
     """
-    route_app_labels = {'farmtech'}
+
+    route_app_labels = {"farmtech"}
 
     def db_for_read(self, model, **hints):
         """
@@ -15,7 +17,7 @@ class CustomRouter:
         """
         if model._meta.app_label in self.route_app_labels:
             if model and not model._meta.managed:
-                return 'datastore'
+                return "datastore"
         return None
 
     def db_for_write(self, model, **hints):
@@ -24,7 +26,7 @@ class CustomRouter:
         """
         if model._meta.app_label in self.route_app_labels:
             if model and not model._meta.managed:
-                return 'datastore'
+                return "datastore"
         return None
 
     def allow_relation(self, obj1, obj2, **hints):
@@ -32,8 +34,10 @@ class CustomRouter:
         Allow relations if a model in the auth or contenttypes apps is
         involved.
         """
-        if (obj1._meta.app_label in self.route_app_labels or
-            obj2._meta.app_label in self.route_app_labels):
+        if (
+            obj1._meta.app_label in self.route_app_labels
+            or obj2._meta.app_label in self.route_app_labels
+        ):
             return True
         return None
 
@@ -44,9 +48,9 @@ class CustomRouter:
         """
         if app_label in self.route_app_labels:
             # avoid migrations for non-managed models
-            model = hints.get('model')
+            model = hints.get("model")
             if model and not model._meta.managed:
                 return False
             # all other models go to default
-            return db == 'default'
+            return db == "default"
         return None
