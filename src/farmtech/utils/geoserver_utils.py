@@ -14,10 +14,10 @@ from farmtech.exceptions import GeoserverUtilsError
 logger = logging.getLogger(__name__)
 
 # GeoServer configuration (add to settings.py)
-GEOSERVER_URL = getattr(settings, 'GEOSERVER_URL', 'http://geoserver:8080/geoserver')
-GEOSERVER_USER = getattr(settings, 'GEOSERVER_USER', 'admin')
-GEOSERVER_PASSWORD = getattr(settings, 'GEOSERVER_PASSWORD', 'geonode')
-GEOSERVER_WORKSPACE = getattr(settings, 'GEOSERVER_WORKSPACE', 'geonode')
+GEOSERVER_URL = getattr(settings, "GEOSERVER_URL", "http://geoserver:8080/geoserver")
+GEOSERVER_USER = getattr(settings, "GEOSERVER_USER", "admin")
+GEOSERVER_PASSWORD = getattr(settings, "GEOSERVER_PASSWORD", "geonode")
+GEOSERVER_WORKSPACE = getattr(settings, "GEOSERVER_WORKSPACE", "geonode")
 
 
 def upload_tiff_to_geoserver(tiff_file_path, coverage_name):
@@ -40,24 +40,30 @@ def upload_tiff_to_geoserver(tiff_file_path, coverage_name):
 
         logger.info("URL for creating coverage store: %s", store_url)
 
-        with open(tiff_file_path, 'rb') as f:
+        with open(tiff_file_path, "rb") as f:
             response = requests.put(
                 store_url,
                 data=f,
                 auth=HTTPBasicAuth(GEOSERVER_USER, GEOSERVER_PASSWORD),
-                headers={'Content-Type': 'image/tiff'},
-                params={'configure': 'first', 'coverageName': coverage_name},
-                timeout=60
+                headers={"Content-Type": "image/tiff"},
+                params={"configure": "first", "coverageName": coverage_name},
+                timeout=60,
             )
 
         logger.info("Response status code: %s", response.status_code)
-        logger.info("Response content: %s", response.text[:500] if response.text else 'empty')
+        logger.info(
+            "Response content: %s", response.text[:500] if response.text else "empty"
+        )
 
         if response.status_code not in [200, 201]:
-            logger.error("Error uploading TIFF file to GeoServer: %s", response.status_code)
+            logger.error(
+                "Error uploading TIFF file to GeoServer: %s", response.status_code
+            )
             logger.error("Response: %s", response.text)
-            raise GeoserverUtilsError("Error uploading to GeoServer: \
-{response.status_code} - {response.text}")
+            raise GeoserverUtilsError(
+                "Error uploading to GeoServer: \
+{response.status_code} - {response.text}"
+            )
 
         logger.info("Tiff uploaded to GeoServer: %s", store_name)
 
@@ -68,7 +74,7 @@ def upload_tiff_to_geoserver(tiff_file_path, coverage_name):
         possible_names = [
             coverage_name,
             store_name,
-            coverage_name.replace('_', '-'),
+            coverage_name.replace("_", "-"),
         ]
 
         coverage_data = None
@@ -84,7 +90,7 @@ def upload_tiff_to_geoserver(tiff_file_path, coverage_name):
             response = requests.get(
                 coverage_url,
                 auth=HTTPBasicAuth(GEOSERVER_USER, GEOSERVER_PASSWORD),
-                timeout=15
+                timeout=15,
             )
 
             logger.info("Coverage info status for %s: %s", name, response.status_code)
@@ -106,34 +112,33 @@ def upload_tiff_to_geoserver(tiff_file_path, coverage_name):
             response = requests.get(
                 list_url,
                 auth=HTTPBasicAuth(GEOSERVER_USER, GEOSERVER_PASSWORD),
-                timeout=15
+                timeout=15,
             )
 
             logger.info("List coverage status: %s", response.status_code)
             logger.info("List coverage: %s", response.text)
 
-            raise GeoserverUtilsError(f"Coverage not found after upload to GeoServer. \
-Store: {store_name}")
+            raise GeoserverUtilsError(
+                f"Coverage not found after upload to GeoServer. \
+Store: {store_name}"
+            )
 
         logger.info("Coverage data retrieved: %s", coverage_data)
 
         # Extract the bounding box lat/lon
-        lat_lon_bbox = coverage_data.get('coverage', {}).get('latLonBoundingBox', {})
+        lat_lon_bbox = coverage_data.get("coverage", {}).get("latLonBoundingBox", {})
 
         logger.info("Bounding box extracted: %s", lat_lon_bbox)
 
         # Calculate the center
         if lat_lon_bbox:
-            min_x = lat_lon_bbox.get('minx')
-            max_x = lat_lon_bbox.get('maxx')
-            min_y = lat_lon_bbox.get('miny')
-            max_y = lat_lon_bbox.get('maxy')
+            min_x = lat_lon_bbox.get("minx")
+            max_x = lat_lon_bbox.get("maxx")
+            min_y = lat_lon_bbox.get("miny")
+            max_y = lat_lon_bbox.get("maxy")
 
             if all([min_x, max_x, min_y, max_y]):
-                center = [
-                    (min_x + max_x) / 2,
-                    (min_y + max_y) / 2
-                ]
+                center = [(min_x + max_x) / 2, (min_y + max_y) / 2]
                 logger.info("Center calculated: %s", center)
             else:
                 center = None
@@ -143,11 +148,11 @@ Store: {store_name}")
             logger.warning("latLonBoundingBox non presente")
 
         return {
-            'success': True,
-            'layer_name': f"{GEOSERVER_WORKSPACE}:{coverage_name}",
-            'store_name': store_name,
-            'bounds': lat_lon_bbox,
-            'center': center
+            "success": True,
+            "layer_name": f"{GEOSERVER_WORKSPACE}:{coverage_name}",
+            "store_name": store_name,
+            "bounds": lat_lon_bbox,
+            "center": center,
         }
 
     except Exception as e:
@@ -167,7 +172,7 @@ def _ensure_workspace_exists():
         response = requests.get(
             workspace_url,
             auth=HTTPBasicAuth(GEOSERVER_USER, GEOSERVER_PASSWORD),
-            timeout=10
+            timeout=10,
         )
 
         logger.info("Status check workspace: %s", response.status_code)
@@ -176,38 +181,41 @@ def _ensure_workspace_exists():
             # Il workspace non esiste, crealo
             logger.info("Workspace %s not found, creating it", GEOSERVER_WORKSPACE)
             create_url = f"{GEOSERVER_URL}/rest/workspaces"
-            payload = {
-                "workspace": {
-                    "name": GEOSERVER_WORKSPACE
-                }
-            }
+            payload = {"workspace": {"name": GEOSERVER_WORKSPACE}}
 
             response = requests.post(
                 create_url,
                 json=payload,
                 auth=HTTPBasicAuth(GEOSERVER_USER, GEOSERVER_PASSWORD),
-                headers={'Content-Type': 'application/json'},
-                timeout=10
+                headers={"Content-Type": "application/json"},
+                timeout=10,
             )
 
             logger.info("Status create workspace: %s", response.status_code)
             logger.info("Response create: %s", response.text)
 
             if response.status_code not in [200, 201]:
-                raise GeoserverUtilsError(f"Error creating workspace: \
-{response.status_code} - {response.text}")
+                raise GeoserverUtilsError(
+                    f"Error creating workspace: \
+{response.status_code} - {response.text}"
+                )
 
             logger.info("Workspace %s created successfully", GEOSERVER_WORKSPACE)
 
         elif response.status_code == 200:
             logger.info("Workspace %s already exists", GEOSERVER_WORKSPACE)
         else:
-            raise GeoserverUtilsError(f"Error checking workspace: \
-{response.status_code} - {response.text}")
+            raise GeoserverUtilsError(
+                f"Error checking workspace: \
+{response.status_code} - {response.text}"
+            )
 
     except requests.exceptions.RequestException as e:
         logger.error("Error connecting to GeoServer: %s", str(e))
-        raise GeoserverUtilsError(f"Impossibile connettersi a GeoServer: {str(e)}") from e
+        raise GeoserverUtilsError(
+            f"Impossibile connettersi a GeoServer: {str(e)}"
+        ) from e
+
 
 def delete_coverage_from_geoserver(store_name, coverage_name):
     """
@@ -222,7 +230,7 @@ def delete_coverage_from_geoserver(store_name, coverage_name):
         response = requests.delete(
             coverage_url,
             auth=HTTPBasicAuth(GEOSERVER_USER, GEOSERVER_PASSWORD),
-            timeout=10
+            timeout=10,
         )
 
         if response.status_code in [200, 204]:

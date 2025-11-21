@@ -20,15 +20,15 @@ logger = logging.getLogger("celery")
 __DATASET_PATH = "/usr/src/farmtech/resources/datasets.json"
 __DATASET_EXPERIMENT_PATH = "/usr/src/farmtech/resources/datasets_experiment.json"
 
-def manage_tif_style(resource):
 
+def manage_tif_style(resource):
     """
     Apply a specific style to multi-spectral raster datasets.
-    If the resource title starts with 'ms_' and is of subtype 'raster', 
+    If the resource title starts with 'ms_' and is of subtype 'raster',
     it sets the default style to the style with ID 1.
     1 is the style created for 5-bands raster visualization.
     5-bands raster datasets are typically multi-spectral images used in remote sensing applications.
-    This function ensures that such datasets are visualized correctly 
+    This function ensures that such datasets are visualized correctly
     by applying the appropriate style.
     Args:
         resource: The resource object to be styled.
@@ -47,10 +47,11 @@ def manage_tif_style(resource):
 
             logger.info("Style applied for resource: %s", resource)
 
-@task_postrun.connect
-def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwargs=None,
-                            retval=None, **extra):
 
+@task_postrun.connect
+def after_imported_resource(
+    sender=None, task_id=None, task=None, args=None, kwargs=None, retval=None, **extra
+):
     """
     Celery signal handler for post-processing after a resource import task.
     This function listens for the completion of the 'importer.create_geonode_resource' task.
@@ -78,7 +79,9 @@ def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwa
                     if not user:
                         return
 
-                    group_profile = GroupProfile.objects.filter(groupmember__user=user).first()
+                    group_profile = GroupProfile.objects.filter(
+                        groupmember__user=user
+                    ).first()
                     if group_profile:
                         group = group_profile.group
                         resource.group = group
@@ -92,19 +95,26 @@ def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwa
                         resource.advertised = True
                         resource.save()
 
-                        #dataset_experiment
+                        # dataset_experiment
 
                         new_groups_perms = {
                             "anonymous": ["view_resourcebase"],
-                            "registered-members": ["view_resourcebase", "download_resourcebase"],
-                            str(resource.group.name): ["view_resourcebase",
-                                                       "download_resourcebase"],
+                            "registered-members": [
+                                "view_resourcebase",
+                                "download_resourcebase",
+                            ],
+                            str(resource.group.name): [
+                                "view_resourcebase",
+                                "download_resourcebase",
+                            ],
                         }
                         json_perms = resource.get_all_level_info()
                         json_perms["groups"] = new_groups_perms
                         logger.info(str(json_perms))
                         perms_spec = PermSpec(json_perms, resource)
-                        perms_spec_compact = PermSpecCompact(perms_spec.compact, resource)
+                        perms_spec_compact = PermSpecCompact(
+                            perms_spec.compact, resource
+                        )
 
                         _exec_request = ExecutionRequest.objects.create(
                             user=user,
@@ -118,8 +128,9 @@ def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwa
                                 "created": False,
                             },
                         )
-                        resouce_service_dispatcher.apply_async(args=(str(_exec_request.exec_id),),
-                                                               expiration=30)
+                        resouce_service_dispatcher.apply_async(
+                            args=(str(_exec_request.exec_id),), expiration=30
+                        )
 
                     create_dataset_experiment(resource)
                     # manage 5-bands raster style
@@ -127,6 +138,7 @@ def after_imported_resource(sender=None, task_id=None, task=None, args=None, kwa
 
         except Exception as e:
             logger.exception("Error in farmtech import handler: %s", e)
+
 
 def create_dataset_experiment(resource):
     """

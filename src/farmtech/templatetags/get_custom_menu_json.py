@@ -18,6 +18,7 @@ def _get_request_user(context):
     if request:
         return request.user
 
+
 def _handle_single_item(menu_item):
     m_item = {}
     m_item["type"] = "link"
@@ -34,6 +35,7 @@ def _is_mobile_device(context):
         return req.user_agent.is_mobile
     return False
 
+
 @register.simple_tag(takes_context=True)
 def get_custom_base_left_topbar_menu(context):
     """Returns the menu as JSON string with translations already resolved."""
@@ -47,17 +49,16 @@ def get_custom_base_left_topbar_menu(context):
         }
     ]
 
-
-    if user and user.has_perm('farmtech.inference'):
+    if user and user.has_perm("farmtech.inference"):
         items += [
-             {
+            {
                 "type": "link",
                 "href": "/inference",
                 "label": _("menu_inference"),
                 "id": "menu-inference",
             }
         ]
-    if user and user.has_perm('farmtech.uploader'):
+    if user and user.has_perm("farmtech.uploader"):
         items += [
             {
                 "type": "link",
@@ -105,12 +106,13 @@ def get_custom_base_left_topbar_menu(context):
                         "href": "/catalogue/#/dashboards",
                         "label": _("menu_dashboards"),
                         "id": "menu-dashboards",
-                    }
-                ]
-            }
+                    },
+                ],
+            },
         ]
 
     return items
+
 
 @register.simple_tag(takes_context=True)
 def get_custom_base_right_topbar_menu(context):
@@ -132,33 +134,33 @@ def get_custom_base_right_topbar_menu(context):
 
     if not user or (user and not user.is_authenticated):
         return []
-    
+
     if user.groups.exists():
         for group in user.groups.all():
-            
+
             group_profile = GroupProfile.objects.filter(group=group).first()
 
             if group_profile:
-                
+
                 is_manager = GroupMember.objects.filter(
-                    group=group_profile,
-                    user=user,
-                    role='manager'
+                    group=group_profile, user=user, role="manager"
                 ).exists()
-                
+
                 if is_manager:
                     return [about]
 
     if user.is_superuser:
         return [about]
-    
+
     return []
+
 
 @register.simple_tag(takes_context=True)
 def get_custom_base_left_topbar_menu_json(context):
     """Returns the menu as JSON string with translations already resolved."""
     items = get_custom_base_left_topbar_menu(context)
     return json.dumps(items)
+
 
 @register.simple_tag(takes_context=True)
 def get_custom_user_menu(context):
@@ -169,8 +171,11 @@ def get_custom_user_menu(context):
 
     if not user or (user and not user.is_authenticated):
         return [
-            {"label": "Sign in", "type": "link", "href":
-                "/account/login/?next=/catalogue/#/dashboards"},
+            {
+                "label": "Sign in",
+                "type": "link",
+                "href": "/account/login/?next=/catalogue/#/dashboards",
+            },
         ]
 
     devider = {"type": "divider"}

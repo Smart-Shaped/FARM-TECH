@@ -24,6 +24,7 @@ import sys
 
 logger = logging.getLogger(__name__)
 
+
 def run_setup_hooks(*args, **kwargs):
     from django.conf import settings
     from .celeryapp import app as celeryapp
@@ -34,6 +35,7 @@ def run_setup_hooks(*args, **kwargs):
     if celeryapp not in settings.INSTALLED_APPS:
         settings.INSTALLED_APPS += (celeryapp,)
 
+
 class FarmtechConfig(BaseAppConfig):
     name = "farmtech"
     label = "farmtech"
@@ -41,6 +43,6 @@ class FarmtechConfig(BaseAppConfig):
     def ready(self):
         import farmtech.celery_signals
         import farmtech.signals
+
         super().ready()
         run_setup_hooks()
-

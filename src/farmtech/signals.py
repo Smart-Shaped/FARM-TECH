@@ -14,6 +14,7 @@ from geonode.groups.models import GroupProfile
 
 logger = logging.getLogger("django")
 
+
 @receiver(post_save, sender=GeoApp)
 def dataset_post_save(sender, instance, created, **kwargs):
     """
@@ -24,11 +25,14 @@ def dataset_post_save(sender, instance, created, **kwargs):
         group = instance.group
         user = instance.owner
 
-        new_user_perms = ['view_resourcebase','change_resourcebase',]
+        new_user_perms = [
+            "view_resourcebase",
+            "change_resourcebase",
+        ]
         # perms_spec_patch = perms_spec = PermSpec(new_user_perms, instance)
         # perms_spec_compact_patch = PermSpecCompact(perms_spec_patch.compact, instance)
         new_groups_perms = {
-             "anonymous": ["view_resourcebase"],
+            "anonymous": ["view_resourcebase"],
         }
         json_perms = instance.get_all_level_info()
         json_perms["groups"] = new_groups_perms
@@ -39,17 +43,21 @@ def dataset_post_save(sender, instance, created, **kwargs):
 
         set_permissions(instance, user, perms_spec_compact)
 
-        group_dashaboard = GeoApp.objects.filter(group=group).exclude(id=instance.id).all()
+        group_dashaboard = (
+            GeoApp.objects.filter(group=group).exclude(id=instance.id).all()
+        )
         for geoapp in group_dashaboard:
             geoapp.is_published = False
             geoapp.is_approved = False
-            geoapp.save(update_fields=['is_published','is_approved'])
+            geoapp.save(update_fields=["is_published", "is_approved"])
             new_user_perms = {
                 "users": {
-                    geoapp.owner.username: ['view_resourcebase',
-                                    'change_resourcebase',],
+                    geoapp.owner.username: [
+                        "view_resourcebase",
+                        "change_resourcebase",
+                    ],
                 },
-                "groups":{}
+                "groups": {},
             }
             perms_geo_patch = perms_spec = PermSpec(new_user_perms, geoapp)
             perms_geo_compact_patch = PermSpecCompact(perms_geo_patch.compact, geoapp)
@@ -74,6 +82,7 @@ def dataset_post_save(sender, instance, created, **kwargs):
             instance.advertised = False
             instance.save()
 
+
 def set_permissions(resource, user, perms_spec_compact=PermSpecCompact):
     """
     Set the permissions for a resource.
@@ -90,4 +99,6 @@ def set_permissions(resource, user, perms_spec_compact=PermSpecCompact):
             "created": False,
         },
     )
-    resouce_service_dispatcher.apply_async(args=(str(_exec_request.exec_id),), expiration=30)
+    resouce_service_dispatcher.apply_async(
+        args=(str(_exec_request.exec_id),), expiration=30
+    )

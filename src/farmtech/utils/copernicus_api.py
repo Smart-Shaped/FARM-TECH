@@ -15,7 +15,8 @@ from farmtech.exceptions import CopernicusAPIError
 logger = logging.getLogger(__name__)
 
 # --- Cache key per il token ---
-TOKEN_CACHE_KEY = 'copernicus_auth_token'
+TOKEN_CACHE_KEY = "copernicus_auth_token"
+
 
 def get_auth_token() -> str:
     """
@@ -31,20 +32,21 @@ def get_auth_token() -> str:
     # 2. If not in cache, request a new one
     logger.info("Requesting new authentication token from Copernicus.")
     payload = {
-        'grant_type': 'client_credentials',
-        'client_id': settings.COPERNICUS_CLIENT_ID,
-        'client_secret': settings.COPERNICUS_CLIENT_SECRET,
+        "grant_type": "client_credentials",
+        "client_id": settings.COPERNICUS_CLIENT_ID,
+        "client_secret": settings.COPERNICUS_CLIENT_SECRET,
     }
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
     try:
-        response = requests.post(settings.COPERNICUS_AUTH_URL, 
-                                 data=payload, headers=headers, timeout=20)
+        response = requests.post(
+            settings.COPERNICUS_AUTH_URL, data=payload, headers=headers, timeout=20
+        )
         response.raise_for_status()  # Raise an exception for HTTP errors (4xx, 5xx)
 
         data = response.json()
-        new_token = data.get('access_token')
-        expires_in = data.get('expires_in', 3600)  # Duration in seconds
+        new_token = data.get("access_token")
+        expires_in = data.get("expires_in", 3600)  # Duration in seconds
 
         if not new_token:
             raise ValueError("API response does not contain an access token.")
@@ -57,15 +59,14 @@ def get_auth_token() -> str:
         return new_token
 
     except requests.exceptions.RequestException as e:
-        logger.error("Error requesting authentication token from Copernicus: %s", str(e))
+        logger.error(
+            "Error requesting authentication token from Copernicus: %s", str(e)
+        )
         raise  # Reraise the exception to be handled in the view
 
 
 def get_tiff_from_copernicus(
-    geometry: Dict[str, Any],
-    token: str,
-    start_date: str = None,
-    end_date: str = None
+    geometry: Dict[str, Any], token: str, start_date: str = None, end_date: str = None
 ) -> bytes:
     """
     Requests a TIFF image from Copernicus based on a geometry.
@@ -99,45 +100,44 @@ def get_tiff_from_copernicus(
         "input": {
             "bounds": {
                 "properties": {"crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84"},
-                "geometry": geometry
+                "geometry": geometry,
             },
-            "data": [{
-                "type": "S2L2A",
-                "dataFilter": {
-                    "timeRange": {
-                        "from": start_datetime,
-                        "to": end_datetime
+            "data": [
+                {
+                    "type": "S2L2A",
+                    "dataFilter": {
+                        "timeRange": {"from": start_datetime, "to": end_datetime},
+                        "mosaickingOrder": "mostRecent",
+                        "maxCloudCoverage": 20,
                     },
-                    "mosaickingOrder": "mostRecent",
-                    "maxCloudCoverage": 20
-                },
-                "processing":{
-                    "downsampling":"NEAREST",
-                    "upsamplign":"BICUBIC"
+                    "processing": {"downsampling": "NEAREST", "upsamplign": "BICUBIC"},
                 }
-            }]
+            ],
         },
         "output": {
             "width": 512,
             "height": 512,
-            "responses": [{"identifier": "default", "format": {"type": "image/tiff"}}]
+            "responses": [{"identifier": "default", "format": {"type": "image/tiff"}}],
         },
-        "evalscript": evalscript
+        "evalscript": evalscript,
     }
 
     headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'image/tiff',
-        'Authorization': f'Bearer {token}',
+        "Content-Type": "application/json",
+        "Accept": "image/tiff",
+        "Authorization": f"Bearer {token}",
     }
 
     try:
         logger.info("Requesting TIFF image from Copernicus.")
-        response = requests.post(settings.COPERNICUS_API_URL, 
-                                 json=request_body, headers=headers, timeout=20)
+        response = requests.post(
+            settings.COPERNICUS_API_URL, json=request_body, headers=headers, timeout=20
+        )
         response.raise_for_status()
         logger.info("Tiff image received successfully.")
         return response.content  # Binary data of the image
 
     except requests.exceptions.HTTPError as e:
-        raise CopernicusAPIError(f"Error requesting TIFF image from Copernicus: {str(e)}") from e
+        raise CopernicusAPIError(
+            f"Error requesting TIFF image from Copernicus: {str(e)}"
+        ) from e
