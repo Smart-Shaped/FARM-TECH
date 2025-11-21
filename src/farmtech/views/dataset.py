@@ -208,7 +208,15 @@ class DatasetUpdateAPIView(APIView):
             try:
                 df = pd.read_excel(excel_file)
                 df.columns = [
-                    col.strip().lower().replace("-", "_").replace(" ", "_")
+                    col.strip()
+                    .lower()
+                    .replace("-", "_")
+                    .replace(" ", "_")
+                    .replace("/", "__")
+                    .replace("(", "")
+                    .replace(")", "")
+                    .replace("°", "gradi_")
+                    .replace("%", "perc")
                     for col in df.columns
                 ]
 
