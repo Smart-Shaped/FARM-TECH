@@ -7,7 +7,7 @@ from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 
 class FiveDaysRegisteredThrottleRate(UserRateThrottle):
     """
-    Rate limit for users registered in the last 5 days.
+    Rate limit for all authenticated users.
     Applies to ALL users, including staff and superusers.
     """
 
@@ -16,9 +16,25 @@ class FiveDaysRegisteredThrottleRate(UserRateThrottle):
     def allow_request(self, request, view):
         """
         Override to apply throttling to staff/superusers as well.
+        Removes the bypass for staff/superuser that exists in SimpleRateThrottle.
         """
-        # Always check throttle, even for staff/superusers
-        return super(UserRateThrottle, self).allow_request(request, view)
+        if request.user and request.user.is_authenticated:
+            self.key = self.get_cache_key(request, view)
+            if self.key is None:
+                return True
+
+            self.history = self.cache.get(self.key, [])
+            self.now = self.timer()
+
+            while self.history and self.history[-1] <= self.now - self.duration:
+                self.history.pop()
+
+            if len(self.history) >= self.num_requests:
+                return self.throttle_failure()
+
+            return self.throttle_success()
+
+        return True
 
 
 class IPBasedThrottle(AnonRateThrottle):
@@ -39,6 +55,19 @@ class IPBasedThrottle(AnonRateThrottle):
     def allow_request(self, request, view):
         """
         Override to apply throttling to staff/superusers as well.
+        Removes the bypass for staff/superuser that exists in SimpleRateThrottle.
         """
-        # Always check throttle, even for staff/superusers
-        return super(AnonRateThrottle, self).allow_request(request, view)
+        self.key = self.get_cache_key(request, view)
+        if self.key is None:
+            return True
+
+        self.history = self.cache.get(self.key, [])
+        self.now = self.timer()
+
+        while self.history and self.history[-1] <= self.now - self.duration:
+            self.history.pop()
+
+        if len(self.history) >= self.num_requests:
+            return self.throttle_failure()
+
+        return self.throttle_success()
