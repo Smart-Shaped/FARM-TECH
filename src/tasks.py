@@ -406,16 +406,6 @@ def fixtures(ctx):
         pty=True,
     )
     ctx.run(
-        f"python manage.py loaddata /usr/src/farmtech/fixtures/farmtech_users_initial_data.json \
---settings={_localsettings()}",
-        pty=True,
-    )
-    ctx.run(
-        f"python manage.py loaddata /usr/src/farmtech/fixtures/farmtech_groups_groupmember_initial_data.json \
---settings={_localsettings()}",
-        pty=True,
-    )
-    ctx.run(
         f"python manage.py loaddata /usr/src/farmtech/fixtures/farmtech_raster_style.json \
 --settings={_localsettings()}",
         pty=True,
