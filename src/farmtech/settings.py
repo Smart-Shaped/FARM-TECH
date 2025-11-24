@@ -225,3 +225,12 @@ REST_FRAMEWORK.update(
 
 SESSION_COOKIE_AGE = 43200
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Override cache backend to use the correct pymemcache backend
+CACHES["default"] = {
+    "BACKEND": "django.core.cache.backends.memcached.PyLibMCCache",
+    "LOCATION": os.getenv("MEMCACHED_LOCATION", "127.0.0.1:11211"),
+}
+
+# Configure django-select2 to use the default cache
+SELECT2_CACHE_BACKEND = "default"

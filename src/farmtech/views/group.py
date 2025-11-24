@@ -18,7 +18,7 @@ from drf_yasg import openapi
 
 from farmtech.models import RoleChangeRequest
 from farmtech.authentication import KeycloakAuthentication
-from farmtech.throttles import FiveDaysRegisteredThrottleRate
+from farmtech.throttles import FivePerDay
 from farmtech.serializers import GroupJoinRequestSerializer
 
 
@@ -44,7 +44,7 @@ class GroupJoinRequestAPIView(APIView):
 
     authentication_classes = [KeycloakAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
-    throttle_classes = [FiveDaysRegisteredThrottleRate]
+    throttle_classes = [FivePerDay]
 
     @swagger_auto_schema(
         operation_description="Request membership in a Group Profile. Sends an email to all group managers with user information, requested role, and motivation.",
@@ -266,6 +266,7 @@ class GroupProfileListAPIView(APIView):
     """
 
     permission_classes = []
+    throttle_classes = [FivePerDay]
 
     @swagger_auto_schema(
         operation_description="Retrieve the list of all existing GroupProfiles"
