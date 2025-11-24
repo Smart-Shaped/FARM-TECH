@@ -5,13 +5,13 @@ Custom throttling classes for FarmTech app.
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 
 
-class FiveDaysRegisteredThrottleRate(UserRateThrottle):
+class FivePerDay(UserRateThrottle):
     """
     Rate limit for all authenticated users.
     Applies to ALL users, including staff and superusers.
     """
 
-    rate = "5/day"
+    rate = "6/day"
 
     def allow_request(self, request, view):
         """

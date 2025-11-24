@@ -23,7 +23,7 @@ from farmtech.authentication import KeycloakAuthentication
 
 from farmtech.serializers import DataForInferenceSerializer
 from farmtech.permissions import HasInferencePermission
-from farmtech.throttles import FiveDaysRegisteredThrottleRate
+from farmtech.throttles import FivePerDay
 from farmtech.utils.copernicus_api import get_auth_token, get_tiff_from_copernicus
 from farmtech.exceptions import (
     InvokeSSHCommandError,
@@ -299,7 +299,7 @@ class RunSSHCommandView(APIView):
 
     authentication_classes = [KeycloakAuthentication, SessionAuthentication]
     permission_classes = [HasInferencePermission]
-    throttle_classes = [FiveDaysRegisteredThrottleRate]
+    throttle_classes = [FivePerDay]
 
     @swagger_auto_schema(
         operation_description="Execute inference analysis on agricultural data. Accepts either a TIFF file directly or a polygon with date range to fetch satellite imagery from Copernicus. The data is processed via SSH command on a remote ML server and results are returned.",
