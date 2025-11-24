@@ -266,7 +266,7 @@ class GroupProfileListAPIView(APIView):
     """
 
     permission_classes = []
-    throttle_classes = [FivePerDay]
+    throttle_classes = []
 
     @swagger_auto_schema(
         operation_description="Retrieve the list of all existing GroupProfiles"
