@@ -371,21 +371,59 @@ class Experiment5(gis_models.Model):
     """
 
     ogc_fid = models.AutoField(primary_key=True, name="ogc_fid")
-    campione = models.CharField(max_length=200, null=True, blank=True, name="campione")
-    shannon = models.FloatField(null=True, blank=True, name="shannon")
-    simpson = models.FloatField(null=True, blank=True, name="simpson")
-    mntd = models.FloatField(null=True, blank=True, name="mntd")
-    fusarium = models.FloatField(null=True, blank=True, name="fusarium")
-    rhizoctonia = models.FloatField(null=True, blank=True, name="rhizoctonia")
-    phytophtora = models.FloatField(null=True, blank=True, name="phytophtora")
+    sample_id = models.CharField(
+        max_length=200, null=True, blank=True, name="sample_id"
+    )
+    fusarium_fungi_potential_pathogen = models.FloatField(
+        null=True, blank=True, name="fusarium_fungi_potential_pathogen"
+    )
+    alternaria_fungi_potential_pathogen = models.FloatField(
+        null=True, blank=True, name="alternaria_fungi_potential_pathogen"
+    )
+    rhizoctonia_fungi_pathogen = models.FloatField(
+        null=True, blank=True, name="rhizoctonia_fungi_pathogen"
+    )
+    colletotrichum_fungi_pathogen = models.FloatField(
+        null=True, blank=True, name="colletotrichum_fungi_pathogen"
+    )
+    botrytis_fungi_pathogen = models.FloatField(
+        null=True, blank=True, name="botrytis_fungi_pathogen"
+    )
+    xanthomonas_bacteria_potential_pathogen = models.FloatField(
+        null=True, blank=True, name="xanthomonas_bacteria_potential_pathogen"
+    )
+    ralstonia_bacteria_pathogen = models.FloatField(
+        null=True, blank=True, name="ralstonia_bacteria_pathogen"
+    )
     data_campionamento = models.DateField(
         null=True, blank=True, name="data_campionamento"
     )
-    description = models.CharField(
-        max_length=200, null=True, blank=True, name="description"
+    soil = models.CharField(max_length=255, null=True, blank=True, name="soil")
+    cover_crop = models.CharField(
+        max_length=255, null=True, blank=True, name="cover_crop"
+    )
+    termination = models.CharField(
+        max_length=255, null=True, blank=True, name="termination"
     )
     long = models.FloatField(null=True, blank=True, name="long")
     lat = models.FloatField(null=True, blank=True, name="lat")
+    kingdom = models.CharField(max_length=255, null=True, blank=True, name="kingdom")
+    observed_richness_number_of_taxa = models.IntegerField(
+        null=True, blank=True, name="observed_richness_number_of_taxa"
+    )
+    diversity_shannon = models.FloatField(
+        null=True, blank=True, name="diversity_shannon"
+    )
+    dominance_simpson = models.FloatField(
+        null=True, blank=True, name="dominance_simpson"
+    )
+    phylogenetic_diversity = models.FloatField(
+        null=True, blank=True, name="phylogenetic_diversity"
+    )
+    fungal_pathogens = models.TextField(null=True, blank=True, name="fungal_pathogens")
+    bacterial_pathogens = models.TextField(
+        null=True, blank=True, name="bacterial_pathogens"
+    )
 
     class Meta:
         """
