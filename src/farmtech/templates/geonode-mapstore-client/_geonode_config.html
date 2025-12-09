@@ -1,0 +1,216 @@
+{% extends 'geonode-mapstore-client/_geonode_config.html' %}
+{% load get_custom_menu_json %}
+{% block override_local_config %}
+{% get_custom_base_left_topbar_menu_json as FARMTECH_MENU_JSON %}
+<script>
+    // Inject Django user data into window scope (from context processor)
+    window.__FARMTECH_USER__ = {{ farmtech_user_json | safe }};
+
+    console.log({ user: window.__FARMTECH_USER__  })
+    // Inject menu items with translations already resolved server-side
+    window.__FARMTECH_MENU__ = {{ FARMTECH_MENU_JSON | safe }};
+
+    window.__GEONODE_CONFIG__.overrideLocalConfig = function (localConfig, _) {
+
+        const user = window.__FARMTECH_USER__;
+        const isAdmin = user.is_superuser;
+
+        // Check if user has download permissions
+        const canDownload = user && user.is_authenticated && (
+            user.is_superuser ||
+            (user.perms && user.perms.includes('download_resourcebase')) //TODO: verificare se il permesso è corretto
+        );
+
+        console.log('FARMTECH: User download permission check', {
+            username: user?.username,
+            canDownload,
+            is_superuser: user?.is_superuser,
+            perms: user?.perms
+        });
+
+        //TODO: possiamo anche quì permettere comunque il download all'admin ma non so quato ci serva..
+        // Disable download functionality for users without permission
+        if (!canDownload) {
+            // Remove DownloadResource plugin from catalogue
+            if (localConfig.plugins.catalogue) {
+                localConfig.plugins.catalogue = localConfig.plugins.catalogue.filter(
+                    plugin => plugin.name !== 'DownloadResource'
+                );
+                console.log('FARMTECH: DownloadResource plugin removed from catalogue');
+            }
+
+            // Remove DownloadResource plugin from viewers
+            const viewers = ['dataset_viewer', 'map_viewer', 'document_viewer', 'dashboard_viewer', 'geostory_viewer'];
+            viewers.forEach(viewerName => {
+                if (localConfig.plugins[viewerName]) {
+                    const originalLength = localConfig.plugins[viewerName].length;
+                    localConfig.plugins[viewerName] = localConfig.plugins[viewerName].filter(
+                        plugin => plugin.name !== 'DownloadResource'
+                    );
+                    if (localConfig.plugins[viewerName].length < originalLength) {
+                        console.log(`FARMTECH: DownloadResource plugin removed from ${viewerName}`);
+                    }
+                }
+            });
+
+            // Hide download actions from resource cards
+            if (localConfig.plugins.catalogue) {
+                localConfig.plugins.catalogue.forEach((plugin) => {
+                    if (plugin.name === 'ResourcesGrid' && plugin.cfg) {
+                        const pages = ['allPage', 'mapsPage', 'documentsPage', 'dashboardsPage', 'datasetsPage', 'geostoriesPage'];
+
+                        pages.forEach(pageName => {
+                            if (plugin.cfg[pageName]) {
+                                plugin.cfg[pageName].cardOptions = {
+                                    ...plugin.cfg[pageName].cardOptions,
+                                    hideDownload: true
+                                };
+                                console.log(`FARMTECH: Download hidden in ${pageName} cards`);
+                            }
+                        });
+                    }
+                });
+            }
+
+            console.log('FARMTECH: All download options disabled for user', user?.username);
+        }
+
+        const customMenu = window.__FARMTECH_MENU__ || [];
+        const viewersWithMenu = [
+            'dataset_viewer',
+            'map_viewer',
+            'geostory_viewer',
+            'document_viewer',
+            'dashboard_viewer',
+            'viewer'
+        ];
+
+        viewersWithMenu.forEach(viewerName => {
+            const plugins = localConfig.plugins[viewerName];
+            if (!plugins) return;
+            
+            plugins.forEach(plugin => {
+                if (plugin.name === 'ActionNavbar' && plugin.cfg && plugin.cfg.leftMenuItems) {
+                    // Rimuovi tutti i link esistenti del catalogo
+                    plugin.cfg.leftMenuItems = plugin.cfg.leftMenuItems.filter(item => {
+                        if (item.href && (
+                            item.href.includes('#/all') ||
+                            item.href.includes('/catalogue/')
+                        )) {
+                            return false;
+                        }
+                        return true;
+                    });
+
+                    // Aggiungi i menu custom con traduzioni già risolte all'inizio
+                    plugin.cfg.leftMenuItems = [...customMenu, ...plugin.cfg.leftMenuItems];
+                    console.log(`FARMTECH: Custom menu applied to ${viewerName}`, customMenu);
+                }
+            });
+        });
+
+        // Disabilita il filtro gruppo nell'interfaccia in questo modo evitiamo che l'utente possa facilmente bypassare il nostro filtro
+        if (!isAdmin && localConfig.plugins.catalogue) {
+            localConfig.plugins.catalogue.forEach((plugin) => {
+                if (plugin.name === 'ResourcesGrid' && plugin.cfg) {
+                    const pages = ['allPage', 'mapsPage', 'documentsPage', 'dashboardsPage', 'datasetsPage', 'geostoriesPage'];
+                    
+                    pages.forEach(pageName => {
+                        if (plugin.cfg[pageName] && plugin.cfg[pageName].filtersFormItems) {
+                            // Rimuovi il filtro "group" dalla UI
+                            plugin.cfg[pageName].filtersFormItems = plugin.cfg[pageName].filtersFormItems.filter(
+                                item => item.facet !== 'group'
+                            );
+                        }
+                    });
+                }
+            });
+        }
+        
+        if (user && user.is_authenticated && user.username) {
+            
+            
+            // Ottieni i GroupProfile dell'utente
+            const groupMemberSet = (user.group_members || []).map(gm => {
+                return gm.auth_group_id
+            })
+            console.log(groupMemberSet)
+            
+            // Se l'utente ha gruppi e NON è admin, filtra per GroupProfile ID
+            //TODO: riabilitare l'admin
+            if (!isAdmin &&  groupMemberSet.length > 0) {
+
+                // Crea il filtro per group (usando gli ID dei GroupProfile)
+                const groupFilter = {
+                    'filter{group.in}': groupMemberSet.join(',')
+                };
+
+                // Applica il filtro a tutte le pagine del catalogo
+                if (localConfig.plugins.catalogue) {
+                    localConfig.plugins.catalogue.forEach((plugin) => {
+                        if (plugin.name === 'ResourcesGrid' && plugin.cfg) {
+                            const pages = ['allPage', 'mapsPage', 'documentsPage', 'dashboardsPage', 'datasetsPage', 'geostoriesPage'];
+                            
+                            pages.forEach(pageName => {
+                                if (plugin.cfg[pageName]) {
+                                    plugin.cfg[pageName].defaultQuery = {
+                                        ...plugin.cfg[pageName].defaultQuery,
+                                        ...groupFilter
+                                    };
+                                    console.log(`FARMTECH: Filter applied to ${pageName}:`, plugin.cfg[pageName].defaultQuery);
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        }
+
+        return localConfig;
+    };
+
+    // Inietta il placeholder per Dashboard Publisher nella topbar di MapStore
+    window.addEventListener('load', () => {
+        // Aspetta che MapStore monti ActionNavbar
+        const waitForNavbar = setInterval(() => {
+            // Cerca il navbar di MapStore (ha classe specifica di MapStore)
+            const navbar = document.querySelector('.ms-header, [class*="mapstore-navbar"], nav[class*="navbar"]');
+
+            if (navbar) {
+                clearInterval(waitForNavbar);
+                
+                // Verifica se il placeholder non esiste già
+                if (!document.getElementById('farmtech-dashboard-publisher-topbar')) {
+                    // Crea il div placeholder
+                    const placeholder = document.createElement('div');
+                    placeholder.id = 'farmtech-dashboard-publisher-topbar';
+                    placeholder.style.display = 'flex';
+                    placeholder.style.alignItems = 'center';
+                    placeholder.style.flex = '1';
+                    placeholder.style.justifyContent = 'center';
+
+                    // Cerca il contenitore centrale o inseriscilo dopo il menu left
+                    const leftMenu = navbar.querySelector('[class*="left"], [class*="start"]');
+                    const rightMenu = navbar.querySelector('[class*="right"], [class*="end"]');
+                    
+                    if (leftMenu && rightMenu) {
+                        // Inserisci tra left e right
+                        leftMenu.parentNode.insertBefore(placeholder, rightMenu);
+                    } else if (leftMenu) {
+                        // Inserisci dopo left
+                        leftMenu.parentNode.insertBefore(placeholder, leftMenu.nextSibling);
+                    } else {
+                        // Fallback: aggiungi al navbar
+                        navbar.appendChild(placeholder);
+                    }
+                    
+                    console.log('FARMTECH: Dashboard Publisher placeholder injected in MapStore navbar');
+                }
+            }
+        }, 100);
+        
+        // Timeout dopo 10 secondi per evitare loop infinito
+        setTimeout(() => clearInterval(waitForNavbar), 10000);
+    });
+</script>
+{% endblock %}

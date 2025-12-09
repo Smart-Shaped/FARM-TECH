@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StyledLayerDescriptor version="1.0.0" 
+  xmlns="http://www.opengis.net/sld" 
+  xmlns:ogc="http://www.opengis.net/ogc" 
+  xmlns:xlink="http://www.w3.org/1999/xlink" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.opengis.net/sld http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd">
+  <NamedLayer>
+    <Name>NDVI</Name>
+    <UserStyle>
+      <Name>NDVI</Name>
+      <Title>NDVI Vegetation Index</Title>
+      <Abstract>NDVI calculated from Red (band 3) and NIR (band 5)</Abstract>
+      <FeatureTypeStyle>
+        <Transformation>
+          <ogc:Function name="ras:Jiffle">
+            <ogc:Function name="parameter">
+              <ogc:Literal>coverage</ogc:Literal>
+            </ogc:Function>
+            <ogc:Function name="parameter">
+              <ogc:Literal>script</ogc:Literal>
+              <ogc:Literal>
+                red = src[2];
+                nir = src[4];
+                dest = (nir - red) / (nir + red + 0.0001);
+              </ogc:Literal>
+            </ogc:Function>
+          </ogc:Function>
+        </Transformation>
+        <Rule>
+          <RasterSymbolizer>
+            <Opacity>1.0</Opacity>
+            <ColorMap type="ramp">
+              <ColorMapEntry color="#8B0000" quantity="-1" label="Acqua/Suolo"/>
+              <ColorMapEntry color="#FF0000" quantity="-0.2" label="Suolo nudo"/>
+              <ColorMapEntry color="#FFFF00" quantity="0.1" label="Vegetazione rada"/>
+              <ColorMapEntry color="#90EE90" quantity="0.3" label="Vegetazione moderata"/>
+              <ColorMapEntry color="#00FF00" quantity="0.5" label="Vegetazione densa"/>
+              <ColorMapEntry color="#006400" quantity="1" label="Vegetazione molto densa"/>
+            </ColorMap>
+          </RasterSymbolizer>
+        </Rule>
+      </FeatureTypeStyle>
+    </UserStyle>
+  </NamedLayer>
+</StyledLayerDescriptor>

@@ -1,0 +1,523 @@
+/**
+ * Styles for all Farmtech React apps
+ * This file is imported by Vite and includes Bootstrap 5 for modern utility classes
+ */
+
+/* Import Bootstrap 5 */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Import OpenLayers CSS */
+@import 'ol/ol.css';
+
+/* Inference App Layout */
+.inference-app {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: calc(100dvh - 100px);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* OpenLayers Overlay Container */
+.ol-overlay-container {
+    position: relative;
+    pointer-events: auto;
+}
+
+/* Yield Result Card */
+.yield-result-card {
+    min-width: 220px;
+    max-width: 220px;
+    animation: slideInFromTop 0.4s ease-out;
+    transform: translate(-50%, -25%);
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Responsive on mobile */
+@media (max-width: 767px) {
+    .yield-result-card {
+        min-width: 220px;
+        max-width: 220px;
+    }
+}
+
+/* correct after on profile icon */
+.dropdown > button::after {
+    display: none;
+}
+
+.inference-app * {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+}
+
+.map-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.map-view {
+    width: 100%;
+    height: 100%;
+}
+
+/* Animations */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.upload-status-loading {
+    animation: spin 1s linear infinite;
+}
+
+/* Map Controls Enhancement */
+.map-controls button {
+    pointer-events: auto;
+}
+
+.btn-primary:disabled,
+.btn-light:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Light buttons hover to gradient */
+.btn-light:not(:disabled):hover {
+    background: linear-gradient(135deg, var(--gn-primary-dark, #2e5f7d) 0%, var(--gn-primary, #397aab) 100%);
+    border-color: var(--gn-primary, #397aab);
+    color: white;
+}
+
+/* Primary buttons with gradient for map controls */
+.map-controls .btn-primary {
+    background: linear-gradient(135deg, var(--gn-primary-dark, #2e5f7d) 0%, var(--gn-primary, #397aab) 100%);
+    border-color: var(--gn-primary, #397aab);
+    color: white;
+}
+
+.map-controls .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--gn-primary, #397aab) 0%, var(--gn-primary-light, #5d9fcc) 100%);
+    border-color: var(--gn-primary-light, #5d9fcc);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(41, 122, 171, 0.3);
+}
+
+/* Index App Styles */
+
+/* Hero Section with Gradient Background */
+.hero-gradient {
+    background: linear-gradient(135deg, var(--gn-primary-dark, #2e5f7d) 0%, var(--gn-primary, #397aab) 50%, var(--gn-primary-light, #5d9fcc) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Pattern decorativo */
+.hero-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* Feature Icons with Primary Color Gradient */
+.feature-icon-gradient {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--gn-primary-dark, #2e5f7d) 0%, var(--gn-primary, #397aab) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.feature-icon-gradient svg {
+    color: var(--gn-primary-contrast, #fff);
+}
+
+/* Step Number Circle */
+.step-number-circle {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--gn-primary-dark, #2e5f7d) 0%, var(--gn-primary, #397aab) 100%);
+    color: var(--gn-primary-contrast, #fff);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+/* Funding Section Styles */
+.funding-section-gradient {
+    background: linear-gradient(135deg, var(--gn-primary-dark, #2e5f7d) 0%, var(--gn-primary, #397aab) 50%, var(--gn-primary-light, #5d9fcc) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.funding-section-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* Logo Carousel Animation */
+.funding-logos-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.funding-logos-track {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    animation: scroll-logos 30s linear infinite;
+    width: max-content;
+}
+
+@keyframes scroll-logos {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.funding-logos-track:hover {
+    animation-play-state: paused;
+}
+
+.funding-logo-card {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 30px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    min-width: 180px;
+    height: 100px;
+}
+
+.funding-logo-card:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    background: rgba(255, 255, 255, 1);
+}
+
+/* Tutorial Card Styles */
+
+/* Controls container - moves up when tutorial expands */
+.tutorial-controls-container {
+    transition: transform 0.3s ease-in-out;
+    transform: translateY(0);
+}
+
+.tutorial-controls-container.controls-raised {
+    transform: translateY(-300px); /* Mobile default */
+}
+
+/* Desktop: smaller offset */
+@media (min-width: 768px) {
+    .tutorial-controls-container.controls-raised {
+        transform: translateY(-300px);
+    }
+}
+
+/* Tutorial container with animation */
+.tutorial-container {
+    transition: height 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+.tutorial-collapsed {
+    height: 0;
+}
+
+.tutorial-expanded {
+    height: 300px; /* Mobile default */
+}
+
+/* Desktop: smaller height */
+@media (min-width: 768px) {
+    .tutorial-expanded {
+        height: 300px;
+    }
+}
+
+.tutorial-scroll-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+.tutorial-cards-wrapper {
+    min-width: 100%;
+    height: 100%;
+}
+
+.tutorial-card-item {
+    flex: 0 0 auto;
+    height: 100%;
+}
+
+/* Tutorial card content sizing - Default (mobile) */
+.tutorial-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.tutorial-icon-svg {
+    width: 16px;
+    height: 16px;
+}
+
+.tutorial-title {
+    font-size: 1.15rem;
+    line-height: 1.2;
+}
+
+.tutorial-desc {
+    font-size: 0.875rem;
+    line-height: 1.3;
+}
+
+/* Desktop: show all 3 cards in a grid */
+@media (min-width: 768px) {
+    .tutorial-scroll-container {
+        overflow: visible;
+    }
+
+    .tutorial-cards-wrapper {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .tutorial-card-item {
+        width: 100%;
+    }
+
+    .tutorial-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .tutorial-icon-svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .tutorial-title {
+        font-size: 1.25rem;
+    }
+
+    .tutorial-desc {
+        font-size: 1rem;
+        line-height: 1.4;
+    }
+}
+
+/* Mobile: enable horizontal swipe with scroll snap */
+@media (max-width: 767px) {
+    .tutorial-scroll-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    .tutorial-scroll-container {
+        scrollbar-width: none;
+    }
+
+    .tutorial-cards-wrapper {
+        scroll-snap-type: x mandatory;
+        display: flex;
+        gap: 0.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .tutorial-card-item {
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+        width: calc(100vw - 2rem);
+        min-width: calc(100vw - 2rem);
+    }
+
+    .tutorial-card-item .card-body {
+        padding: 0.75rem;
+    }
+}
+
+/* Uploader App Styles */
+
+/* Drop Zone */
+.drop-zone {
+    border: 3px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.drop-zone:hover {
+    border-color: var(--gn-primary, #397aab);
+    background-color: #e7f3ff;
+}
+
+.drop-zone.drag-over {
+    border-color: var(--gn-primary, #397aab);
+    border-style: solid;
+    background: linear-gradient(135deg, rgba(46, 95, 125, 0.1) 0%, rgba(57, 122, 171, 0.1) 100%);
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(57, 122, 171, 0.2);
+}
+
+.drop-zone-content {
+    pointer-events: none;
+}
+
+.drop-icon {
+    color: var(--gn-primary, #397aab);
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.drop-zone.drag-over .drop-icon {
+    transform: scale(1.1);
+    animation: bounce 0.6s ease infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0) scale(1.1);
+    }
+    50% {
+        transform: translateY(-10px) scale(1.1);
+    }
+}
+
+.drop-text {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #212529;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.drop-zone.drag-over .drop-text {
+    color: var(--gn-primary, #397aab);
+    font-weight: 600;
+}
+
+.drop-hint {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+.last-upload-info {
+    font-size: 0.875rem;
+    color: #198754;
+    margin-top: 1rem;
+    margin-bottom: 0;
+    padding: 0.5rem 1rem;
+    background-color: rgba(25, 135, 84, 0.1);
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.last-upload-info strong {
+    color: #146c43;
+}
+
+/* Uploader Tutorial Section - Vertical Scroll */
+.tutorial-scroll-container-vertical {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+.tutorial-scroll-container-vertical::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tutorial-scroll-container-vertical::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.tutorial-scroll-container-vertical::-webkit-scrollbar-thumb {
+    background: var(--gn-primary, #397aab);
+    border-radius: 3px;
+}
+
+.tutorial-scroll-container-vertical::-webkit-scrollbar-thumb:hover {
+    background: var(--gn-primary-dark, #2e5f7d);
+}
+
+.tutorial-steps-list {
+    list-style: none;
+    padding-left: 0;
+    counter-reset: step-counter;
+}
+
+.tutorial-steps-list > li {
+    counter-increment: step-counter;
+}
+
+.tutorial-steps-list > li::marker {
+    content: "";
+}
+

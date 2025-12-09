@@ -1,0 +1,17 @@
+Ciao,
+
+L'utente {user_full_name} (Email: {user_email}) ha richiesto l'iscrizione al gruppo '{group_title}'.
+
+Dettagli della richiesta:
+- Nome utente: {username}
+- Nome completo: {user_full_name}
+- Email: {user_email}
+- Ruolo richiesto: {role_label}
+
+Motivazione:
+{motivation}
+
+Per approvare o gestire questa richiesta, accedi al pannello di amministrazione di Farmtech.
+
+---
+Questa è una email automatica generata dal sistema Farmtech.

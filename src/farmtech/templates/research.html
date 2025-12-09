@@ -1,0 +1,9 @@
+{% extends "index.html" %}
+{% load i18n static vite_react %}
+
+
+{% block container %}
+  <div id="farmtech-research-container"></div>
+  <script>window.STATIC_URL = '{% static "" %}';</script>
+  {% vite_react_app 'farmtech-research' %}
+{% endblock %}

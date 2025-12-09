@@ -1,0 +1,165 @@
+{% load get_menu_json %}
+{% load vite_react %}
+{% get_menu_json 'TOPBAR_MENU' as TOPBAR_MENU %}
+{% get_menu_json 'TOPBAR_MENU_LEFT' as TOPBAR_MENU_LEFT %}
+{% get_menu_json 'TOPBAR_MENU_RIGHT' as TOPBAR_MENU_RIGHT %}
+
+{% load get_custom_menu_json %}
+{% get_custom_base_left_topbar_menu as BASE_TOPBAR_MENU_LEFT %}
+{% get_custom_base_right_topbar_menu as BASE_TOPBAR_MENU_RIGHT %}
+
+<nav id="{{ id|default:'' }}" class="gn-menu gn-primary" data-gn-menu-resize="true">
+    <div class="gn-menu-container">
+        <div class="gn-menu-content">
+            <div class="gn-menu-content-side gn-menu-content-left">
+                {% block left_menu %}
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="gn-topbar-small-menu"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <i class="fa fa-bars"> </i>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="gn-topbar-small-menu">
+                        {% for menu_item in BASE_TOPBAR_MENU_LEFT %}
+                        {% include './menu_item_compact.html' with menu_item=menu_item %}
+                        {% endfor %}
+                        {% for menu_item in TOPBAR_MENU %}
+                        {% include './menu_item_compact.html' with menu_item=menu_item variant='primary' %}
+                        {% endfor %}
+                        {% for menu_item in TOPBAR_MENU_LEFT %}
+                        {% include './menu_item_compact.html' with menu_item=menu_item %}
+                        {% endfor %}
+
+                    </ul>
+                </div>
+                <ul class="gn-menu-list">
+                    {% for menu_item in BASE_TOPBAR_MENU_LEFT %}
+                    {% include './menu_item.html' with menu_item=menu_item variant='primary' %}
+                    {% endfor %}
+                    {% for menu_item in TOPBAR_MENU %}
+                    {% include './menu_item.html' with menu_item=menu_item variant='primary' %}
+                    {% endfor %}
+                    {% for menu_item in TOPBAR_MENU_LEFT %}
+                    {% include './menu_item.html' with menu_item=menu_item variant='primary' %}
+                    {% endfor %}
+                </ul>
+                {% endblock %}
+            </div>
+            <div class="gn-menu-content-center">
+                {% block center_menu %}
+                <!-- Dashboard Publisher placeholder -->
+                <div id="farmtech-dashboard-publisher-topbar" style="display: flex;"></div>
+                {% vite_react_app 'farmtech-dashboard-publisher' %}
+                {% endblock %}
+            </div>
+            <div class="gn-menu-content-right">
+                {% block right_menu %}                
+                <ul class="gn-menu-list">
+                    {% for menu_item in BASE_TOPBAR_MENU_RIGHT %}
+                    {% include './menu_item.html' with menu_item=menu_item variant='primary' align_right=True %}
+                    {% endfor %}
+                    {% for menu_item in TOPBAR_MENU_RIGHT %}
+                    {% include './menu_item.html' with menu_item=menu_item variant='primary' align_right=True %}
+                    {% endfor %}
+
+                    {% block language_selector %}
+                    {% include './language_selector.html' with variant='primary' align_right=True %}
+                    {% endblock %}
+                </ul>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</nav>
+<script>
+    (function () {
+        function onResizeMenu(menu) {
+            const menuContent = menu.querySelector('.gn-menu-content');
+            const leftSide = menu.querySelector('.gn-menu-content-left');
+            const leftSideMenuList = menu.querySelector('.gn-menu-content-left > .gn-menu-list');
+            leftSideMenuList.style.position = 'absolute';
+            leftSideMenuList.style.top = '50%';
+            leftSideMenuList.style.transform = 'translateY(-50%)';
+            const leftSideMenuDisplay = leftSideMenuList.style.display;
+            const leftSideDropdown = menu.querySelector('.gn-menu-content-left > .dropdown');
+            leftSideDropdown.style.position = 'absolute';
+            leftSideDropdown.style.top = '50%';
+            leftSideDropdown.style.transform = 'translateY(-50%)';
+            function resize() {
+                if (leftSide.clientWidth < leftSideMenuList.clientWidth) {
+                    leftSideMenuList.style.visibility = 'hidden';
+                    leftSideDropdown.style.visibility = 'visible';
+                } else {
+                    leftSideMenuList.style.visibility = 'visible';
+                    leftSideDropdown.style.visibility = 'hidden';
+                }
+            }
+
+            window.addEventListener('resize', resize);
+            window.addEventListener('DOMContentLoaded', resize);
+
+            resize();
+        }
+        const menus = document.querySelectorAll('[data-gn-menu-resize="true"]');
+        for (var i = 0; i < menus.length; i++) {
+            const menu = menus[i];
+            onResizeMenu(menu);
+        }
+
+
+        // Mappa tra pathname/hash e ID fisso del menu item
+        const pathnameToMenuId = {
+            'research': 'menu-research',
+            'inference': 'menu-inference',
+            'uploader': 'menu-uploader',
+            'catalogue': 'menu-resources'
+        };
+
+        function highlightMenu() {
+            // Rimuove highlight precedente
+            document.querySelectorAll('#gn-topbar .highlight-menu').forEach(el => {
+                el.classList.remove('highlight-menu');
+            });
+            document.querySelectorAll('#gn-topbar .highlight-dropdown-menu').forEach(el => {
+                el.classList.remove('highlight-dropdown-menu');
+            });
+
+            // Ottiene la pagina corrente dal pathname
+            const pathname = window.location.pathname.replace(/^\//, '').split('/')[0];
+            
+            let menuId = pathnameToMenuId[pathname];
+            if (menuId) {
+                const menuItem = document.querySelector(`#gn-topbar #${menuId}`);
+                if (menuItem) {
+                    menuItem.classList.add('highlight-menu');
+                    if(pathname === 'catalogue'){
+                        const hash = `/${pathname}/${window.location.hash}`
+                        const normalizedHash = hash.split('?')[0];
+                        const li = menuItem.parentElement.getElementsByTagName('a')
+                        for (let a of li){
+                            const href = a.getAttribute('href')
+                            const normalizedHref = href ? href.split('?')[0] : '';
+                            if(normalizedHash === normalizedHref){
+                                a.classList.add('highlight-dropdown-menu');
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+            
+        }
+
+        const changeInterval = () => {
+            highlightMenu()
+            const interval = setInterval(highlightMenu,500);
+            // Re-evidenzia dopo che MapStore carica
+            setTimeout(() => {
+                clearInterval(interval)
+            }, 1000)
+        }
+        changeInterval()
+        // Re-evidenzia quando cambia l'hash (per navigazione dentro catalogue)
+        window.addEventListener('hashchange', changeInterval);
+
+    })();
+</script>

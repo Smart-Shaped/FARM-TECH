@@ -1,0 +1,12 @@
+{
+  "page_title": "Linee di Ricerca",
+  "page_subtitle": "Esplora i dati nelle dashboard delle linee di ricerca",
+  "research_line": "Linea di Ricerca",
+  "view_dashboard": "Visualizza Dashboard",
+  "back_to_list": "Torna alle Linee di Ricerca",
+  "loading": "Caricamento...",
+  "error_loading": "Errore nel caricamento delle linee di ricerca",
+  "no_research_lines": "Nessuna linea di ricerca disponibile",
+  "table_name": "Nome",
+  "table_actions": "Azioni"
+}

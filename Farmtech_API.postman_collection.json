@@ -1,0 +1,527 @@
+{
+	"info": {
+		"_postman_id": "farmtech-api-collection",
+		"name": "Farmtech API Collection",
+		"description": "Collection completa delle API del progetto Farmtech basato su GeoNode",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "farmtech"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "keycloak_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "django_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login con Keycloak",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"keycloak_token\", jsonData.keycloak_access_token);",
+									"    pm.collectionVariables.set(\"django_token\", jsonData.token);",
+									"    console.log(\"Token salvati con successo\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"your_username\",\n    \"password\": \"your_password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/keycloak/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"keycloak",
+								""
+							]
+						},
+						"description": "Autenticazione tramite Keycloak. Restituisce un token Django e un access token Keycloak.\n\n**Response:**\n- `token`: Token Django per autenticazione con TokenAuthentication\n- `keycloak_access_token`: Token JWT di Keycloak per autenticazione Bearer\n- `keycloak_refresh_token`: Token per rinnovare l'access token\n- `expires_in`: Secondi di validità del token\n- `user`: Informazioni utente (id, username, email, first_name, last_name)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoint per l'autenticazione degli utenti"
+		},
+		{
+			"name": "Group Management",
+			"item": [
+				{
+					"name": "Lista GroupProfile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/group/list/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"group",
+								"list",
+								""
+							]
+						},
+						"description": "Recupera la lista di tutti i GroupProfile disponibili nel sistema.\n\n**Autenticazione:** Non richiesta (pubblico)\n\n**Response:**\n- `success`: Boolean di successo\n- `count`: Numero totale di gruppi\n- `groups`: Array di oggetti gruppo con:\n  - `id`: ID del GroupProfile\n  - `title`: Titolo del gruppo\n  - `slug`: Slug URL-friendly\n  - `description`: Descrizione del gruppo\n  - `access`: Livello di accesso ('public', 'public-invite', 'private')\n  - `email`: Email del gruppo\n  - `logo`: URL del logo (null se non presente)\n  - `members_count`: Numero totale di membri\n  - `managers_count`: Numero di manager\n  - `created`: Data di creazione (ISO 8601)\n  - `last_modified`: Data ultima modifica (ISO 8601)\n  - `dashboard_id`: ID della dashboard pubblicata (null se non presente)"
+					},
+					"response": []
+				},
+				{
+					"name": "Richiesta iscrizione a gruppo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{keycloak_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"group_profile_id\": 1,\n    \"requested_role\": \"member\",\n    \"motivation\": \"Vorrei far parte del gruppo per collaborare ai progetti agricoli\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/group/group-join-request/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"group",
+								"group-join-request",
+								""
+							]
+						},
+						"description": "Invia una richiesta di iscrizione ad un GroupProfile. I manager del gruppo riceveranno un'email con i dettagli della richiesta.\n\n**Autenticazione:** Richiesta (Keycloak Bearer token)\n**Throttling:** FivePerDay\n\n**Body Parameters:**\n- `group_profile_id` (integer, required): ID del GroupProfile\n- `requested_role` (string, required): 'manager' o 'member'\n- `motivation` (string, required): Motivazione (minimo 10 caratteri)\n\n**Validazioni:**\n- Verifica che il GroupProfile esista\n- Controlla che l'utente non sia già membro con il ruolo richiesto\n- Verifica la presenza di manager nel gruppo\n- Controlla che i manager abbiano email valide\n\n**Flusso:**\n1. Valida i dati in input\n2. Verifica esistenza gruppo e membership corrente\n3. Trova tutti i manager del gruppo\n4. Carica il template email da file\n5. Crea record RoleChangeRequest nel database\n6. Invia email a tutti i manager\n\n**Response (200):**\n- `success`: Boolean di successo\n- `message`: Messaggio descrittivo\n- `details`: Oggetto con:\n  - `group_profile`: Nome del gruppo\n  - `requested_role`: Ruolo richiesto ('Manager' o 'Member')\n  - `managers_notified`: Numero di manager notificati\n  - `request_id`: ID della richiesta salvata\n\n**Errors:**\n- 400: Dati invalidi o già membro con ruolo richiesto\n- 401: Autenticazione richiesta\n- 404: GroupProfile non trovato\n- 429: Rate limit superato\n- 500: Nessun manager trovato, template email mancante, o errore invio email"
+					},
+					"response": []
+				}
+			],
+			"description": "Gestione dei GroupProfile e delle richieste di iscrizione"
+		},
+		{
+			"name": "Dataset Management",
+			"item": [
+				{
+					"name": "Upload dati Excel su Dataset",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{keycloak_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "dataset_name",
+									"value": "nome_dataset",
+									"type": "text",
+									"description": "Nome del dataset da aggiornare"
+								},
+								{
+									"key": "excel_file",
+									"type": "file",
+									"src": [],
+									"description": "File Excel (.xlsx o .xls) con i dati"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/dataset/update/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dataset",
+								"update",
+								""
+							]
+						},
+						"description": "Carica dati da un file Excel in un dataset esistente. Il file viene validato e i dati inseriti nel modello corrispondente basato sulla configurazione del DatasetExperiment.\n\n**Autenticazione:** Richiesta (Keycloak Bearer token)\n**Permessi:** Utente deve essere membro del GroupProfile associato al DatasetExperiment\n\n**Body Parameters (form-data):**\n- `dataset_name` (string, required): Nome del dataset da aggiornare\n- `excel_file` (file, required): File Excel (.xlsx o .xls)\n\n**Validazione file Excel:**\n- Deve contenere colonne 'geometry' OPPURE 'lat' e 'long' per dati geospaziali\n- Le colonne che iniziano con 'dat' vengono convertite automaticamente in date (formato gg/mm/aaaa)\n- I nomi delle colonne vengono normalizzati (lowercase, spazi/trattini convertiti in underscore)\n- Valori NaN nelle coordinate lat/long vengono rimossi\n- Crea automaticamente oggetti Point se presenti lat/long\n\n**Flusso:**\n1. Trova il dataset per nome\n2. Recupera il DatasetExperiment associato e il model_package\n3. Valida e normalizza il file Excel\n4. Salva il file raw in /mnt/volumes/statics/upserts/\n5. Crea record RawFile con status 'processing'\n6. Inserisce i dati nel modello tramite bulk_create\n7. Aggiorna status a 'processed' o 'failed'\n\n**Response (201):**\n- `success`: Boolean di successo\n- `message`: Messaggio descrittivo con nome del modello\n\n**Errors:**\n- 400: Dati invalidi o errore lettura Excel\n- 401: Autenticazione richiesta\n- 403: Permesso negato\n- 404: Dataset o DatasetExperiment non trovato\n- 500: Errore durante scrittura nel modello"
+					},
+					"response": []
+				},
+				{
+					"name": "Lista template Excel per gruppo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{keycloak_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"group_profile_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/dataset/excel-templates/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dataset",
+								"excel-templates",
+								""
+							]
+						},
+						"description": "Recupera la lista dei template Excel disponibili per un GroupProfile.\n\n**Autenticazione:** Richiesta (Keycloak Bearer token)\n\n**Body Parameters:**\n- `group_profile_id` (integer, required): ID del GroupProfile\n\n**Response:**\n- `success`: Boolean di successo\n- `group_profile`: Oggetto con info del gruppo (id, title, slug)\n- `templates_count`: Numero di template disponibili\n- `templates`: Array di template con:\n  - `dataset_experiment_id`: ID dell'esperimento\n  - `dataset_name`: Nome del dataset\n  - `filename`: Nome del file template\n  - `download_url`: URL per scaricare il template\n  - `last_upload_datetime`: Data ultimo upload (ISO 8601, null se nessuno)\n  - `last_upload_id`: ID ultimo upload (null se nessuno)\n  - `last_upload_user`: Username ultimo upload (null se nessuno)"
+					},
+					"response": []
+				},
+				{
+					"name": "Download template Excel",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{keycloak_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/dataset/download-template/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dataset",
+								"download-template",
+								"1"
+							]
+						},
+						"description": "Scarica un template Excel tramite il suo DatasetExperiment ID.\n\n**Autenticazione:** Richiesta (Keycloak Bearer token)\n\n**URL Parameters:**\n- `dataset_experiment_id` (integer): ID del DatasetExperiment\n\n**Response:**\nFile Excel in download con header:\n- `Content-Type`: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\n- `Content-Disposition`: attachment; filename=\"nome_file.xlsx\""
+					},
+					"response": []
+				}
+			],
+			"description": "Gestione dei dataset e upload di dati tramite Excel"
+		},
+		{
+			"name": "Dashboard Management",
+			"item": [
+				{
+					"name": "Pubblica Dashboard",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{keycloak_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/dashboard/1/publish/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"dashboard",
+								"1",
+								"publish",
+								""
+							]
+						},
+						"description": "Pubblica una dashboard (GeoApp) e rende non pubblicate le altre dashboard dello stesso gruppo. Solo una dashboard per gruppo può essere pubblicata alla volta.\n\n**Autenticazione:** Richiesta (SessionAuthentication o KeycloakAuthentication)\n**Permessi:** Utente deve essere manager del GroupProfile associato alla dashboard\n\n**URL Parameters:**\n- `pk` (integer): ID della dashboard (GeoApp) da pubblicare\n\n**Logica di pubblicazione:**\n1. Trova la dashboard per ID\n2. Verifica i permessi (IsGroupProfileManager)\n3. Se non ancora approvata:\n   - Imposta `is_published`, `is_approved`, `advertised` a True\n   - Trova tutte le altre dashboard dello stesso gruppo\n   - Imposta `is_published`, `is_approved` a False per le altre dashboard\n4. Se già pubblicata, restituisce messaggio di conferma\n\n**Response (200):**\n- `detail`: Messaggio descrittivo ('Dashboard successfully published' o 'Dashboard is already published')\n- `is_published`: True\n\n**Errors:**\n- 401: Autenticazione richiesta\n- 403: Permesso negato (utente non è manager del GroupProfile)\n- 404: Dashboard non trovata"
+					},
+					"response": []
+				}
+			],
+			"description": "Gestione delle dashboard (GeoApp)"
+		},
+		{
+			"name": "Inference & ML",
+			"item": [
+				{
+					"name": "Trigger Inference (con file TIFF)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{keycloak_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "tiff_file",
+									"type": "file",
+									"src": [],
+									"description": "File TIFF da analizzare"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inference/trigger/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"inference",
+								"trigger",
+								""
+							]
+						},
+						"description": "Esegue un'inferenza su un file TIFF tramite SSH su server remoto.\n\n**Autenticazione:** Richiesta (Keycloak Bearer token) + HasInferencePermission\n\n**Body Parameters (form-data):**\n- `tiff_file` (file, required): File TIFF da analizzare\n\n**Flusso:**\n1. Salva il file TIFF in una cartella condivisa\n2. Estrae la geometria (polygon) dal TIFF\n3. Esegue comando SSH su server remoto per processing\n4. Raccoglie i risultati dalla cartella processed\n5. Pulisce le cartelle temporanee\n\n**Response:**\n- `result`: Valore del risultato dell'inferenza\n- `unit`: Unità di misura (es. \"t/ha\")\n- `polygon`: GeoJSON del poligono analizzato (EPSG:4326)\n- `center`: Oggetto con lat/lon del centroide\n- `stdout`: Output SSH (solo se REMOTE_SSH_DEBUG=True)\n- `stderr`: Error SSH (solo se REMOTE_SSH_DEBUG=True)"
+					},
+					"response": []
+				},
+				{
+					"name": "Trigger Inference (con polygon e date)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{keycloak_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"polygon\": {\n        \"type\": \"Polygon\",\n        \"coordinates\": [[\n            [12.4924, 41.8902],\n            [12.4964, 41.8902],\n            [12.4964, 41.8942],\n            [12.4924, 41.8942],\n            [12.4924, 41.8902]\n        ]]\n    },\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2024-12-31\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inference/trigger/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"inference",
+								"trigger",
+								""
+							]
+						},
+						"description": "Esegue un'inferenza su un poligono richiedendo dati da Copernicus per il periodo specificato.\n\n**Autenticazione:** Richiesta (Keycloak Bearer token) + HasInferencePermission\n\n**Body Parameters (JSON):**\n- `polygon` (object, required): GeoJSON del poligono\n- `start_date` (string, required): Data inizio periodo (formato YYYY-MM-DD)\n- `end_date` (string, required): Data fine periodo (formato YYYY-MM-DD)\n\n**Flusso:**\n1. Richiede token di autenticazione a Copernicus\n2. Scarica immagine TIFF da Copernicus API per il poligono e periodo specificati\n3. Salva il TIFF in cartella condivisa\n4. Esegue comando SSH su server remoto per processing\n5. Raccoglie i risultati dalla cartella processed\n6. Pulisce le cartelle temporanee\n\n**Response:**\n- `result`: Valore del risultato dell'inferenza\n- `unit`: Unità di misura (es. \"t/ha\")\n- `polygon`: GeoJSON del poligono analizzato\n- `center`: Oggetto con lat/lon del centroide\n- `stdout`: Output SSH (solo se REMOTE_SSH_DEBUG=True)\n- `stderr`: Error SSH (solo se REMOTE_SSH_DEBUG=True)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoint per inferenze ML e analisi su dati geospaziali"
+		},
+		{
+			"name": "Queue Monitoring",
+			"item": [
+				{
+					"name": "Status Coda Upload",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{keycloak_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/queues/uploads-status/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"queues",
+								"uploads-status",
+								""
+							]
+						},
+						"description": "Monitora lo stato delle task di upload nella coda Celery. Restituisce il numero di task in esecuzione e in coda.\n\n**Autenticazione:** Richiesta (Admin only)\n\n**Response:**\n- `running` (integer): Numero di task attualmente in esecuzione\n- `queued` (integer): Numero di task in coda\n- `pending_total` (integer): Totale task pendenti (running + queued)\n\n**Note:**\n- Monitora solo le task con nome 'importer.import_orchestrator'\n- Richiede permessi di amministratore\n- Utile per verificare lo stato degli upload prima di avviarne di nuovi"
+					},
+					"response": []
+				}
+			],
+			"description": "Monitoraggio delle code Celery e stato dei task"
+		},
+		{
+			"name": "Documentation",
+			"item": [
+				{
+					"name": "Swagger UI",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/swagger/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"swagger",
+								""
+							]
+						},
+						"description": "Interfaccia interattiva Swagger per esplorare e testare le API"
+					},
+					"response": []
+				},
+				{
+					"name": "ReDoc",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/redoc/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"redoc",
+								""
+							]
+						},
+						"description": "Documentazione API in formato ReDoc (più leggibile)"
+					},
+					"response": []
+				},
+				{
+					"name": "Schema OpenAPI (JSON)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/swagger.json",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"swagger.json"
+							]
+						},
+						"description": "Schema OpenAPI in formato JSON"
+					},
+					"response": []
+				}
+			],
+			"description": "Documentazione API automatica"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{keycloak_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

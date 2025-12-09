@@ -1,0 +1,88 @@
+<style>
+  /* ============================================
+   FARMTECH CUSTOM GEONODE THEME
+   ============================================
+
+   Questo file sovrascrive le variabili CSS di GeoNode per personalizzare
+   il tema della piattaforma. Modificando questi valori, tutto il tema
+   di GeoNode si adatterà automaticamente.
+*/
+
+  :root {
+    /* Primary Colors - Palette basata sul logo FARM-TECH (#3D80CE blu) */
+    --gn-primary: #397aab;
+    --gn-primary-dark: #2a5fa0;
+    --gn-primary-light: #5fa0e8;
+    --gn-primary-contrast: #ffffff;
+
+    /* Link Colors */
+    --gn-link-color: #3D80CE;
+    --gn-link-hover-color: #2a5fa0;
+
+    /* Secondary/Accent Colors - Arancione complementare al blu */
+    --gn-accent: #3D80CE;
+    --gn-accent-dark: #5fa0e8;
+    --gn-accent-light: #2a5fa0;
+
+    /* Background Colors */
+    --gn-main-bg: #ffffff;
+    --gn-main-color: #212529;
+
+    /* Jumbotron/Hero */
+    --gn-jumbotron-bg: linear-gradient(135deg, #2c5f8d 0%, #397aab 100%);
+    --gn-jumbotron-color: #ffffff;
+
+    /* Buttons */
+    --gn-button-primary-bg: #397aab;
+    --gn-button-primary-color: #ffffff;
+    --gn-button-primary-hover-bg: #2c5f8d;
+
+    /* Navigation */
+    --gn-navbar-bg: #ffffff;
+    --gn-navbar-color: #212529;
+
+    /* Footer */
+    --gn-footer-bg: #f8f9fa;
+    --gn-footer-color: #212529;
+
+    /* Cards */
+    --gn-card-bg: #ffffff;
+    --gn-card-border-color: #e0e0e0;
+    --gn-card-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+
+    /* Form Elements */
+    --gn-input-border-color: #ced4da;
+    --gn-input-focus-border-color: #397aab;
+
+    /* Text Colors */
+    --gn-text-primary: #212529;
+    --gn-text-secondary: #6c757d;
+    --gn-text-muted: #999999;
+
+    /* Success/Warning/Error */
+    --gn-success: #28a745;
+    --gn-warning: #ffc107;
+    --gn-danger: #dc3545;
+    --gn-info: #17a2b8;
+  }
+
+  /* Sovrascrivi stili specifici se necessario
+.msgapi {
+  --gn-primary: #397aab;
+} */
+
+  /* farmtech App Styles */
+  .farmtech-app {
+    width: 100%;
+    height: calc(100vh - 100px);
+    /* Subtract navbar height */
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .highlight-dropdown-menu {
+    font-weight: 700 !important;
+    text-decoration: underline !important;
+  }
+</style>

@@ -1,0 +1,38 @@
+{
+    "1st_crops_as_cover_crop": {
+        "model_package": "farmtech.models.Experiment1Sheet1",
+        "template_path": "/mnt/volumes/example_excels/azione_1/1st_crops_as_cover_crop.xlsx"
+    },
+    "1st_crops": {
+        "model_package": "farmtech.models.Experiment1Sheet2",
+        "template_path": "/mnt/volumes/example_excels/azione_1/1st_crops.xlsx"
+    },
+    "2nd_crops_pomodoro": {
+        "model_package": "farmtech.models.Experiment1Sheet3",
+        "template_path": "/mnt/volumes/example_excels/azione_1/2nd_crops_pomodoro.xlsx"
+    },
+    "azoto_e_fosforo_soil": {
+        "model_package": "farmtech.models.Experiemnt1Sheet4",
+        "template_path": "/mnt/volumes/example_excels/azione_1/azoto_e_fosforo_soil.xlsx"
+    },
+    "dati_azione_3": {
+        "model_package": "farmtech.models.Experiment3",
+        "template_path": "/mnt/volumes/example_excels/azione_3/dati_azione_3.xlsx"
+    },
+    "dati_azione_4": {
+        "model_package": "farmtech.models.Experiment4",
+        "template_path": "/mnt/volumes/example_excels/azione_4/dati_azione_4.xlsx"
+    },
+    "dati_azione_5": {
+        "model_package": "farmtech.models.Experiment5",
+        "template_path": "/mnt/volumes/example_excels/azione_5/dati_azione_5.xlsx"
+    },
+    "dati_azione_zootecnica_cal": {
+        "model_package": "farmtech.models.ExperimentZootechnicalCalabria",
+        "template_path": "/mnt/volumes/example_excels/azione_zootecnica/dati_azione_zootecnica_cal.xlsx"
+    },
+    "dati_azione_zootecnica_bas": {
+        "model_package": "farmtech.models.ExperimentZootechnicalBasilicata",
+        "template_path": "/mnt/volumes/example_excels/azione_zootecnica/dati_azione_zootecnica_bas.xlsx"
+    }
+}
