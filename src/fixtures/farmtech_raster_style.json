@@ -3,7 +3,23 @@
         "model": "layers.style",
         "pk": 1,
         "fields": {
-            "name": "NDVI_True_color",
+            "name": "NDVI",
+            "workspace": "geonode"
+        }
+    },
+    {
+        "model": "layers.style",
+        "pk": 1000,
+        "fields": {
+            "name": "True_color",
+            "workspace": "geonode"
+        }
+    },
+    {
+        "model": "layers.style",
+        "pk": 1001,
+        "fields": {
+            "name": "Negative_true_color",
             "workspace": "geonode"
         }
     }

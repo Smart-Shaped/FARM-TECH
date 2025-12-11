@@ -11,12 +11,15 @@ GEONODE_ADMIN_PASSWORD=${ADMIN_PASSWORD:-geonode}
 GEOSERVER_AUTH_STRING=$(echo -n "${GEOSERVER_ADMIN_USER}:${GEOSERVER_ADMIN_PASSWORD}" | base64)
 GEONODE_AUTH_STRING=$(echo -n "${GEONODE_ADMIN_USER}:${GEONODE_ADMIN_PASSWORD}" | base64)
 
-curl --location 'http://geoserver:8080/geoserver/rest/workspaces/geonode/styles' \
-    --header 'Content-Type: application/vnd.ogc.sld+xml' \
-    --header "Authorization: Basic ${GEOSERVER_AUTH_STRING}" \
-    --data-binary '@/init/styles/NDVI_True_color.xml'
-
-echo -e "\nFinished"
+for style_file in /init/styles/*.xml; do
+    style_name=$(basename "$style_file" .xml)
+    echo -e "\nUploading style $style_name to GeoServer..."
+    curl --location 'http://geoserver:8080/geoserver/rest/workspaces/geonode/styles' \
+        --header 'Content-Type: application/vnd.ogc.sld+xml' \
+        --header "Authorization: Basic ${GEOSERVER_AUTH_STRING}" \
+        --data-binary "@$style_file"
+    echo -e ""
+done
 
 echo -e ""
 

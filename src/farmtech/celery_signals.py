@@ -2,8 +2,10 @@
 Celery signals for FarmTech application.
 """
 
+import os
 import logging
 import json
+import requests
 from celery.signals import task_postrun
 from django.contrib.auth.models import Group
 from geonode.security.permissions import PermSpec, PermSpecCompact
@@ -23,29 +25,84 @@ __DATASET_EXPERIMENT_PATH = "/usr/src/farmtech/resources/datasets_experiment.jso
 
 def manage_tif_style(resource):
     """
-    Apply a specific style to multi-spectral raster datasets.
-    If the resource title starts with 'ms_' and is of subtype 'raster',
-    it sets the default style to the style with ID 1.
-    1 is the style created for 5-bands raster visualization.
-    5-bands raster datasets are typically multi-spectral images used in remote sensing applications.
-    This function ensures that such datasets are visualized correctly
-    by applying the appropriate style.
+    Apply specific styles to multi-spectral raster datasets in GeoServer.
+    This function checks if the resource is a multi-spectral raster (indicated by the title
+    starting with 'ms_') and applies predefined styles to it in GeoServer.
+    It also updates the database to associate the styles with the corresponding dataset.
+    5-bands raster styles applied: NDVI, True_color, Negative_true_color.
     Args:
-        resource: The resource object to be styled.
+        resource: The GeoNode resource object representing the dataset.
+    Raises:
+        ValueError: If the dataset is not found or if the GeoServer update fails.
     """
 
     if resource.title.startswith("ms_") and resource.subtype == "raster":
 
         logger.info("Managing style for resource: %s", resource)
 
+        logger.info("Adding bound between style and dataset to database.")
         dataset = Dataset.objects.filter(id=resource.id).first()
         if dataset:
-            dataset.default_style_id = 1
             dataset.styles.clear()
             dataset.styles.add(1)
+            dataset.styles.add(1000)
+            dataset.styles.add(1001)
             dataset.save()
+        else:
+            raise ValueError(f"Dataset not found for resource: {resource}")
 
-            logger.info("Style applied for resource: %s", resource)
+        logger.info("Adding style to GeoServer layer.")
+
+        body = {
+            "layer": {
+                "styles": {
+                    "@class": "linked-hash-set",
+                    "style": [
+                        {
+                            "name": "geonode:NDVI",
+                            "workspace": "geonode",
+                            "href": "http://localhost/geoserver/rest/workspaces/geonode/styles/NDVI.json",
+                        },
+                        {
+                            "name": "geonode:True_color",
+                            "workspace": "geonode",
+                            "href": "http://localhost/geoserver/rest/workspaces/geonode/styles/True_color.json",
+                        },
+                        {
+                            "name": "geonode:Negative_true_color",
+                            "workspace": "geonode",
+                            "href": "http://localhost/geoserver/rest/workspaces/geonode/styles/Negative_true_color.json",
+                        },
+                    ],
+                }
+            }
+        }
+
+        url = f"http://geoserver:8080/geoserver/rest/layers/{resource.alternate}"
+
+        response = requests.put(
+            url,
+            json=body,
+            timeout=10,
+            auth=(
+                os.environ.get("GEOSERVER_ADMIN_USER", "admin"),
+                os.environ.get("GEOSERVER_ADMIN_PASSWORD", "geoserver"),
+            ),
+            headers={"Content-Type": "application/json"},
+        )
+
+        if response.status_code not in [200, 201]:
+            logger.error(
+                "Failed to update GeoServer layer styles for resource: %s, status code: %s, response: %s",
+                resource,
+                response.status_code,
+                response.text,
+            )
+            raise ValueError(
+                f"Failed to update GeoServer layer styles for resource: {resource}"
+            )
+
+        logger.info("Style applied for resource: %s", resource)
 
 
 @task_postrun.connect
