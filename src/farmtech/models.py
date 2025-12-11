@@ -515,12 +515,12 @@ class ExperimentZootechnicalBasilicata(gis_models.Model):
     )
     piogge_mm = models.FloatField(null=True, blank=True, name="piogge_mm")
     biomassa_verde_totale = models.FloatField(
-        null=True, blank=True, name="biomassa_verde_totale_g_per_0,25_mq"
+        null=True, blank=True, name="biomassa_verde_totale_g_per_0_25_mq"
     )
     biomassa_verde_pulita = models.FloatField(
         null=True,
         blank=True,
-        name="biomassa_verde_pulita_dal_secco_e_messo_in_stufa_g_per_0,25_mq",
+        name="biomassa_verde_pulita_dal_secco_e_messo_in_stufa_g_per_0_25_mq",
     )
     ndvi_media = models.FloatField(null=True, blank=True, name="ndvi_media")
     ndvi_mediana = models.FloatField(null=True, blank=True, name="ndvi_mediana")
@@ -528,10 +528,10 @@ class ExperimentZootechnicalBasilicata(gis_models.Model):
     evi_mediana = models.FloatField(null=True, blank=True, name="evi_mediana")
     lai = models.FloatField(null=True, blank=True, name="lai")
     biomassa_secca_totale = models.FloatField(
-        null=True, blank=True, name="biomassa_secca_totale_g_per_0,25_mq"
+        null=True, blank=True, name="biomassa_secca_totale_g_per_0_25_mq"
     )
     biomassa_secca_pulita = models.FloatField(
-        null=True, blank=True, name="biomassa_secca_pulita_dal_secco_g_per_0,25_mq"
+        null=True, blank=True, name="biomassa_secca_pulita_dal_secco_g_per_0_25_mq"
     )
     percent_ss_campione_verde = models.FloatField(
         null=True, blank=True, name="perc_ss_campione_verde"

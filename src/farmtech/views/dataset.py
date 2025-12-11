@@ -218,6 +218,7 @@ class DatasetUpdateAPIView(APIView):
                     .replace("°", "gradi_")
                     .replace("%", "perc")
                     .replace("#", "number")
+                    .replace(",", "_")
                     for col in df.columns
                 ]
 
