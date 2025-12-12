@@ -313,7 +313,7 @@ class KeycloakLogoutCompleteView(View):
 
         next_url = request.GET.get("next", "/")
         allowed_hosts = {request.get_host()}
-        if not url_has_allowed_host_and_scheme(next_url, allowed_hosts=allowed_hosts):
-            next_url = "/"
-
-        return redirect(next_url)
+        if url_has_allowed_host_and_scheme(next_url, allowed_hosts=allowed_hosts):
+            return redirect(next_url)
+        else:
+            return redirect("/")
