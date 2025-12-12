@@ -26,6 +26,7 @@ class Command(BaseCommand):
             azione_zootecnica_group = Group.objects.get(name="azione-zootecnica")
 
             perm_view_res = Permission.objects.get(codename="view_resourcebase")
+            perm_view_perm = Permission.objects.get(codename="view_permission")
             perm_download_res = Permission.objects.get(codename="download_resourcebase")
             perm_add_res = Permission.objects.get(codename="add_resourcebase")
             perm_uploader = Permission.objects.get(codename="uploader")
@@ -33,7 +34,7 @@ class Command(BaseCommand):
             perm_inference = Permission.objects.get(codename="inference")
             perm_request = Permission.objects.get(codename="can_request_permissions")
 
-            anonymous_group.permissions.add(perm_view_res, perm_viewer)
+            anonymous_group.permissions.add(perm_view_res, perm_viewer, perm_view_perm)
             self.stdout.write(
                 self.style.SUCCESS(
                     f"Added permissions to group: {anonymous_group.name}"
