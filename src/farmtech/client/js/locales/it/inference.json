@@ -30,6 +30,6 @@
   "usage_upload_tiff_desc": "Se hai dati da satellite o drone, carica direttamente il tuo file TIFF. Il pulsante di analisi si abiliterà dopo il caricamento. Per tornare al disegno o caricare un nuovo file, clicca sulla 'X'. Verifica che le bande del TIFF siano nell'ordine: Blue, Green, Red, Near Red, NIR.",
   "usage_ai_algorithm": "Algoritmo di resa del pomodoro",
   "usage_ai_algorithm_desc": "Il nostro algoritmo avanzato estrapola una previsione di resa del pomodoro a partire da dati georeferenziati. Il dato restituito è espresso in tonnellate su ettaro t/ha.",
-  "analysis_error":"Errore durante l'analisi. Verifica le date selezionate o che il TIFF contenga le bande nell'ordine corretto: Blue, Green, Red, Near Red, NIR."
-
+  "analysis_error":"Errore durante l'analisi. Verifica le date selezionate o che il TIFF contenga le bande nell'ordine corretto: Blue, Green, Red, Near Red, NIR.",
+  "field_alert": "L'algoritmo produce dati attendibili solo nel caso in cui il campo disegnato o il tif inviato sono adibiti alla coltivazione del pomodoro"
 }
