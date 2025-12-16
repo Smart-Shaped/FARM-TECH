@@ -68,6 +68,12 @@ export const MapControlButtons = ({
                 onChange={handleFileSelect}
             />
 
+            <div class="m-4 mb-3 px-3 py-2 bg-white rounded shadow-sm" style={{textAlign: 'center', lineHeight: 'normal'}}>
+                <strong class="text-muted d-flex align-items-center gap-2 text-red-500">
+                    {t('field_alert')}
+                </strong>
+            </div>
+
             {/* TIFF Info Display */}
             {tiffFile && (
                 <div className="mb-3 px-3 py-2 bg-white rounded shadow-sm">
