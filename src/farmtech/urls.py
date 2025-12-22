@@ -31,17 +31,17 @@ urlpatterns += [
     path("inference/", view=TemplateView.as_view(template_name="inference.html")),
     path("uploader/", view=dataset.uploader_view, name="uploader"),
     # ------------ Swagger/OpenAPI endpoints ------------
-    re_path(
-        r"^swagger(?P<format>\.json|\.yaml)$",
-        SchemaView.without_ui(cache_timeout=0),
-        name="schema-json",
-    ),
-    path(
-        "swagger/",
-        SchemaView.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
-    ),
-    path("redoc/", SchemaView.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
+    # re_path(
+    #   r"^swagger(?P<format>\.json|\.yaml)$",
+    #   SchemaView.without_ui(cache_timeout=0),
+    #   name="schema-json",
+    # ),
+    # path(
+    #   "swagger/",
+    #   SchemaView.with_ui("swagger", cache_timeout=0),
+    #   name="schema-swagger-ui",
+    # ),
+    # path("redoc/", SchemaView.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
     # ------------ Auth ------------
     path(
         "api/auth/keycloak/", auth.KeycloakAuthAPIView.as_view(), name="keycloak-auth"
