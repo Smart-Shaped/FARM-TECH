@@ -234,3 +234,5 @@ CACHES["default"] = {
 
 # Configure django-select2 to use the default cache
 SELECT2_CACHE_BACKEND = "default"
+
+PROXY_ALLOWED_HOSTS = ()
