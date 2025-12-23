@@ -1,4 +1,4 @@
-FROM ghcr.io/smart-shaped/geonode_keycloak:v1.1.0
+FROM ghcr.io/smart-shaped/geonode_keycloak:v1.1.1
 
 RUN mkdir -p /usr/src/farmtech
 
