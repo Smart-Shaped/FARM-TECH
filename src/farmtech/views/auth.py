@@ -124,6 +124,7 @@ class KeycloakAuthAPIView(APIView):
             "client_id": keycloak_client_id,
             "username": username,
             "password": password,
+            "scope": "openid profile email",
         }
 
         if keycloak_client_secret:

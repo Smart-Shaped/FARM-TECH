@@ -64,6 +64,7 @@ class KeycloakAuthentication(authentication.BaseAuthentication):
                 signing_key.key,
                 algorithms=["RS256"],
                 issuer=issuer,
+                audience=getattr(settings, "KEYCLOAK_CLIENT_ID", {}),
                 options=decode_options,
             )
 
