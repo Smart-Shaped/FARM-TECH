@@ -101,29 +101,29 @@ export const IndexApp = ({ staticUrl = '' }) => {
             <div className="funding-logos-track">
               {/* Primo set di loghi */}
               <a href="/" className="d-inline-block flex-shrink-0">
-                <img src={`${staticUrl}img/TRC_logo_orizzontale.svg`} alt="Logo Tech4You" className="img-fluid" style={{maxHeight: '80px'}} />
+                <img src={`${staticUrl}img/FARM-TECH.svg`} alt="Logo Tech4You" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
               <a href="/" className="d-inline-block flex-shrink-0">
-                <img src={`${staticUrl}img/TRC_logo_orizzontale.svg`} alt="Logo Partner 1" className="img-fluid" style={{maxHeight: '80px'}} />
+                <img src={`${staticUrl}img/SS_logo_orizzontale.svg`} alt="Logo Partner 1" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
               <a href="/" className="d-inline-block flex-shrink-0">
                 <img src={`${staticUrl}img/TRC_logo_orizzontale.svg`} alt="Logo Partner 2" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
               <a href="/" className="d-inline-block flex-shrink-0">
-                <img src={`${staticUrl}img/TRC_logo_orizzontale.svg`} alt="Logo Partner 3" className="img-fluid" style={{maxHeight: '80px'}} />
+                <img src={`${staticUrl}img/SS_logo_orizzontale.svg`} alt="Logo Partner 3" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
               {/* Duplica i loghi per loop continuo */}
               <a href="/" className="d-inline-block flex-shrink-0">
-                <img src={`${staticUrl}img/TRC_logo_orizzontale.svg`} alt="Logo Tech4You" className="img-fluid" style={{maxHeight: '80px'}} />
+                <img src={`${staticUrl}img/FARM-TECH.svg`} alt="Logo Tech4You" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
               <a href="/" className="d-inline-block flex-shrink-0">
-                <img src={`${staticUrl}img/TRC_logo_orizzontale.svg`} alt="Logo Partner 1" className="img-fluid" style={{maxHeight: '80px'}} />
+                <img src={`${staticUrl}img/SS_logo_orizzontale.svg`} alt="Logo Partner 1" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
               <a href="/" className="d-inline-block flex-shrink-0">
                 <img src={`${staticUrl}img/TRC_logo_orizzontale.svg`} alt="Logo Partner 2" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
               <a href="/" className="d-inline-block flex-shrink-0">
-                <img src={`${staticUrl}img/TRC_logo_orizzontale.svg`} alt="Logo Partner 3" className="img-fluid" style={{maxHeight: '80px'}} />
+                <img src={`${staticUrl}img/SS_logo_orizzontale.svg`} alt="Logo Partner 3" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
             </div>
           </div>
