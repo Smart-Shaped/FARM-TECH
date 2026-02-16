@@ -144,6 +144,9 @@ class KeycloakAuthAPIView(APIView):
 
             keycloak_tokens = token_response.json()
             access_token = keycloak_tokens.get("access_token")
+            id_token = keycloak_tokens.get("id_token")
+
+            request.session["oidc_id_token"] = id_token
 
             userinfo_response = requests.get(
                 userinfo_url,
@@ -197,6 +200,7 @@ class KeycloakAuthAPIView(APIView):
                         "last_name": user.last_name,
                     },
                     "keycloak_access_token": access_token,
+                    "keycloak_id_token": id_token,
                     "keycloak_refresh_token": keycloak_tokens.get("refresh_token"),
                     "expires_in": keycloak_tokens.get("expires_in"),
                 },
@@ -231,9 +235,9 @@ class KeycloakLogoutView(View):
     def get(self, request):
         """Handle GET request for logout."""
 
-        print("=" * 80)
-        print("KEYCLOAK LOGOUT - CHIAMATA RICEVUTA")
-        print("=" * 80)
+        logger.debug("=" * 80)
+        logger.debug("KEYCLOAK LOGOUT - CHIAMATA RICEVUTA")
+        logger.debug("=" * 80)
 
         try:
             keycloak_config = getattr(settings, "SOCIALACCOUNT_PROVIDERS_DEFS", {}).get(
@@ -245,14 +249,16 @@ class KeycloakLogoutView(View):
                     settings, "_KEYCLOAK_SOCIALACCOUNT_PROVIDER", {}
                 )
 
-            print(f"Keycloak config trovata: {bool(keycloak_config)}")
+            logger.debug(f"Keycloak config trovata: {bool(keycloak_config)}")
+
+            id_token = request.session.get("oidc_id_token")
 
             if keycloak_config:
                 issuer = keycloak_config.get("ID_TOKEN_ISSUER")
                 client_id = keycloak_config.get("CLIENT_ID", "")
 
-                print(f"Issuer: {issuer}")
-                print(f"Client ID: {client_id}")
+                logger.debug(f"Issuer: {issuer}")
+                logger.debug(f"Client ID: {client_id}")
 
                 if issuer:
                     django_logout_url = request.build_absolute_uri(
@@ -265,20 +271,23 @@ class KeycloakLogoutView(View):
                         "client_id": client_id,
                     }
 
+                    if id_token:
+                        params["id_token_hint"] = id_token
+
                     logout_url = f"{keycloak_logout_url}?{urlencode(params)}"
-                    print(f"Redirect a Keycloak: {logout_url}")
-                    print("=" * 80)
+                    logger.debug(f"Redirect a Keycloak: {logout_url}")
+                    logger.debug("=" * 80)
 
                     logout(request)
                     return redirect(logout_url)
 
-            print("Keycloak non configurato - logout solo Django")
-            print("=" * 80)
+            logger.debug("Keycloak non configurato - logout solo Django")
+            logger.debug("=" * 80)
             logout(request)
             return redirect("/account/logout/complete/")
 
         except Exception as e:
-            print(f"ERRORE durante logout: {str(e)}")
+            logger.exception("ERRORE durante logout: %s", str(e), exc_info=True)
 
             traceback.print_exc()
             logout(request)
@@ -305,9 +314,9 @@ class KeycloakLogoutCompleteView(View):
     )
     def get(self, request):
         """Handle GET request for completing logout."""
-        print("=" * 80)
-        print("LOGOUT COMPLETATO - Redirect a homepage")
-        print("=" * 80)
+        logger.debug("=" * 80)
+        logger.debug("LOGOUT COMPLETATO - Redirect a homepage")
+        logger.debug("=" * 80)
 
         if request.user.is_authenticated:
             logout(request)
