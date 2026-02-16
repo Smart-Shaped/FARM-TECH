@@ -3,6 +3,7 @@ Keycloak authentication API view for FarmTech application.
 """
 
 import logging
+import re
 from urllib.parse import urlencode
 import traceback
 import requests
@@ -11,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model, logout
+from django.contrib.auth.models import Group
 from django.conf import settings
 from django.shortcuts import redirect
 from django.views import View
@@ -23,6 +25,30 @@ from farmtech.throttles import IPBasedThrottle
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
+
+
+def _get_keycloak_config():
+    """Retrieve Keycloak configuration from Django settings."""
+    keycloak_config = getattr(settings, "SOCIALACCOUNT_PROVIDERS_DEFS", {}).get(
+        "keycloak", {}
+    )
+    if not keycloak_config:
+        keycloak_config = getattr(settings, "_KEYCLOAK_SOCIALACCOUNT_PROVIDER", {})
+    return keycloak_config
+
+
+def _get_keycloak_admin_base_url(issuer):
+    """
+    Derive the Keycloak admin API base URL and realm from the issuer URL.
+    Issuer format: http(s)://host(:port)/realms/{realm}
+    Admin API: http(s)://host(:port)/admin/realms/{realm}
+    """
+    match = re.match(r"(https?://[^/]+)(/realms/(.+))", issuer)
+    if not match:
+        return None, None
+    base_url = match.group(1)
+    realm = match.group(3)
+    return base_url, realm
 
 
 class KeycloakAuthAPIView(APIView):
@@ -92,12 +118,7 @@ class KeycloakAuthAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        keycloak_config = getattr(settings, "SOCIALACCOUNT_PROVIDERS_DEFS", {}).get(
-            "keycloak", {}
-        )
-
-        if not keycloak_config:
-            keycloak_config = getattr(settings, "_KEYCLOAK_SOCIALACCOUNT_PROVIDER", {})
+        keycloak_config = _get_keycloak_config()
 
         token_url = keycloak_config.get("ACCESS_TOKEN_URL")
         userinfo_url = keycloak_config.get("PROFILE_URL")
@@ -221,6 +242,402 @@ class KeycloakAuthAPIView(APIView):
             )
 
 
+class KeycloakRegisterAPIView(APIView):
+    """API view for registering new users via Keycloak Admin REST API."""
+
+    throttle_classes = [IPBasedThrottle]
+
+    @swagger_auto_schema(
+        operation_description="Register a new user in Keycloak",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["username", "email", "password"],
+            properties={
+                "username": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="Username"
+                ),
+                "email": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="Email address"
+                ),
+                "password": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="Password"
+                ),
+                "first_name": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="First name (optional)"
+                ),
+                "last_name": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="Last name (optional)"
+                ),
+            },
+        ),
+        responses={
+            201: openapi.Response(
+                description="User registered successfully",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "message": openapi.Schema(type=openapi.TYPE_STRING),
+                        "user": openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            properties={
+                                "id": openapi.Schema(type=openapi.TYPE_INTEGER),
+                                "username": openapi.Schema(type=openapi.TYPE_STRING),
+                                "email": openapi.Schema(type=openapi.TYPE_STRING),
+                                "first_name": openapi.Schema(type=openapi.TYPE_STRING),
+                                "last_name": openapi.Schema(type=openapi.TYPE_STRING),
+                            },
+                        ),
+                    },
+                ),
+            ),
+            400: openapi.Response(
+                description="Missing required fields or invalid data"
+            ),
+            409: openapi.Response(description="User already exists in Keycloak"),
+            500: openapi.Response(
+                description="Keycloak configuration missing or connection error"
+            ),
+        },
+    )
+    def post(self, request):
+        """Handle POST request for user registration via Keycloak."""
+        username = request.data.get("username", "").strip()
+        email = request.data.get("email", "").strip()
+        password = request.data.get("password", "")
+        first_name = request.data.get("first_name", "").strip()
+        last_name = request.data.get("last_name", "").strip()
+
+        if not username or not email or not password:
+            return Response(
+                {"error": "Username, email, and password are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        keycloak_config = _get_keycloak_config()
+
+        token_url = keycloak_config.get("ACCESS_TOKEN_URL")
+        keycloak_client_id = keycloak_config.get("CLIENT_ID")
+        keycloak_client_secret = keycloak_config.get("SECRET")
+        issuer = keycloak_config.get("ID_TOKEN_ISSUER")
+        verify_ssl = keycloak_config.get("VERIFY_SSL", True)
+
+        if not all([token_url, keycloak_client_id, keycloak_client_secret, issuer]):
+            return Response(
+                {"error": "Keycloak configuration missing."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        base_url, realm = _get_keycloak_admin_base_url(issuer)
+        if not base_url or not realm:
+            return Response(
+                {"error": "Unable to determine Keycloak admin URL from issuer."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        try:
+            # 1. Obtain a service account token via client_credentials grant
+            admin_token_data = {
+                "grant_type": "client_credentials",
+                "client_id": keycloak_client_id,
+                "client_secret": keycloak_client_secret,
+            }
+            admin_token_response = requests.post(
+                token_url, data=admin_token_data, verify=verify_ssl, timeout=10
+            )
+
+            if admin_token_response.status_code != 200:
+                logger.error(
+                    "Failed to obtain Keycloak admin token: %s",
+                    admin_token_response.text,
+                )
+                return Response(
+                    {"error": "Failed to obtain admin access to Keycloak."},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+            admin_access_token = admin_token_response.json().get("access_token")
+
+            # 2. Create user in Keycloak via Admin REST API
+            admin_users_url = f"{base_url}/admin/realms/{realm}/users"
+
+            user_payload = {
+                "username": username,
+                "email": email,
+                "firstName": first_name,
+                "lastName": last_name,
+                "enabled": True,
+                "emailVerified": False,
+                "credentials": [
+                    {
+                        "type": "password",
+                        "value": password,
+                        "temporary": False,
+                    }
+                ],
+            }
+
+            create_response = requests.post(
+                admin_users_url,
+                json=user_payload,
+                headers={
+                    "Authorization": f"Bearer {admin_access_token}",
+                    "Content-Type": "application/json",
+                },
+                verify=verify_ssl,
+                timeout=10,
+            )
+
+            if create_response.status_code == 409:
+                return Response(
+                    {"error": "A user with this username or email already exists."},
+                    status=status.HTTP_409_CONFLICT,
+                )
+
+            if create_response.status_code not in (201, 204):
+                error_detail = ""
+                try:
+                    error_detail = create_response.json().get(
+                        "errorMessage", create_response.text
+                    )
+                except Exception:
+                    error_detail = create_response.text
+                logger.error(
+                    "Keycloak user creation failed (HTTP %s): %s",
+                    create_response.status_code,
+                    error_detail,
+                )
+                return Response(
+                    {
+                        "error": "Failed to create user in Keycloak.",
+                        "detail": error_detail,
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+            # 3. Create corresponding Django user
+            user, created = User.objects.get_or_create(
+                username=username,
+                defaults={
+                    "email": email,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                },
+            )
+
+            if created:
+                try:
+                    anonymous_group, _ = Group.objects.get_or_create(name="anonymous")
+                    registered_group, _ = Group.objects.get_or_create(
+                        name="registered-members"
+                    )
+                    user.groups.add(anonymous_group, registered_group)
+                    logger.info(
+                        "Groups 'anonymous' and 'registered-members' "
+                        "assigned to user %s",
+                        username,
+                    )
+                except Exception as e:
+                    logger.exception(
+                        "Error assigning groups to user %s: %s",
+                        username,
+                        str(e),
+                        exc_info=True,
+                    )
+
+            return Response(
+                {
+                    "message": "User registered successfully.",
+                    "user": {
+                        "id": user.id,
+                        "username": user.username,
+                        "email": user.email,
+                        "first_name": user.first_name,
+                        "last_name": user.last_name,
+                    },
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
+        except requests.exceptions.RequestException as e:
+            logger.exception("Keycloak connection error: %s", str(e), exc_info=True)
+            return Response(
+                {"error": "Keycloak connection error."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        except Exception as e:
+            logger.exception("Keycloak registration error: %s", str(e), exc_info=True)
+            return Response(
+                {"error": "Error during registration."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class KeycloakTokenRefreshAPIView(APIView):
+    """API view for refreshing Keycloak access tokens."""
+
+    throttle_classes = [IPBasedThrottle]
+
+    @swagger_auto_schema(
+        operation_description="Refresh Keycloak access token using a refresh token",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["refresh_token"],
+            properties={
+                "refresh_token": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Keycloak refresh token",
+                ),
+            },
+        ),
+        responses={
+            200: openapi.Response(
+                description="Token refreshed successfully",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "keycloak_access_token": openapi.Schema(
+                            type=openapi.TYPE_STRING
+                        ),
+                        "keycloak_refresh_token": openapi.Schema(
+                            type=openapi.TYPE_STRING
+                        ),
+                        "keycloak_id_token": openapi.Schema(type=openapi.TYPE_STRING),
+                        "expires_in": openapi.Schema(type=openapi.TYPE_INTEGER),
+                        "token": openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Django authentication token",
+                        ),
+                    },
+                ),
+            ),
+            400: openapi.Response(description="Refresh token is required"),
+            401: openapi.Response(description="Invalid or expired refresh token"),
+            500: openapi.Response(
+                description="Keycloak configuration missing or connection error"
+            ),
+        },
+    )
+    def post(self, request):
+        """Handle POST request for token refresh via Keycloak."""
+        refresh_token = request.data.get("refresh_token")
+
+        if not refresh_token:
+            return Response(
+                {"error": "Refresh token is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        keycloak_config = _get_keycloak_config()
+
+        token_url = keycloak_config.get("ACCESS_TOKEN_URL")
+        userinfo_url = keycloak_config.get("PROFILE_URL")
+        keycloak_client_id = keycloak_config.get("CLIENT_ID")
+        keycloak_client_secret = keycloak_config.get("SECRET")
+        verify_ssl = keycloak_config.get("VERIFY_SSL", True)
+
+        if not all([token_url, keycloak_client_id]):
+            return Response(
+                {"error": "Keycloak configuration missing."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        token_data = {
+            "grant_type": "refresh_token",
+            "client_id": keycloak_client_id,
+            "refresh_token": refresh_token,
+        }
+
+        if keycloak_client_secret:
+            token_data["client_secret"] = keycloak_client_secret
+
+        try:
+            token_response = requests.post(
+                token_url, data=token_data, verify=verify_ssl, timeout=10
+            )
+
+            if token_response.status_code != 200:
+                logger.error("Keycloak token refresh failed: %s", token_response.text)
+                return Response(
+                    {"error": "Invalid or expired refresh token."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+
+            keycloak_tokens = token_response.json()
+            access_token = keycloak_tokens.get("access_token")
+            new_id_token = keycloak_tokens.get("id_token")
+
+            # Store the new id_token in session for logout
+            if hasattr(request, "session"):
+                request.session["oidc_id_token"] = new_id_token
+
+            # Fetch user info to sync Django user
+            response_data = {
+                "keycloak_access_token": access_token,
+                "keycloak_refresh_token": keycloak_tokens.get("refresh_token"),
+                "keycloak_id_token": new_id_token,
+                "expires_in": keycloak_tokens.get("expires_in"),
+            }
+
+            if userinfo_url:
+                userinfo_response = requests.get(
+                    userinfo_url,
+                    headers={"Authorization": f"Bearer {access_token}"},
+                    verify=verify_ssl,
+                    timeout=10,
+                )
+
+                if userinfo_response.status_code == 200:
+                    userinfo = userinfo_response.json()
+                    username = userinfo.get("preferred_username", "")
+
+                    if username:
+                        user, created = User.objects.get_or_create(
+                            username=username,
+                            defaults={
+                                "email": userinfo.get("email", ""),
+                                "first_name": userinfo.get("given_name", ""),
+                                "last_name": userinfo.get("family_name", ""),
+                            },
+                        )
+
+                        if not created:
+                            email = userinfo.get("email", "")
+                            first_name = userinfo.get("given_name", "")
+                            last_name = userinfo.get("family_name", "")
+                            if email:
+                                user.email = email
+                            if first_name:
+                                user.first_name = first_name
+                            if last_name:
+                                user.last_name = last_name
+                            user.save()
+
+                        django_token, _ = Token.objects.get_or_create(user=user)
+                        response_data["token"] = django_token.key
+                        response_data["user"] = {
+                            "id": user.id,
+                            "username": user.username,
+                            "email": user.email,
+                            "first_name": user.first_name,
+                            "last_name": user.last_name,
+                        }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except requests.exceptions.RequestException as e:
+            logger.exception("Keycloak connection error: %s", str(e), exc_info=True)
+            return Response(
+                {"error": "Keycloak connection error."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        except Exception as e:
+            logger.exception("Keycloak token refresh error: %s", str(e), exc_info=True)
+            return Response(
+                {"error": "Error during token refresh."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
 class KeycloakLogoutView(View):
     """View for handling Keycloak logout."""
 
@@ -240,14 +657,7 @@ class KeycloakLogoutView(View):
         logger.debug("=" * 80)
 
         try:
-            keycloak_config = getattr(settings, "SOCIALACCOUNT_PROVIDERS_DEFS", {}).get(
-                "keycloak", {}
-            )
-
-            if not keycloak_config:
-                keycloak_config = getattr(
-                    settings, "_KEYCLOAK_SOCIALACCOUNT_PROVIDER", {}
-                )
+            keycloak_config = _get_keycloak_config()
 
             logger.debug(f"Keycloak config trovata: {bool(keycloak_config)}")
 
