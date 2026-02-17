@@ -60,6 +60,7 @@ export const MapControls = ({
           onAnalyze={onAnalyze}
           onRemovePolygon={onRemovePolygon}
           onToggleTutorial={onToggleExpanded}
+          isTutorialExpanded={isExpanded}
         />
       </div>
 

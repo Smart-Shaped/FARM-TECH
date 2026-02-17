@@ -19,6 +19,11 @@ import registerEN from '../locales/en/register.json';
 
 // Get initial language from Django (via HTML lang attribute or fallback)
 const getInitialLanguage = () => {
+  // Check Django language passed via global variable
+  if (window.DJANGO_LANGUAGE) {
+    return window.DJANGO_LANGUAGE.split('-')[0].toLowerCase();
+  }
+
   // Check HTML lang attribute set by Django
   const htmlLang = document.documentElement.lang;
   if (htmlLang) {

@@ -12,7 +12,8 @@ export const MapControlButtons = ({
     onToggleDrawing,
     onAnalyze,
     onRemovePolygon,
-    onToggleTutorial
+    onToggleTutorial,
+    isTutorialExpanded
 }) => {
     const { t } = useTranslation('inference');
     const fileInputRef = useRef(null);
@@ -132,7 +133,7 @@ export const MapControlButtons = ({
 
                 {/* Help/Tutorial Button */}
                 <button
-                    className="btn btn-light shadow-sm d-flex align-items-center justify-content-center rounded-circle"
+                    className={`btn ${isTutorialExpanded ? 'btn-primary' : 'btn-light'} shadow-sm d-flex align-items-center justify-content-center rounded-circle`}
                     style={{ width: '56px', height: '56px' }}
                     onClick={onToggleTutorial}
                     title={t('help', 'Help')}

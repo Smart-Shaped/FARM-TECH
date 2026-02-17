@@ -214,7 +214,7 @@
   {% include 'search/search_scripts.html' %}
 
   {% if perms.farmtech.can_request_permissions %}
-  <script>window.STATIC_URL = '{% static "" %}';</script>
+  <script>window.STATIC_URL = '{% static "" %}'; window.DJANGO_LANGUAGE = '{% get_current_language as LANGUAGE_CODE %}{{ LANGUAGE_CODE }}';</script>
   {% vite_react_app 'farmtech-permission-request' %}
   {% endif %}
 {% endblock %}
