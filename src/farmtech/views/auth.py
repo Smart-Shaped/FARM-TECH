@@ -40,14 +40,22 @@ def _get_keycloak_config():
 def _get_keycloak_admin_base_url(issuer):
     """
     Derive the Keycloak admin API base URL and realm from the issuer URL.
-    Issuer format: http(s)://host(:port)/realms/{realm}
-    Admin API: http(s)://host(:port)/admin/realms/{realm}
+    Supports both Keycloak >=17 and legacy (<=16) issuer formats:
+      - http(s)://host(:port)/realms/{realm}          (Keycloak >=17)
+      - http(s)://host(:port)/auth/realms/{realm}     (Keycloak <=16)
+    Returns (base_url, realm) where base_url includes /auth when present,
+    so the admin API can be built as: {base_url}/admin/realms/{realm}
     """
-    match = re.match(r"(https?://[^/]+)(/realms/(.+))", issuer)
+    match = re.match(r"(https?://[^/]+(?:/auth)?)/realms/(.+?)/?$", issuer)
     if not match:
+        logger.error(
+            "Could not parse Keycloak issuer URL: '%s'. "
+            "Expected format: http(s)://host(:port)[/auth]/realms/{realm}",
+            issuer,
+        )
         return None, None
     base_url = match.group(1)
-    realm = match.group(3)
+    realm = match.group(2)
     return base_url, realm
 
 
