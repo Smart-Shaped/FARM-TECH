@@ -1,0 +1,16 @@
+{
+  "page_title": "Accedi",
+  "page_subtitle": "Inserisci le tue credenziali per accedere alla piattaforma",
+  "username_label": "Nome utente",
+  "username_placeholder": "Inserisci il tuo nome utente",
+  "password_label": "Password",
+  "password_placeholder": "Inserisci la tua password",
+  "submit_button": "Accedi",
+  "loading_button": "Accesso in corso...",
+  "no_account": "Non hai un account?",
+  "register_link": "Registrati",
+  "error_required_fields": "Inserisci nome utente e password",
+  "error_invalid_credentials": "Credenziali non valide. Riprova.",
+  "error_generic": "Si \u00e8 verificato un errore. Riprova pi\u00f9 tardi.",
+  "login_success": "Accesso effettuato con successo!"
+}

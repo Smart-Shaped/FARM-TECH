@@ -1,0 +1,16 @@
+{
+  "page_title": "Sign In",
+  "page_subtitle": "Enter your credentials to access the platform",
+  "username_label": "Username",
+  "username_placeholder": "Enter your username",
+  "password_label": "Password",
+  "password_placeholder": "Enter your password",
+  "submit_button": "Sign In",
+  "loading_button": "Signing in...",
+  "no_account": "Don't have an account?",
+  "register_link": "Register",
+  "error_required_fields": "Please enter username and password",
+  "error_invalid_credentials": "Invalid credentials. Please try again.",
+  "error_generic": "An error occurred. Please try again later.",
+  "login_success": "Login successful!"
+}
