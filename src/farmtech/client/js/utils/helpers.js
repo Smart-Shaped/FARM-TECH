@@ -1,3 +1,14 @@
+export const setCookie = (name, value, days = 1) => {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = `expires=${date.toUTCString()}`;
+    document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/;SameSite=Lax`;
+};
+
+export const deleteCookie = (name) => {
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`;
+};
+
 export const getCookie = (name) => {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {

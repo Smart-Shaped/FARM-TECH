@@ -26,7 +26,8 @@ export const LoginApp = () => {
                 password
             });
 
-            if (data.token) {
+            if (data.keycloak_access_token) {
+                api.storeAuth(data);
                 window.location.href = '/';
             }
         } catch (err) {

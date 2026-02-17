@@ -4,7 +4,7 @@
  * Similar to axios but using native fetch
  */
 
-import { getCookie } from './helpers';
+import { getCookie, setCookie, deleteCookie } from './helpers';
 
 /**
  * Get CSRF token from cookies
@@ -12,6 +12,61 @@ import { getCookie } from './helpers';
  */
 const getCsrfToken = () => {
     return getCookie('csrftoken');
+};
+
+/**
+ * Auth token cookie names
+ */
+const AUTH_COOKIES = {
+    ACCESS_TOKEN: 'keycloak_access_token',
+    REFRESH_TOKEN: 'keycloak_refresh_token',
+    ID_TOKEN: 'keycloak_id_token',
+    USER: 'farmtech_user',
+};
+
+/**
+ * Store auth tokens and user info in cookies after login
+ * @param {Object} loginResponse - Response from /api/auth/keycloak/
+ */
+export const storeAuth = (loginResponse) => {
+    const expiresInDays = (loginResponse.expires_in || 300) / 86400;
+    setCookie(AUTH_COOKIES.ACCESS_TOKEN, loginResponse.keycloak_access_token, expiresInDays);
+    setCookie(AUTH_COOKIES.ID_TOKEN, loginResponse.keycloak_id_token, expiresInDays);
+    // Refresh token has longer lifetime
+    setCookie(AUTH_COOKIES.REFRESH_TOKEN, loginResponse.keycloak_refresh_token, 30);
+    setCookie(AUTH_COOKIES.USER, JSON.stringify(loginResponse.user), 30);
+};
+
+/**
+ * Clear all auth cookies (logout)
+ */
+export const clearAuth = () => {
+    deleteCookie(AUTH_COOKIES.ACCESS_TOKEN);
+    deleteCookie(AUTH_COOKIES.REFRESH_TOKEN);
+    deleteCookie(AUTH_COOKIES.ID_TOKEN);
+    deleteCookie(AUTH_COOKIES.USER);
+};
+
+/**
+ * Get stored access token
+ * @returns {string|null}
+ */
+export const getAccessToken = () => {
+    return getCookie(AUTH_COOKIES.ACCESS_TOKEN);
+};
+
+/**
+ * Get stored user info
+ * @returns {Object|null}
+ */
+export const getUser = () => {
+    const userCookie = getCookie(AUTH_COOKIES.USER);
+    if (!userCookie) return null;
+    try {
+        return JSON.parse(userCookie);
+    } catch {
+        return null;
+    }
 };
 
 /**
@@ -35,7 +90,12 @@ const buildHeaders = (customHeaders = {}, includeContentType = true) => {
 
     const csrfToken = getCsrfToken();
     if (csrfToken) {
-        headers['X-CSRFToken'] = csrfToken;        
+        headers['X-CSRFToken'] = csrfToken;
+    }
+
+    const accessToken = getAccessToken();
+    if (accessToken && !headers['Authorization']) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
     if (includeContentType && !headers['Content-Type']) {
@@ -322,5 +382,9 @@ export default {
     patch,
     delete: del,
     postFormData,
-    downloadFile
+    downloadFile,
+    storeAuth,
+    clearAuth,
+    getAccessToken,
+    getUser
 };
