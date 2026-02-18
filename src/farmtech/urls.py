@@ -56,6 +56,11 @@ urlpatterns += [
         auth.KeycloakTokenRefreshAPIView.as_view(),
         name="keycloak-token-refresh",
     ),
+    path(
+        "api/auth/change-password/",
+        auth.ChangePasswordAPIView.as_view(),
+        name="change-password",
+    ),
     path("auth/logout/", auth.KeycloakLogoutView.as_view(), name="farmtech-logout"),
     path(
         "account/logout/complete/",
