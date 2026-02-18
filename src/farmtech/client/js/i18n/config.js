@@ -16,6 +16,8 @@ import loginIT from '../locales/it/login.json';
 import loginEN from '../locales/en/login.json';
 import registerIT from '../locales/it/register.json';
 import registerEN from '../locales/en/register.json';
+import changePasswordIT from '../locales/it/changePassword.json';
+import changePasswordEN from '../locales/en/changePassword.json';
 
 // Get initial language from Django (via HTML lang attribute or fallback)
 const getInitialLanguage = () => {
@@ -49,7 +51,8 @@ i18n
         uploader: uploaderIT,
         permission: permissionIT,
         login: loginIT,
-        register: registerIT
+        register: registerIT,
+        changePassword: changePasswordIT
       },
       en: {
         index: indexEN,
@@ -58,7 +61,8 @@ i18n
         uploader: uploaderEN,
         permission: permissionEN,
         login: loginEN,
-        register: registerEN
+        register: registerEN,
+        changePassword: changePasswordEN
       }
     },
     lng: getInitialLanguage(),
