@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import get_user_model, logout
+from django.contrib.auth import get_user_model, logout, login
 from django.contrib.auth.models import Group
 from django.conf import settings
 from django.shortcuts import redirect
@@ -218,6 +218,7 @@ class KeycloakAuthAPIView(APIView):
                 user.save()
 
             django_token, _ = Token.objects.get_or_create(user=user)
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
             return Response(
                 {
@@ -697,12 +698,6 @@ class ChangePasswordAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if not user.check_password(old_password):
-            return Response(
-                {"error": "Old password is incorrect."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         # Attempt Keycloak synchronization if configuration is present
         try:
             keycloak_config = _get_keycloak_config()
@@ -713,6 +708,27 @@ class ChangePasswordAPIView(APIView):
             verify_ssl = keycloak_config.get("VERIFY_SSL", True)
 
             if token_url and keycloak_client_id and keycloak_client_secret and issuer:
+
+                token_data = {
+                    "grant_type": "password",
+                    "client_id": keycloak_client_id,
+                    "username": user.username,
+                    "password": old_password,
+                    "scope": "openid profile email",
+                }
+
+                if keycloak_client_secret:
+                    token_data["client_secret"] = keycloak_client_secret
+
+                token_response = requests.post(
+                    token_url, data=token_data, verify=verify_ssl, timeout=10
+                )
+                if not token_response.ok:
+                    return Response(
+                        {"error": "Old password is incorrect."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
                 base_url, realm = _get_keycloak_admin_base_url(issuer)
                 if not base_url or not realm:
                     return Response(
@@ -920,6 +936,8 @@ class KeycloakLogoutView(View):
                     logout_url = f"{keycloak_logout_url}?{urlencode(params)}"
                     logger.debug(f"Redirect a Keycloak: {logout_url}")
                     logger.debug("=" * 80)
+
+                    requests.get(keycloak_logout_url, params=params, timeout=10)
 
                     logout(request)
                     return redirect(logout_url)
