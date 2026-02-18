@@ -33,10 +33,13 @@ export const ChangePasswordDialog = ({ onClose }) => {
             await api.post('/api/auth/change-password/', {
                 old_password: oldPassword,
                 new_password: newPassword,
+                new_password_confirm: confirmPassword,
             });
 
             setMessage({ text: t('password_changed'), type: 'success' });
-            setTimeout(() => onClose(), 2000);
+            setTimeout(() => {                
+                window.location.href = '/account/login';
+            }, 2000);
         } catch (error) {
             const errorData = error.data;
             let errorMsg = t('error_generic');
