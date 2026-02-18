@@ -27,7 +27,10 @@ export default defineConfig(({ mode }) => ({
         'farmtech-inference': path.resolve(__dirname, 'js/apps/farmtech-inference.jsx'),
         'farmtech-research': path.resolve(__dirname, 'js/apps/farmtech-research.jsx'),
         'farmtech-permission-request': path.resolve(__dirname, 'js/apps/farmtech-permission-request.jsx'),
-        'farmtech-dashboard-publisher': path.resolve(__dirname, 'js/apps/farmtech-dashboard-publisher.jsx')
+        'farmtech-dashboard-publisher': path.resolve(__dirname, 'js/apps/farmtech-dashboard-publisher.jsx'),
+        'farmtech-login': path.resolve(__dirname, 'js/apps/farmtech-login.jsx'),
+        'farmtech-register': path.resolve(__dirname, 'js/apps/farmtech-register.jsx'),
+        'farmtech-change-password': path.resolve(__dirname, 'js/apps/farmtech-change-password.jsx')
       },
       output: {
         entryFileNames: 'js/[name].js',

@@ -46,6 +46,21 @@ urlpatterns += [
     path(
         "api/auth/keycloak/", auth.KeycloakAuthAPIView.as_view(), name="keycloak-auth"
     ),
+    path(
+        "api/auth/keycloak/register/",
+        auth.KeycloakRegisterAPIView.as_view(),
+        name="keycloak-register",
+    ),
+    path(
+        "api/auth/keycloak/token-refresh/",
+        auth.KeycloakTokenRefreshAPIView.as_view(),
+        name="keycloak-token-refresh",
+    ),
+    path(
+        "api/auth/change-password/",
+        auth.ChangePasswordAPIView.as_view(),
+        name="change-password",
+    ),
     path("auth/logout/", auth.KeycloakLogoutView.as_view(), name="farmtech-logout"),
     path(
         "account/logout/complete/",

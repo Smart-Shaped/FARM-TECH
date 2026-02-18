@@ -146,7 +146,9 @@
       {% endif %}
         <li class="list-group-item"><a href="{% url "account_email" %}"><i class="fa fa-envelope-o"></i> {% trans "Associated e-mails" %}</a></li>
       {% if not READ_ONLY_MODE %}
-        <li class="list-group-item"><a href="{% url "account_change_password" %}"><i class="fa fa-lock"></i> {% trans "Set/Change password" %}</a></li>
+        <li class="list-group-item" id="farmtech-change-password-container">
+          <a href="{% url "account_change_password" %}"><i class="fa fa-lock"></i> {% trans "Set/Change password" %}</a>
+        </li>
       {% endif %}
     </ul>
     <ul class="list-group">
@@ -213,8 +215,13 @@
   </script>
   {% include 'search/search_scripts.html' %}
 
+  {% if not READ_ONLY_MODE %}
+  <script>window.DJANGO_LANGUAGE = '{% get_current_language as LANGUAGE_CODE %}{{ LANGUAGE_CODE }}';</script>
+  {% vite_react_app 'farmtech-change-password' %}
+  {% endif %}
+
   {% if perms.farmtech.can_request_permissions %}
-  <script>window.STATIC_URL = '{% static "" %}';</script>
+  <script>window.STATIC_URL = '{% static "" %}'; window.DJANGO_LANGUAGE = '{% get_current_language as LANGUAGE_CODE %}{{ LANGUAGE_CODE }}';</script>
   {% vite_react_app 'farmtech-permission-request' %}
   {% endif %}
 {% endblock %}

@@ -450,60 +450,55 @@ class GroupExcelTemplatesAPIView(APIView):
                 group_profile=group_profile
             ).select_related("layer_dataset")
 
-            if not dataset_experiments.exists():
-                return Response(
-                    {
-                        "error": f"No datasets found for group '{group_profile.title}'",
-                    },
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-
             # Build response with download URLs and last upload datetime
             templates = []
-            for dataset_exp in dataset_experiments:
-                if not dataset_exp.template_path:
-                    logger.warning(
-                        "DatasetExperiment %s has no template_path", dataset_exp.id
+            if dataset_experiments.exists():
+                for dataset_exp in dataset_experiments:
+                    if not dataset_exp.template_path:
+                        logger.warning(
+                            "DatasetExperiment %s has no template_path", dataset_exp.id
+                        )
+                        continue
+
+                    # Extract filename from template_path
+                    filename = os.path.basename(dataset_exp.template_path)
+
+                    # Find the most recent RawFile for this dataset_experiment with status='processed'
+                    last_upload = (
+                        RawFile.objects.filter(
+                            dataset_experiment=dataset_exp,
+                            status="processed",
+                            type="excel",
+                        )
+                        .order_by("-upload_datetime")
+                        .first()
                     )
-                    continue
 
-                # Extract filename from template_path
-                filename = os.path.basename(dataset_exp.template_path)
+                    # Build download URL using dataset_experiment ID
+                    download_url = f"/api/dataset/download-template/{dataset_exp.id}"
 
-                # Find the most recent RawFile for this dataset_experiment with status='processed'
-                last_upload = (
-                    RawFile.objects.filter(
-                        dataset_experiment=dataset_exp, status="processed", type="excel"
-                    )
-                    .order_by("-upload_datetime")
-                    .first()
-                )
+                    template_info = {
+                        "dataset_experiment_id": dataset_exp.id,
+                        "dataset_name": dataset_exp.layer_dataset.name,
+                        "filename": filename,
+                        "download_url": download_url,
+                    }
 
-                # Build download URL using dataset_experiment ID
-                download_url = f"/api/dataset/download-template/{dataset_exp.id}"
+                    if last_upload:
+                        template_info["last_upload_datetime"] = (
+                            last_upload.upload_datetime.isoformat()
+                        )
+                        template_info["last_upload_id"] = last_upload.id
+                        template_info["last_upload_user"] = last_upload.user.username
+                    else:
+                        template_info["last_upload_datetime"] = None
+                        template_info["last_upload_id"] = None
+                        template_info["last_upload_user"] = None
 
-                template_info = {
-                    "dataset_experiment_id": dataset_exp.id,
-                    "dataset_name": dataset_exp.layer_dataset.name,
-                    "filename": filename,
-                    "download_url": download_url,
-                }
+                    templates.append(template_info)
 
-                if last_upload:
-                    template_info["last_upload_datetime"] = (
-                        last_upload.upload_datetime.isoformat()
-                    )
-                    template_info["last_upload_id"] = last_upload.id
-                    template_info["last_upload_user"] = last_upload.user.username
-                else:
-                    template_info["last_upload_datetime"] = None
-                    template_info["last_upload_id"] = None
-                    template_info["last_upload_user"] = None
-
-                templates.append(template_info)
-
-            # Sort by filename
-            templates.sort(key=lambda x: x["filename"])
+                # Sort by filename
+                templates.sort(key=lambda x: x["filename"])
 
             logger.info(
                 "Found %d templates for group '%s'", len(templates), group_profile.title
