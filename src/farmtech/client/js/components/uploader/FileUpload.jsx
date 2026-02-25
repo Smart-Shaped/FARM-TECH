@@ -12,9 +12,6 @@ export const FileUpload = ({templates, onUploadSuccess}) => {
     const [lastUploadedFile, setLastUploadedFile] = useState(null);
     const fileInputRef = useRef(null);
 
-    // Debug: log templates to see what we receive
-    console.log('Templates received in FileUpload:', templates);
-
     const handleDragOver = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -77,9 +74,6 @@ export const FileUpload = ({templates, onUploadSuccess}) => {
                 const templateNameWithoutExt = template.name.replace(/\.(xlsx|xls)$/i, '').toLowerCase();
                 return templateNameWithoutExt;
             });
-
-        console.log('File name without extension:', fileNameWithoutExt);
-        console.log('Available template names:', templateNames);
 
         if (templateNames.length === 0) {
             console.error('No valid templates with name found');
