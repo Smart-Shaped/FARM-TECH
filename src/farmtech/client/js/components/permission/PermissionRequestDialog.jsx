@@ -34,7 +34,6 @@ export const PermissionRequestDialog = ({ onClose }) => {
     };
 
     const getSelectedLineData = () => {
-        console.log({selectedLine, researchLines})
         return researchLines.find((line) => String(line.id) === selectedLine);
     };
 

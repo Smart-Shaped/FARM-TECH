@@ -23,7 +23,6 @@ export const DashboardPublisherApp = () => {
 
   const onMapstoreReady = (e) => {
     const msAPI = e.details
-    console.log({msAPI})
   }
 
   const publish = async (pk) => {
@@ -68,7 +67,6 @@ export const DashboardPublisherApp = () => {
       setError(null);
 
       // Chiama POST /api/published/dashboard con il pk della dashboard selezionata
-      console.log(`Publishing dashboard ${newPublishedId}`);
 
       await publish(newPublishedId);
 
@@ -78,7 +76,6 @@ export const DashboardPublisherApp = () => {
         (d) => d.pk === newPublishedId
       )?.title;
 
-      console.log("Published dashboard changed to:", dashboardName);
     } catch (err) {
       console.error("Error publishing dashboard:", err);
       setError("Errore durante la pubblicazione");

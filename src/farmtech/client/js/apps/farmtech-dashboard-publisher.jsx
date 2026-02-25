@@ -41,10 +41,8 @@ const updateWidgetVisibility = () => {
 
     if (shouldShow) {
         container.style.display = 'block';
-        console.log('✅ Dashboard Publisher widget visible');
     } else {
         container.style.display = 'none';
-        console.log('🔒 Dashboard Publisher widget hidden');
     }
 };
 
@@ -52,8 +50,6 @@ const updateWidgetVisibility = () => {
 const initializeApp = (containerId) => {
     const container = document.getElementById(containerId);
     if (!container || !hasUploaderPermission() ) return false;
-
-    console.log(`📦 Initializing Dashboard Publisher in ${containerId}...`);
 
     const root = createRoot(container);
     root.render(
@@ -64,7 +60,6 @@ const initializeApp = (containerId) => {
         </Provider>
     );
 
-    console.log(`✅ Dashboard Publisher initialized in ${containerId}`);
     return true;
 };
 
@@ -82,14 +77,12 @@ const mountInTopbar = () => {
             initializeApp('farmtech-dashboard-publisher-topbar');
         } else if (attempts >= maxAttempts) {
             clearInterval(tryMount);
-            console.log('⚠️ Dashboard Publisher topbar placeholder not found after 5s');
         }
     }, 100);
 };
 
 document.addEventListener('DOMContentLoaded', function() {
     if (!hasUploaderPermission()) {
-        console.log('🔒 User does not have uploader permission, Dashboard Publisher not initialized');
         return;
     }
 

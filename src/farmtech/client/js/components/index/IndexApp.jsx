@@ -100,30 +100,41 @@ export const IndexApp = ({ staticUrl = '' }) => {
           <div className="mb-5 overflow-hidden">
             <div className="funding-logos-track">
               {/* Primo set di loghi */}
-              <a href="/" className="d-inline-block flex-shrink-0">
-                <img src={`${staticUrl}img/FARM-TECH.svg`} alt="Logo Tech4You" className="img-fluid" style={{maxHeight: '80px'}} />
+              <a href="https://ecs-tech4you.it/" className="d-inline-block flex-shrink-0">
+                <img src={`${staticUrl}img/logo-t4y-1.png`} alt="Logo Tech4You" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
-              <a href="/" className="d-inline-block flex-shrink-0">
+              <a href="https://www.smartshaped.com/" className="d-inline-block flex-shrink-0">
                 <img src={`${staticUrl}img/SS_logo_orizzontale.svg`} alt="Logo Partner 1" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
-              <a href="/" className="d-inline-block flex-shrink-0">
+              <a href="https://www.tracetech.it/" className="d-inline-block flex-shrink-0">
                 <img src={`${staticUrl}img/TRC_logo_orizzontale.svg`} alt="Logo Partner 2" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
-              <a href="/" className="d-inline-block flex-shrink-0">
-                <img src={`${staticUrl}img/SS_logo_orizzontale.svg`} alt="Logo Partner 3" className="img-fluid" style={{maxHeight: '80px'}} />
+              <a href="https://next-generation-eu.europa.eu/index_it" className="d-inline-block flex-shrink-0">
+                <img src={`${staticUrl}img/nextgeneu_en.jpg`} alt="Logo Partner 1" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
-              {/* Duplica i loghi per loop continuo */}
-              <a href="/" className="d-inline-block flex-shrink-0">
-                <img src={`${staticUrl}img/FARM-TECH.svg`} alt="Logo Tech4You" className="img-fluid" style={{maxHeight: '80px'}} />
+              <a href="https://www.mur.gov.it/it" className="d-inline-block flex-shrink-0">
+                <img src={`${staticUrl}img/MUR-logo.png`} alt="Logo Partner 2" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
-              <a href="/" className="d-inline-block flex-shrink-0">
+              <a href="https://www.italiadomani.gov.it/it/home.html" className="d-inline-block flex-shrink-0">
+                <img src={`${staticUrl}img/Logo_Italiadomani.svg.png`} alt="Logo Partner 3" className="img-fluid" style={{maxHeight: '80px'}} />
+              </a>
+              <a href="https://ecs-tech4you.it/" className="d-inline-block flex-shrink-0">
+                <img src={`${staticUrl}img/logo-t4y-1.png`} alt="Logo Tech4You" className="img-fluid" style={{maxHeight: '80px'}} />
+              </a>
+              <a href="https://www.smartshaped.com/" className="d-inline-block flex-shrink-0">
                 <img src={`${staticUrl}img/SS_logo_orizzontale.svg`} alt="Logo Partner 1" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
-              <a href="/" className="d-inline-block flex-shrink-0">
+              <a href="https://www.tracetech.it/" className="d-inline-block flex-shrink-0">
                 <img src={`${staticUrl}img/TRC_logo_orizzontale.svg`} alt="Logo Partner 2" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
-              <a href="/" className="d-inline-block flex-shrink-0">
-                <img src={`${staticUrl}img/SS_logo_orizzontale.svg`} alt="Logo Partner 3" className="img-fluid" style={{maxHeight: '80px'}} />
+              <a href="https://next-generation-eu.europa.eu/index_it" className="d-inline-block flex-shrink-0">
+                <img src={`${staticUrl}img/nextgeneu_en.jpg`} alt="Logo Partner 1" className="img-fluid" style={{maxHeight: '80px'}} />
+              </a>
+              <a href="https://www.mur.gov.it/it" className="d-inline-block flex-shrink-0">
+                <img src={`${staticUrl}img/MUR-logo.png`} alt="Logo Partner 2" className="img-fluid" style={{maxHeight: '80px'}} />
+              </a>
+              <a href="https://www.italiadomani.gov.it/it/home.html" className="d-inline-block flex-shrink-0">
+                <img src={`${staticUrl}img/Logo_Italiadomani.svg.png`} alt="Logo Partner 3" className="img-fluid" style={{maxHeight: '80px'}} />
               </a>
             </div>
           </div>
