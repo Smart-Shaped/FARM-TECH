@@ -6,7 +6,6 @@
     // Inject Django user data into window scope (from context processor)
     window.__FARMTECH_USER__ = {{ farmtech_user_json | safe }};
 
-    console.log({ user: window.__FARMTECH_USER__  })
     // Inject menu items with translations already resolved server-side
     window.__FARMTECH_MENU__ = {{ FARMTECH_MENU_JSON | safe }};
 
@@ -21,13 +20,6 @@
             (user.perms && user.perms.includes('download_resourcebase')) //TODO: verificare se il permesso è corretto
         );
 
-        console.log('FARMTECH: User download permission check', {
-            username: user?.username,
-            canDownload,
-            is_superuser: user?.is_superuser,
-            perms: user?.perms
-        });
-
         //TODO: possiamo anche quì permettere comunque il download all'admin ma non so quato ci serva..
         // Disable download functionality for users without permission
         if (!canDownload) {
@@ -36,7 +28,6 @@
                 localConfig.plugins.catalogue = localConfig.plugins.catalogue.filter(
                     plugin => plugin.name !== 'DownloadResource'
                 );
-                console.log('FARMTECH: DownloadResource plugin removed from catalogue');
             }
 
             // Remove DownloadResource plugin from viewers
@@ -47,9 +38,6 @@
                     localConfig.plugins[viewerName] = localConfig.plugins[viewerName].filter(
                         plugin => plugin.name !== 'DownloadResource'
                     );
-                    if (localConfig.plugins[viewerName].length < originalLength) {
-                        console.log(`FARMTECH: DownloadResource plugin removed from ${viewerName}`);
-                    }
                 }
             });
 
@@ -65,14 +53,11 @@
                                     ...plugin.cfg[pageName].cardOptions,
                                     hideDownload: true
                                 };
-                                console.log(`FARMTECH: Download hidden in ${pageName} cards`);
                             }
                         });
                     }
                 });
             }
-
-            console.log('FARMTECH: All download options disabled for user', user?.username);
         }
 
         const customMenu = window.__FARMTECH_MENU__ || [];
@@ -104,7 +89,6 @@
 
                     // Aggiungi i menu custom con traduzioni già risolte all'inizio
                     plugin.cfg.leftMenuItems = [...customMenu, ...plugin.cfg.leftMenuItems];
-                    console.log(`FARMTECH: Custom menu applied to ${viewerName}`, customMenu);
                 }
             });
         });
@@ -134,7 +118,6 @@
             const groupMemberSet = (user.group_members || []).map(gm => {
                 return gm.auth_group_id
             })
-            console.log(groupMemberSet)
             
             // Se l'utente ha gruppi e NON è admin, filtra per GroupProfile ID
             //TODO: riabilitare l'admin
@@ -157,7 +140,6 @@
                                         ...plugin.cfg[pageName].defaultQuery,
                                         ...groupFilter
                                     };
-                                    console.log(`FARMTECH: Filter applied to ${pageName}:`, plugin.cfg[pageName].defaultQuery);
                                 }
                             });
                         }
@@ -203,8 +185,6 @@
                         // Fallback: aggiungi al navbar
                         navbar.appendChild(placeholder);
                     }
-                    
-                    console.log('FARMTECH: Dashboard Publisher placeholder injected in MapStore navbar');
                 }
             }
         }, 100);

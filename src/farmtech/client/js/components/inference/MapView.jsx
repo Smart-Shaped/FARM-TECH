@@ -76,7 +76,7 @@ export const MapView = ({ tiffFile, isDrawing, onPolygonDrawn, userPolygon, resu
                     map.getView().setZoom(12);
                 },
                 (error) => {
-                    console.log('Geolocation error:', error.message, '- Using default location (Rome)');
+                    console.error('Geolocation error:', error.message, '- Using default location (Rome)');
                 },
                 {
                     enableHighAccuracy: false,

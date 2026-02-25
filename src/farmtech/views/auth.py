@@ -940,7 +940,7 @@ class KeycloakLogoutView(View):
                     requests.get(keycloak_logout_url, params=params, timeout=10)
 
                     logout(request)
-                    return redirect(logout_url)
+                    return redirect("/account/logout/complete/")
 
             logger.debug("Keycloak non configurato - logout solo Django")
             logger.debug("=" * 80)
