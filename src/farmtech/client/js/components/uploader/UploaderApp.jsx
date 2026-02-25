@@ -19,7 +19,6 @@ export const UploaderApp = () => {
       const data = await api.post("/api/dataset/excel-templates/", {
         group_profile_id: user.group_members?.[0]?.group_profile_id,
       });
-      console.log({ data });
       setTemplates(data.templates || []);
       setLoading(false);
     } catch (err) {
